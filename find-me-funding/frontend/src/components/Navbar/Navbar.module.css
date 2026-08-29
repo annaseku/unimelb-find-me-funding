@@ -1,0 +1,21 @@
+.navbar { 
+    background-color: #000F46;
+    margin: 0;
+    padding: 20px;
+
+    display: flex;
+    justify-content: space-between;
+
+}
+
+.title {
+    font-family: 'Source Sans 3';
+    font-size: 22px;;
+    color: #FFFFFF;
+    margin-left: 100px;
+}
+
+.profile {
+    width: 40px;
+    fill: #FFFFFF;
+}

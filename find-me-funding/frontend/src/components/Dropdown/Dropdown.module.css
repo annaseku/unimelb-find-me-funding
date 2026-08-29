@@ -1,0 +1,17 @@
+.dropdown {
+    display: inline;
+    background-color: #000F46;
+    margin-right: 5px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    color: #FFFFFF;
+    font-family: 'Source Sans 3';
+}
+
+.dropdownIcon {
+    width: 20px;
+    height: 20px; 
+    padding: 0 5px;
+    margin: 0;
+    fill: #FFFFFF;
+}
