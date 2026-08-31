@@ -1,0 +1,178 @@
+# Find Me Funding — Backend
+
+Backend for "Find Me Funding", a research funding search tool. This repo covers the **crawler** component: dynamic discovery, fetching, structured extraction, and storage of research funding opportunities from across the web (not a fixed/curated list of sites, per the client's requirement).
+
+Frontend (React) lives in a separate repo/branch and will be integrated once the API layer exists.
+
+## Status
+
+| Component                                       |   Status                           |
+|-------------------------------------------------|------------------------------------|
+| Web crawler (discovery, fetch, extract, store)  |  Built                             |
+| robots.txt compliance                           |  Built                             |
+| Scheduled re-crawling                           |  Built (basic loop)                |
+| Matching / ranking engine                       |  Not started                       |
+| FastAPI endpoints for frontend                  |  Not started                       |
+
+## Setup
+
+```bash
+python3 -m venv venv
+source venv/bin/activate        # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+## Running the crawler
+
+From the `backend/` root:
+
+```bash
+# Run once, using the example search profile in main.py
+python3 main.py
+
+# Run once, then keep re-crawling (refresh stale entries + re-run discovery) on a loop
+python3 main.py --schedule
+```
+
+Results are stored in `data/funding_crawler.db` (SQLite). This file is gitignored — everyone on the team generates their own local copy by running the crawler.
+
+To inspect what's been stored:
+
+```bash
+sqlite3 data/funding_crawler.db "SELECT title, url, deadline_parsed, funding_amount_raw FROM opportunities LIMIT 10;"
+```
+
+## How it works
+
+1. **`query_builder`** — turns a user's search profile (field of research, type of activity, career stage, funding type, free-text description) into a set of search queries. This is what makes discovery dynamic instead of tied to a fixed list of sites.
+2. **`discovery`** — runs those queries against DuckDuckGo's HTML search (no API key needed for now) to find candidate URLs.
+3. **`robots_check`** — checks each candidate URL against that site's `robots.txt` before we fetch it.
+4. **`extract`** — fetches the page and pulls out raw structured signals: title, deadline (raw text + parsed date if possible), funding amount, and an eligibility text snippet. These are *raw* extracted values — classifying eligibility or banding amounts/deadlines into the client's ranking categories is the ranking engine's job, not the crawler's.
+5. **`storage`** — upserts everything into SQLite, keyed by URL, with a `fetched_at` timestamp.
+6. **`scheduler`** — periodically re-fetches stale entries (older than `STALE_AFTER_DAYS`, see `config.py`) and re-runs discovery for known search profiles, so the index stays current without live-crawling on every user search.
+7. **`run` / `main.py`** — orchestrates the above into a single crawl, and is what a future API endpoint will call once a user submits a search.
+
+## Suggested file structure
+
+```text
+backend/
+├── README.md
+├── requirements.txt
+├── .gitignore
+├── main.py                 # entry point — runs a crawl, optionally on a schedule
+│
+├── crawler/                # the crawler itself (this is what's built so far)
+│   ├── __init__.py
+│   ├── config.py            # shared constants (timeouts, delays, DB path, etc.)
+│   ├── query_builder.py     # user inputs -> search queries
+│   ├── discovery.py         # search queries -> candidate URLs
+│   ├── robots_check.py      # robots.txt compliance checking
+│   ├── extract.py           # raw HTML -> structured fields (title, deadline, amount, eligibility text)
+│   ├── storage.py           # SQLite persistence
+│   ├── scheduler.py         # periodic re-crawl / staleness refresh
+│   └── run.py                # orchestration: ties the above into one crawl
+│
+├── ranking/                 # 🔜 next: eligibility classification + scoring against the 4 criteria
+│   └── __init__.py
+│
+├── api/                      # 🔜 next: FastAPI app exposing search to the React frontend
+│   └── __init__.py
+│
+├── tests/                    # unit tests (currently empty — worth filling in per module)
+│   └── __init__.py
+│
+└── data/                     # local SQLite DB lives here (gitignored)
+    └── .gitkeep
+```
+
+**Why this layout:**
+
+- `crawler/`, `ranking/`, and `api/` are separate packages so each phase of the pipeline (discover+store → score → serve) can be built, tested, and understood independently.
+- `main.py` at the root gives one obvious place to run things, rather than reaching into `crawler/run.py` directly.
+- `data/` is isolated and gitignored so the (large, regenerable) scraped database never ends up in version control.
+- `tests/` exists now even though it's empty, as a placeholder — each module above is a natural unit-test target (e.g. `test_extract.py` feeding known HTML in and checking the fields that come out, the way we sanity-checked `extract.py` manually while building it).
+
+## Known limitations / things to fix before this is production-ready
+
+- **Discovery** uses DuckDuckGo's unofficial HTML search endpoint — no API key needed, which is great for prototyping, but it's not a supported API and may break if DuckDuckGo changes their markup. Swap in a real search API (Bing Web Search, Google Custom Search, SerpAPI) when ready — only `discovery.py` needs to change.
+- **Extraction** (`extract.py`) uses regex/heuristics for deadline, funding amount, and eligibility text. This will miss unusually-formatted pages and occasionally mis-extract. An LLM-assisted extraction pass is a plausible upgrade here — the client is agnostic to LLM use, so this is a design decision, not a requirement.
+- **Scheduler** is a simple `while True` + `sleep` loop, fine for a class project but not how you'd run this in production (cron, Celery beat, or similar would be more standard).
+- **No deduplication across near-identical URLs** (e.g. `http://` vs `https://`, trailing slashes, tracking query params) — worth adding if the same opportunity starts appearing multiple times.
+- Citizenship and employer type are **not** used when building search queries (see `query_builder.py` docstring) — only intended for eligibility filtering downstream. Worth the team double-checking this assumption before the ranking engine is built on top of it.
+
+## Open questions for the team (from client meeting notes)
+
+- What threshold determines "likely eligible" vs "eligibility unknown" vs "likely not eligible"?
+- Should ineligible opportunities be hidden entirely, or shown but ranked/flagged low?
+- How should the four ranking criteria (eligibility, match, funding value, deadline) be weighted relative to each other?
+- What re-crawl frequency is acceptable for data freshness vs. politeness to source sites? (`STALE_AFTER_DAYS` in `config.py` is currently a placeholder at 7 days.)
+
+### Stage 1 — Basic functionality (MVP)
+
+Goal: something a frontend can actually call and get ranked results back from.
+
+#### Ranking engine (`ranking/`)
+
+- [ ]  Deadline banding — turn `deadline_parsed` into the client's bands (`>60d`, `60-30d`, `30-15d`, `<15d`) relative to today's date
+- [ ]  Funding value banding — parse `funding_amount_raw` into the client's bands (`<$1M`, `$1-2M`, `$2-5M`, `>$5M` AUD)
+- [ ]  Eligibility v1 — simple rule-based classifier: keyword-match the user's citizenship/employer type/career stage against the `eligibility_snippet` text → `likely eligible` / `unknown` / `likely not eligible`
+- [ ]  Match score v1 — keyword overlap between the user's free-text description + FoR/ToA and the opportunity's `raw_text`/`title` → `high`/`medium`/`low`
+- [ ]  Combine the four scores into a single ranking/sort function, return top 10 with all four ratings attached
+- [ ]  Decide (and document) how missing/unspecified user fields are handled — brief mentions this is left to the team's judgement
+
+#### API layer (`api/`)
+
+- [ ]  FastAPI app skeleton
+- [ ]  `POST /search` — accepts the full input set (FoR, ToA, citizenship, employer type, career stage, funding type, free text), triggers `run_crawl` if needed, runs the ranking engine, returns top 10
+- [ ]  "Expand results" endpoint/param — return more than 10 on request, per the brief
+- [ ]  Basic request validation (drop-down values match expected enums, etc.)
+- [ ]  CORS config so the React app can actually call it locally
+
+#### Crawler follow-ups needed to support the above
+
+- [ ]  Persist submitted search profiles (not just one hardcoded example) so the scheduler knows what to keep re-crawling
+- [ ]  Basic logging instead of `print()` statements
+
+#### Testing
+
+- [ ]  Unit tests for `extract.py` (known HTML → expected fields, like the manual check we did earlier)
+- [ ]  Unit tests for the ranking functions once built
+- [ ]  One integration test: fake search profile → mocked crawl results → ranked output
+
+### Stage 2 — Advanced functionality
+
+Goal: things that make this robust, accurate, and closer to production-ready — not required for a working demo.
+
+#### Discovery & crawling
+
+- [ ]  Swap DuckDuckGo HTML scraping for a real search API (Bing/Google/SerpAPI) — isolated to `discovery.py`
+- [ ]  Recursive/link-following crawl from discovered pages (not just search-result URLs), to catch opportunities search doesn't surface directly
+- [ ]  URL normalization/deduplication (http vs https, trailing slashes, tracking params)
+- [ ]  Async/concurrent fetching for speed
+- [ ]  Per-domain rate limiting and backoff instead of a flat global delay
+- [ ]  Conditional re-fetching using `Last-Modified`/`ETag` headers to avoid re-downloading unchanged pages
+
+#### Extraction & matching quality
+
+- [ ]  LLM-assisted extraction for deadline/amount/eligibility (more robust than current regex) — client is agnostic to this, it's your design call
+- [ ]  LLM or embedding-based eligibility classification against site-specific eligibility criteria (brief explicitly calls this out as needing to go beyond the user's form fields)
+- [ ]  Semantic/embedding-based match scoring instead of keyword overlap
+- [ ]  Decide and justify the relative weighting of the four ranking criteria (open question from the client meeting)
+- [ ]  Decide whether ineligible results are hidden, shown-but-flagged, or ranked low — implement accordingly
+
+#### Scheduling & data freshness
+
+- [ ]  Replace the naive `while True: sleep()` loop with a real scheduler (cron, Celery beat, APScheduler)
+- [ ]  Define and implement a data freshness/expiry policy (when to drop long-stale entries entirely)
+
+#### Infrastructure
+
+- [ ]  Move from SQLite to Postgres
+- [ ]  Dockerize the backend
+- [ ]  API authentication/rate limiting
+- [ ]  Monitoring/logging for crawl runs (success rate, pages found per query, etc.)
+- [ ]  `.env`based config for API keys once you're using a paid search API
+
+#### Nice-to-haves (explicitly optional per the brief)
+
+- [ ]  Mobile app support (brief says "nice to have," not required)
