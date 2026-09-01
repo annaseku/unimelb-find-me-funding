@@ -1,0 +1,22 @@
+.title {
+    font-weight: 500; 
+    font-size: 56px;
+}
+
+.numResults {
+    margin-top: 10px !important;
+    margin-left: 5px !important;
+    margin-bottom: 0 !important;
+}
+
+.resultsContainer{
+    min-height: 100vh;
+    max-width: fit-content;
+
+    display: flex;
+    flex-direction: column;
+
+    margin-top: 200px;
+    margin-left: 100px;
+
+}

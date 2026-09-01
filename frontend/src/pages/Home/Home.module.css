@@ -3,6 +3,10 @@
     font-size: 56px;
 }
 
+.searchSubmit {
+    width: 100%;
+}
+
 .searchbarContainer {
     display: flex;
     align-items: center;
