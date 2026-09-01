@@ -3,9 +3,22 @@
     font-size: 56px;
 }
 
+.searchbarContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 50px;
+}
+
+.searchLabel {
+    margin-top: 10px !important;
+    margin-left: 5px !important;
+    margin-bottom: 0 !important;
+}
+
 .searchbar{
     background-color: #BFCED5;
-    width: 700px;
+    width: 100% !important;
     height: 50px;
     padding: 0 20px;
 
@@ -16,9 +29,14 @@
     font-size: 22px;
 }
 
+.searchbarContainer [data-icon="search"] {
+    margin-left: -50px;
+    margin-right: 20px;
+}
 
 .homeContainer{
     min-height: 100vh;
+    max-width: fit-content;
 
     display: flex;
     flex-direction: column;

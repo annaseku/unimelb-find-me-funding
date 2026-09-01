@@ -14,9 +14,16 @@ function Home() {
         <Dropdown label="Employer Type" />
         <Dropdown label="Career Stage" />
         <Dropdown label="Funding Type" />
-      </div>
-      <p>Search by description of project or research:</p>
-      <input className={styles.searchbar} type="text" placeholder='What kind of research are you searching for funding for?' />
+        </div>
+        <p className={styles.searchLabel}>Search by description of project or research:</p>
+        <div className={styles.searchbarContainer}>
+          <input
+            className={styles.searchbar}
+            type="text"
+            placeholder="What kind of research are you searching for funding for?"
+            />
+          <span data-icon="search"  data-size="sm" aria-label="Search"></span>
+        </div>
       </div>
     </>
   )

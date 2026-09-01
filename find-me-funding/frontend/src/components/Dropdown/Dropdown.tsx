@@ -1,5 +1,4 @@
 import styles from './Dropdown.module.css'
-import SortDown from '../../assets/icons/SortDown'
 
 interface DropdownProps {
     label: string;
@@ -10,10 +9,13 @@ function Dropdown({ label }: DropdownProps) {
     <>
         <div className={styles.dropdown}>
             <span>{label}</span>
-            <SortDown className={styles.dropdownIcon}/>
+            <span 
+                data-icon="sort-down" 
+                data-size="sm"
+                data-hide-label="true">
+            </span>
         </div>
     </>
     )
 }
-
 export default Dropdown;
