@@ -12,7 +12,7 @@ import time
 import requests
 from bs4 import BeautifulSoup
 
-from backend.config import HEADERS, REQUEST_TIMEOUT, REQUEST_DELAY_SECONDS, MAX_RESULTS_PER_QUERY
+from backend.crawler.config import HEADERS, REQUEST_TIMEOUT, REQUEST_DELAY_SECONDS, MAX_RESULTS_PER_QUERY
 
 
 def search_duckduckgo(query: str, max_results: int = MAX_RESULTS_PER_QUERY) -> list:

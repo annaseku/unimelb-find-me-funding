@@ -5,7 +5,7 @@ SQLite storage for crawled funding opportunities.
 import sqlite3
 from datetime import datetime, timezone
 
-from backend.config import DB_PATH
+from backend.crawler.config import DB_PATH
 
 
 def init_db(db_path: str = DB_PATH) -> None:

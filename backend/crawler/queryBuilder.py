@@ -4,7 +4,7 @@ so discovery reflects the researcher's actual profile rather than just
 a topic keyword.
 """
 
-from backend.config import FUNDING_TERMS
+from backend.crawler.config import FUNDING_TERMS
 
 # Mapping from career stage labels (as used in the frontend inputs) to
 # extra query terms that might surface stage-specific funding (e.g. an

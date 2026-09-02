@@ -12,12 +12,12 @@ import time
 
 import requests
 
-from backend.config import HEADERS, REQUEST_TIMEOUT, REQUEST_DELAY_SECONDS
-from backend.queryBuilder import generate_seed_queries
-from backend.discoverURL import discover_candidate_urls
-from backend.robotCheck import is_allowed
-from backend.extract import extract_fields
-from backend.storage import init_db, save_opportunity, mark_fetch_failed
+from backend.crawler.config import HEADERS, REQUEST_TIMEOUT, REQUEST_DELAY_SECONDS
+from backend.crawler.queryBuilder import generate_seed_queries
+from backend.crawler.discoverURL import discover_candidate_urls
+from backend.crawler.robotCheck import is_allowed
+from backend.crawler.extract import extract_fields
+from backend.crawler.storage import init_db, save_opportunity, mark_fetch_failed
 
 
 def fetch_page(url: str):
@@ -98,5 +98,5 @@ if __name__ == "__main__":
     run_crawl(**example_profile)
 
     if args.schedule:
-        from backend.scheduler import run_scheduler_loop
+        from backend.crawler.scheduler import run_scheduler_loop
         run_scheduler_loop(example_profile)
