@@ -152,7 +152,7 @@ Band from `amount_aud` using the bands in section 3, item 4. Reason states the a
 1. Drop `status == closed` and past-deadline opportunities unless `include_closed`.
 2. Score every remaining opportunity.
 3. Drop likely_ineligible results if `hide_ineligible`.
-4. Sort by overall descending, then eligibility score descending, then id ascending.
+4. Sort likely-ineligible results after everything else, then by overall descending, then eligibility score descending, then id ascending. The tier rule was added after the first eval run showed a high-match ineligible opportunity landing at position 7 for the philanthropic-sector profile; Frank called that outcome "pointless", so de-ranked means "below every result you could apply for", not merely "penalised".
 
 Paging is applied by the API, not the ranker, so the ranker returns the full ordered list and the API reports its length as `total`.
 
