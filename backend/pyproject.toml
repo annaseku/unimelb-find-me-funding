@@ -1,0 +1,15 @@
+# Tool configuration only. Runtime dependencies stay in requirements.txt so
+# teammates keep using plain venv + pip, as the crawler README describes.
+
+[tool.pytest.ini_options]
+# ".." puts the repository root on sys.path so `backend.ranking...` imports
+# resolve the same way they do for the crawler.
+pythonpath = [".."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
