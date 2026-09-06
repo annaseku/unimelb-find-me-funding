@@ -65,9 +65,18 @@ def rank(
         # Discussion point 2: shown and de-ranked by default, hidden on request.
         ranked = [r for r in ranked if r.eligibility.label != EligibilityState.LIKELY_INELIGIBLE]
 
-    # Highest overall first; equal overalls prefer the more eligible one; then
+    # Likely-ineligible results always sit below everything else: the client
+    # called a great match you cannot apply for "pointless". Within each tier,
+    # highest overall first, equal overalls prefer the more eligible one, then
     # a stable id order so two runs always agree.
-    ranked.sort(key=lambda r: (-r.overall, -r.eligibility.score, r.opportunity.id))
+    ranked.sort(
+        key=lambda r: (
+            r.eligibility.label == EligibilityState.LIKELY_INELIGIBLE,
+            -r.overall,
+            -r.eligibility.score,
+            r.opportunity.id,
+        )
+    )
     return ranked
 
 

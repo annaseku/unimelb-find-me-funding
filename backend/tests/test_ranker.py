@@ -103,6 +103,20 @@ def test_ineligible_is_shown_and_ranked_last_by_default():
     assert results[-1].eligibility.label == EligibilityState.LIKELY_INELIGIBLE
 
 
+def test_ineligible_never_outranks_an_eligible_result_even_with_a_better_overall():
+    opportunities = [
+        make_opportunity(id="rich-but-wrong", citizenships_allowed=["US"], amount_aud=9_000_000),
+        make_opportunity(
+            id="modest-but-fits", citizenships_allowed=["AU"], amount_aud=1_000, for_codes=["9999"]
+        ),
+    ]
+    request = SearchRequest(citizenships=["AU"], for_codes=["4611"])
+    results = rank(opportunities, request, DEFAULT_WEIGHTS, TODAY)
+    assert [r.opportunity.id for r in results] == ["modest-but-fits", "rich-but-wrong"]
+    # The tier rule decided this, not the weights: the ineligible one scores higher.
+    assert results[0].overall < results[1].overall
+
+
 def test_ties_break_on_eligibility_then_id():
     # Same overall by construction: identical except eligibility state and id.
     weights = Weights(eligibility=0, research_match=1, funding_value=0, deadline=0)
