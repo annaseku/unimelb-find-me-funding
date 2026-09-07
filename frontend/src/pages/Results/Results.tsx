@@ -11,8 +11,11 @@ function Results() {
   const location = useLocation();
   const [results, setResults] = useState<FundingOpportunity[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [filters, setFilters] = useState(defaultFilterValues);
+  const incomingState = location.state as { search?: string; filters?: typeof defaultFilterValues } | null;
+  const initialSearch = incomingState?.search ?? '';
+  const initialFilters = incomingState?.filters ?? defaultFilterValues;
+  const [search, setSearch] = useState(initialSearch);
+  const [filters, setFilters] = useState(initialFilters);
 
   const runSearch = () => {
     setLoading(true);
@@ -26,24 +29,19 @@ function Results() {
       });
   };
 
+  // Initial fetch only. App keys this route on location.key, so a new search
+  // from Home remounts the page with fresh state instead of resetting it here.
   useEffect(() => {
     window.uom?.initAllComponents();
 
-    const incomingState = location.state as { search?: string; filters?: typeof defaultFilterValues } | null;
-    const nextSearch = incomingState?.search ?? '';
-    const nextFilters = incomingState?.filters ?? defaultFilterValues;
-
-    setSearch(nextSearch);
-    setFilters(nextFilters);
-
-    fetchMockResults(nextSearch, nextFilters)
+    fetchMockResults(initialSearch, initialFilters)
       .then((response) => {
         setResults(response.results);
       })
       .finally(() => {
         setLoading(false);
       });
-  }, [location.state]);
+  }, [initialSearch, initialFilters]);
 
   const handleFilterChange = (key: FilterKey, value: string) => {
     setFilters((current) => ({ ...current, [key]: value }));
