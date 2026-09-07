@@ -297,3 +297,8 @@ def test_for_division_multiple_codes_sorted():
 def test_for_division_empty_and_none_input():
     assert find_for_divisions(None) == []
     assert find_for_divisions("") == []
+
+
+def test_coordinated_citizenship_phrase_gives_both_codes():
+    text = "Applicants must be Australian or New Zealand citizens."
+    assert find_citizenships(text) == ["AU", "NZ"]

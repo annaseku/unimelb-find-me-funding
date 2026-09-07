@@ -48,7 +48,13 @@ def _compile(phrases: list[str]) -> re.Pattern[str]:
 _CITIZENSHIP_PATTERNS: list[tuple[re.Pattern[str], str]] = [
     (
         _compile(
-            ["australian citizens?", "citizens? of australia", "australian permanent residents?"]
+            [
+                "australian citizens?",
+                "citizens? of australia",
+                "australian permanent residents?",
+                # Shared-subject phrasing: "Australian or New Zealand citizens".
+                "australian (?:or|and) new zealand citizens?",
+            ]
         ),
         "AU",
     ),
