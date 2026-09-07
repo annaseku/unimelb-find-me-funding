@@ -1,9 +1,9 @@
 name: Backend CD
 
 # Publishes the backend image to GitHub Container Registry after Backend CI
-# has passed on main. No hosting target is chosen yet (see the tech stack note
-# in the backend README); the image is the deployable artefact whichever host
-# the team picks.
+# has passed on main. Hosting is Render, which builds backend/Dockerfile from
+# the repository itself on every push to main (render.yaml, ADR-003), so this
+# image is a portable artefact rather than what Render runs.
 on:
   workflow_run:
     workflows: ["Backend CI"]
