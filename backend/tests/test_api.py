@@ -92,3 +92,42 @@ def test_get_opportunity_by_id_including_closed(client):
 
 def test_unknown_opportunity_is_404(client):
     assert client.get("/api/opportunities/nope").status_code == 404
+
+
+def _crawled_row_fields(row) -> dict:
+    return {
+        "title": row.title,
+        "raw_text": row.raw_text,
+        "deadline_raw": row.deadline_raw,
+        "deadline_parsed": row.deadline_parsed,
+        "funding_amount_raw": row.funding_amount_raw,
+        "eligibility_snippet": row.eligibility_snippet,
+    }
+
+
+@pytest.fixture
+def sqlite_data_source(tmp_path, monkeypatch):
+    """Points get_repository at a normalised temp database for the duration
+    of one test, then clears the cache again so the mock-backed tests above
+    keep passing regardless of test order."""
+    from backend.crawler.storage import init_db, save_opportunity
+    from backend.normaliser.pipeline import normalise_database
+    from backend.normaliser.rules import load_fixture_rows
+    from backend.tests.conftest import TODAY
+
+    db = tmp_path / "crawler.db"
+    init_db(str(db))
+    for row in load_fixture_rows():
+        save_opportunity(row.url, _crawled_row_fields(row), row.source_query or "", db_path=str(db))
+    normalise_database(db, TODAY)
+
+    monkeypatch.setenv("FMF_DATA_SOURCE", "sqlite")
+    monkeypatch.setenv("FMF_DB_PATH", str(db))
+    get_repository.cache_clear()
+    yield db
+    get_repository.cache_clear()
+
+
+def test_search_reads_from_the_sqlite_repository_when_selected(client, sqlite_data_source):
+    body = client.post("/api/search", json={"include_closed": True, "limit": 100}).json()
+    assert body["total"] == 5
