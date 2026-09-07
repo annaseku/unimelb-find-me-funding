@@ -29,6 +29,33 @@ def test_health(client):
     assert body["version"]
 
 
+@pytest.mark.parametrize(
+    "origin",
+    ["http://localhost:5173", "http://127.0.0.1:5173", "https://annaseku.github.io"],
+)
+def test_cors_allows_the_vite_dev_server_and_the_pages_frontend(client, origin):
+    # A browser preflight for the search endpoint from an allowed origin.
+    response = client.options(
+        "/api/search",
+        headers={
+            "Origin": origin,
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "content-type",
+        },
+    )
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == origin
+    assert "POST" in response.headers["access-control-allow-methods"]
+
+
+def test_cors_rejects_an_unknown_origin(client):
+    response = client.options(
+        "/api/search",
+        headers={"Origin": "https://evil.example", "Access-Control-Request-Method": "POST"},
+    )
+    assert "access-control-allow-origin" not in response.headers
+
+
 def test_empty_search_returns_first_ten_and_total_of_open_set(client):
     body = client.post("/api/search", json={}).json()
     assert len(body["results"]) == 10
