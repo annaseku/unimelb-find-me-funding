@@ -7,7 +7,7 @@ Two packages live here. `crawler/` (Jummana) discovers and stores funding pages;
 | Crawler (discovery, fetch, extract, store) | Built, see `crawler/README` |
 | Ranking engine (four criterion scores, weighted overall) | Prototype built, scores structured mock data |
 | FastAPI search endpoint for the frontend | Prototype built |
-| Normalising crawler rows into structured opportunities | Not started |
+| Normalising crawler rows into structured opportunities | Prototype built, rules plus optional Gemini extractor, see Normaliser below |
 | LLM or embedding research-match scorer | Not started, seam is in `ranking/research_match.py` |
 
 ## Setup
@@ -22,9 +22,9 @@ pip install -r backend/requirements-dev.txt
 
 ### Environment variables
 
-Copy the template once: `cp backend/.env.example backend/.env`. Nothing in the backend reads a variable yet, so a fresh clone runs with that file empty, or absent entirely. The API, `pytest backend` and the evals all work with no key.
+Copy the template once: `cp backend/.env.example backend/.env`. A fresh clone runs with that file empty, or absent entirely. The API, `pytest backend` and the evals all work with no key; the only code that uses one is the normaliser's optional extractor (see Normaliser below), and it runs rules-only without it.
 
-`GEMINI_API_KEY` is the only name listed, reserved for the LLM research-match scorer that has not been started. Generate your own key in Google AI Studio and put it in your own `backend/.env`; the `google-genai` SDK reads that variable straight from the environment, so `genai.Client()` needs no arguments. You do not need a key to work on the crawler, the ranker, the API or the frontend. Rules that apply to everyone:
+`GEMINI_API_KEY` is the only name listed. It enables the normaliser's extractor today and is reserved for the LLM research-match scorer that has not been started. Generate your own key in Google AI Studio and put it in your own `backend/.env`; the `google-genai` SDK reads that variable straight from the environment, so `genai.Client()` needs no arguments. You do not need a key to work on the crawler, the ranker, the API or the frontend. Rules that apply to everyone:
 
 - Never commit a key. `.env` is gitignored, and if `git status` ever lists it, fix the ignore rule rather than committing it. A key committed once stays in the history even after you delete the line, so a leak means rotating the key, not just reverting the commit.
 - Never paste a key into Slack, a Jira comment or a Confluence page. If one has to be shared, share it through a password manager.
@@ -48,6 +48,26 @@ Try a search:
 curl -s -X POST localhost:8000/api/search -H 'content-type: application/json' \
   -d '{"citizenships":["AU"],"career_stage":"postdoc_2_5","for_codes":["3103"],"research_description":"coral reef resilience"}'
 ```
+
+## Normaliser
+
+`normaliser/` turns the crawler's raw rows (page text, a parsed deadline, a raw dollar string, an eligibility snippet) into the structured `Opportunity` records the ranker scores. Deterministic rules run first and stamp every field with where it came from; if `GEMINI_API_KEY` is set, a Gemini extractor fills the prose-derived fields (citizenship, career stage, research codes, funder name, summary) and never overrides a rule-parsed date or amount. Results land in a `normalised_opportunities` table in the same SQLite file; the crawler's own table is never written.
+
+```bash
+python -m backend.normaliser.run --db backend/funding_crawler.db            # rules, plus the model if a key is set
+python -m backend.normaliser.run --db backend/funding_crawler.db --no-llm   # rules only
+FMF_DATA_SOURCE=sqlite FMF_DB_PATH=backend/funding_crawler.db uvicorn backend.api.main:app --reload
+```
+
+| Variable | Effect |
+| --- | --- |
+| `FMF_DATA_SOURCE` | `mock` (default) serves `data/mock_opportunities.json`; `sqlite` serves the normalised table |
+| `FMF_DB_PATH` | SQLite file for `sqlite` mode; defaults to the crawler's `DB_PATH` |
+| `GEMINI_API_KEY` | Enables the extractor. Everything runs without it; the records are just sparser |
+| `FMF_LLM_MODEL` | Gemini model for the extractor, default `gemini-2.5-flash` |
+| `FMF_LLM` | Set to `off` to skip the extractor even when a key is present |
+
+The extractor runs once per changed page: unchanged pages are skipped by content hash on later runs, so re-running the pipeline daily costs only what the crawler found new. Design record: `docs/adr/ADR-003-normaliser.md`.
 
 ## CI/CD
 
@@ -81,4 +101,4 @@ Each opportunity gets four separate scores, each with a label and plain-English 
 
 `ranking/ranker.py` combines them with the weights in `ranking/weights.py` (default eligibility 0.4, match 0.3, funding 0.15, deadline 0.15; any request can override) and filters closed opportunities unless `include_closed` is set. The API pages over the ranked list with `limit` and `offset`.
 
-The ranker currently scores the illustrative opportunities in `data/mock_opportunities.json`. Wiring it to the crawler's SQLite rows needs a normalisation step that turns raw page text into the structured `Opportunity` fields in `ranking/models.py`; `data/repository.py` is the one class to replace. Design record: `docs/adr/ADR-002-ranking-engine.md`. Decisions still needing client confirmation: `docs/ranking-discussion-points.md`.
+By default the ranker scores the illustrative opportunities in `data/mock_opportunities.json`. With `FMF_DATA_SOURCE=sqlite` it scores whatever the normaliser has produced from the crawler's rows (see Normaliser above). Design records: `docs/adr/ADR-002-ranking-engine.md` and `docs/adr/ADR-003-normaliser.md`. Decisions still needing client confirmation: `docs/ranking-discussion-points.md`.
