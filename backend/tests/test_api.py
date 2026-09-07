@@ -66,9 +66,7 @@ def test_weights_are_echoed_and_overridable(client):
 def test_hide_ineligible_removes_likely_ineligible_end_to_end(client):
     request = {"citizenships": ["US"], "employer_type": "industry", "limit": 100}
     shown = client.post("/api/search", json=request).json()["results"]
-    hidden = client.post("/api/search", json={**request, "hide_ineligible": True}).json()[
-        "results"
-    ]
+    hidden = client.post("/api/search", json={**request, "hide_ineligible": True}).json()["results"]
     assert any(r["eligibility"]["label"] == "likely_ineligible" for r in shown)
     assert not any(r["eligibility"]["label"] == "likely_ineligible" for r in hidden)
     assert len(hidden) < len(shown)
