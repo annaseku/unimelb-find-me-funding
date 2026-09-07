@@ -1,3 +1,9 @@
 requests
 beautifulsoup4
 python-dateutil
+serpapi
+fastapi
+uvicorn
+pydantic
+google-genai
+python-dotenv
