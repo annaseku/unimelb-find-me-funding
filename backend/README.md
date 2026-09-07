@@ -7,7 +7,7 @@ Two packages live here. `crawler/` (Jummana) discovers and stores funding pages;
 | Crawler (discovery, fetch, extract, store) | Built, see `crawler/README` |
 | Ranking engine (four criterion scores, weighted overall) | Prototype built, scores structured mock data |
 | FastAPI search endpoint for the frontend | Prototype built |
-| Normalising crawler rows into structured opportunities | Prototype built, rules plus optional Anthropic extractor, see Normaliser below |
+| Normalising crawler rows into structured opportunities | Prototype built, rules plus optional Anthropic extractor, see Normaliser below. Gemini extractor not started |
 | LLM or embedding research-match scorer | Not started, seam is in `ranking/research_match.py` |
 
 ## Setup
@@ -22,9 +22,9 @@ pip install -r backend/requirements-dev.txt
 
 ### Environment variables
 
-Copy the template once: `cp backend/.env.example backend/.env`. Nothing in the backend reads a variable yet, so a fresh clone runs with that file empty, or absent entirely. The API, `pytest backend` and the evals all work with no key.
+Copy the template once: `cp backend/.env.example backend/.env`. A fresh clone runs with that file empty, or absent entirely. The API, `pytest backend` and the evals all work with no key; the only code that uses one is the normaliser's optional extractor (see Normaliser below), and it runs rules-only without it.
 
-`GEMINI_API_KEY` is the only name listed, reserved for the LLM research-match scorer that has not been started. Generate your own key in Google AI Studio and put it in your own `backend/.env`; the `google-genai` SDK reads that variable straight from the environment, so `genai.Client()` needs no arguments. You do not need a key to work on the crawler, the ranker, the API or the frontend. Rules that apply to everyone:
+Two key names are listed. `ANTHROPIC_API_KEY` enables the normaliser's extractor today (read by the `anthropic` SDK, so `anthropic.Anthropic()` needs no arguments). `GEMINI_API_KEY` is reserved for the Gemini implementations the team has chosen for the free tier: a second normaliser extractor behind the same `Extractor` protocol, and the LLM research-match scorer, neither started yet; the `google-genai` SDK reads it the same way, so `genai.Client()` needs no arguments. You do not need a key to work on the crawler, the ranker, the API or the frontend. Rules that apply to everyone:
 
 - Never commit a key. `.env` is gitignored, and if `git status` ever lists it, fix the ignore rule rather than committing it. A key committed once stays in the history even after you delete the line, so a leak means rotating the key, not just reverting the commit.
 - Never paste a key into Slack, a Jira comment or a Confluence page. If one has to be shared, share it through a password manager.
