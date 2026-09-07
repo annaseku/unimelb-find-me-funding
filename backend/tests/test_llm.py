@@ -1,6 +1,6 @@
-"""Task 3: the extractor protocol, the Anthropic implementation, and the
-merge policy that lets the model fill prose fields without ever overriding
-a value the rules already parsed."""
+"""The extractor protocol, the Gemini implementation, and the merge policy
+that lets the model fill prose fields without ever overriding a value the
+rules already parsed. No test touches the network."""
 
 from __future__ import annotations
 
@@ -11,9 +11,9 @@ import pytest
 from backend.normaliser.llm import (
     PROSE_FIELDS,
     RULE_PRIORITY_FIELDS,
-    AnthropicExtractor,
     ExtractedFields,
     FakeExtractor,
+    GeminiExtractor,
     extractor_from_env,
     merge,
 )
@@ -52,24 +52,26 @@ def make_record(**overrides) -> NormalisedRecord:
     )
 
 
-class StubMessages:
-    def __init__(self, parsed_output):
-        self.calls: list[dict] = []
-        self._parsed_output = parsed_output
-
-    def parse(self, **kwargs):
-        self.calls.append(kwargs)
-        return _StubResponse(self._parsed_output)
-
-
 class _StubResponse:
-    def __init__(self, parsed_output):
-        self.parsed_output = parsed_output
+    def __init__(self, text: str):
+        self.text = text
+
+
+class StubModels:
+    """Stands in for genai.Client().models: records kwargs, returns JSON text."""
+
+    def __init__(self, json_text: str):
+        self.calls: list[dict] = []
+        self._json_text = json_text
+
+    def generate_content(self, **kwargs):
+        self.calls.append(kwargs)
+        return _StubResponse(self._json_text)
 
 
 class StubClient:
-    def __init__(self, parsed_output):
-        self.messages = StubMessages(parsed_output)
+    def __init__(self, json_text: str):
+        self.models = StubModels(json_text)
 
 
 def test_fake_extractor_records_every_call():
@@ -176,53 +178,63 @@ def test_prose_and_rule_priority_field_sets_do_not_overlap():
     assert "funder" in PROSE_FIELDS
 
 
-def test_anthropic_extractor_calls_the_client_with_expected_kwargs():
-    stub_result = ExtractedFields(summary="A summary.")
-    client = StubClient(stub_result)
-    extractor = AnthropicExtractor(client=client, model="claude-test-model")
+def test_gemini_extractor_calls_the_client_with_expected_kwargs():
+    client = StubClient('{"summary": "A summary.", "for_codes": ["3103"]}')
+    extractor = GeminiExtractor(client=client, model="gemini-test-model")
 
     long_text = "word " * 10_000  # far longer than MAX_TEXT_CHARS
     result = extractor.extract("A Title", "https://example.org/page", long_text)
 
-    assert result is stub_result
-    assert len(client.messages.calls) == 1
-    kwargs = client.messages.calls[0]
-    assert kwargs["model"] == "claude-test-model"
-    assert kwargs["output_format"] is ExtractedFields
-    assert kwargs["max_tokens"] == 4096
-    assert "system" in kwargs and kwargs["system"]
+    assert result == ExtractedFields(summary="A summary.", for_codes=["3103"])
+    assert len(client.models.calls) == 1
+    kwargs = client.models.calls[0]
+    assert kwargs["model"] == "gemini-test-model"
+    config = kwargs["config"]
+    assert config.response_mime_type == "application/json"
+    assert config.response_json_schema == ExtractedFields.model_json_schema()
+    assert config.system_instruction
 
-    content = kwargs["messages"][0]["content"]
-    assert "A Title" in content
-    assert "https://example.org/page" in content
+    contents = kwargs["contents"]
+    assert "A Title" in contents
+    assert "https://example.org/page" in contents
     # the raw text was truncated before being sent
-    assert len(content) < len(long_text)
+    assert len(contents) < len(long_text)
 
 
-def test_anthropic_extractor_defaults_model_from_env(monkeypatch):
-    monkeypatch.setenv("FMF_LLM_MODEL", "claude-opus-5-env")
-    client = StubClient(ExtractedFields())
-    extractor = AnthropicExtractor(client=client)
+def test_gemini_extractor_defaults_model_from_env(monkeypatch):
+    monkeypatch.setenv("FMF_LLM_MODEL", "gemini-from-env")
+    client = StubClient("{}")
+    extractor = GeminiExtractor(client=client)
 
     extractor.extract("Title", "https://example.org", "text")
 
-    assert client.messages.calls[0]["model"] == "claude-opus-5-env"
+    assert client.models.calls[0]["model"] == "gemini-from-env"
+
+
+def test_gemini_extractor_rejects_json_that_does_not_match_the_schema():
+    client = StubClient('{"amount_aud": "lots"}')
+    extractor = GeminiExtractor(client=client, model="gemini-test-model")
+
+    with pytest.raises(ValueError):
+        extractor.extract("Title", "https://example.org", "text")
 
 
 def test_extractor_from_env_with_no_key_is_none():
     assert extractor_from_env({}) is None
 
 
-def test_extractor_from_env_with_key_returns_an_anthropic_extractor():
-    extractor = extractor_from_env({"ANTHROPIC_API_KEY": "x"})
-    assert isinstance(extractor, AnthropicExtractor)
+def test_extractor_from_env_with_key_returns_a_gemini_extractor(monkeypatch):
+    # genai.Client() reads the key from the process environment at construction.
+    monkeypatch.setenv("GEMINI_API_KEY", "x")
+    extractor = extractor_from_env({"GEMINI_API_KEY": "x"})
+    assert isinstance(extractor, GeminiExtractor)
 
 
 def test_extractor_from_env_off_switch_is_none():
-    assert extractor_from_env({"ANTHROPIC_API_KEY": "x", "FMF_LLM": "off"}) is None
+    assert extractor_from_env({"GEMINI_API_KEY": "x", "FMF_LLM": "off"}) is None
 
 
 @pytest.mark.parametrize("key", ["", None])
 def test_extractor_from_env_empty_key_is_none(key):
-    env = {} if key is None else {"ANTHROPIC_API_KEY": key}
+    env = {} if key is None else {"GEMINI_API_KEY": key}
     assert extractor_from_env(env) is None

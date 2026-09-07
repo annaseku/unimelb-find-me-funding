@@ -2,11 +2,11 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Turn the crawler's raw SQLite rows into structured `Opportunity` records so the ranker and API run on real crawled pages, with deterministic rules first and an optional Anthropic extractor filling the prose-derived fields.
+**Goal:** Turn the crawler's raw SQLite rows into structured `Opportunity` records so the ranker and API run on real crawled pages, with deterministic rules first and an optional Gemini extractor filling the prose-derived fields.
 
-**Architecture:** A new `backend/normaliser/` package. `parsers.py` handles crisp values (amount to AUD, deadline, status, id, summary, keywords). `lexicon.py` maps phrases to enum codes. `rules.py` composes them into a `NormalisedRecord` with per-field provenance. `llm.py` defines an `Extractor` protocol, an Anthropic implementation using structured outputs, a fake for tests, and the merge policy (model fills prose fields, never overrides a rule-parsed date or amount). `pipeline.py` reads the crawler table, writes `normalised_opportunities` in the same SQLite file, and skips unchanged pages by content hash. `backend/data/sqlite_repository.py` serves that table through the existing repository seam, selected by `FMF_DATA_SOURCE`. Design record: `docs/adr/ADR-003-normaliser.md` (Task 6). Shared models already exist in `backend/normaliser/models.py`; fixtures in `backend/tests/fixtures/crawled_rows.json`.
+**Architecture:** A new `backend/normaliser/` package. `parsers.py` handles crisp values (amount to AUD, deadline, status, id, summary, keywords). `lexicon.py` maps phrases to enum codes. `rules.py` composes them into a `NormalisedRecord` with per-field provenance. `llm.py` defines an `Extractor` protocol, a Gemini implementation returning JSON constrained to the `ExtractedFields` schema, a fake for tests, and the merge policy (model fills prose fields, never overrides a rule-parsed date or amount). `pipeline.py` reads the crawler table, writes `normalised_opportunities` in the same SQLite file, and skips unchanged pages by content hash. `backend/data/sqlite_repository.py` serves that table through the existing repository seam, selected by `FMF_DATA_SOURCE`. Design record: `docs/adr/ADR-003-normaliser.md` (Task 6). Shared models already exist in `backend/normaliser/models.py`; fixtures in `backend/tests/fixtures/crawled_rows.json`.
 
-**Tech Stack:** Python 3.11 to 3.13, Pydantic v2, `anthropic` 1.x (`client.messages.parse(..., output_format=Model)`), python-dateutil (already a crawler dependency), sqlite3 from the standard library, pytest.
+**Tech Stack:** Python 3.11 to 3.13, Pydantic v2, `google-genai` 2.x (`client.models.generate_content(..., config=GenerateContentConfig(response_mime_type="application/json", response_json_schema=...))`), python-dateutil (already a crawler dependency), sqlite3 from the standard library, pytest.
 
 ## Global Constraints
 
@@ -14,7 +14,7 @@
 - Python 3.11 compatibility: no `type X = ...` aliases, no PEP 695 generics. `from __future__ import annotations` at the top of every module.
 - Imports are absolute from the repository root: `from backend.normaliser.models import CrawledRow`.
 - Do not modify anything under `backend/crawler/`. Importing from it (for example `backend.crawler.storage.init_db` in a test, or `backend.crawler.config.DB_PATH`) is fine.
-- Do not modify `backend/.env.example` or add one; another branch owns it. Environment variable names used here: `FMF_DATA_SOURCE` (`mock` default, or `sqlite`), `FMF_DB_PATH` (defaults to the crawler's `DB_PATH`), `FMF_LLM_MODEL` (defaults to `claude-opus-5`), `ANTHROPIC_API_KEY` (read by the Anthropic SDK itself, never by our code).
+- Do not modify `backend/.env.example` or add one; another branch owns it. Environment variable names used here: `FMF_DATA_SOURCE` (`mock` default, or `sqlite`), `FMF_DB_PATH` (defaults to the crawler's `DB_PATH`), `FMF_LLM_MODEL` (defaults to `gemini-2.5-flash`), `GEMINI_API_KEY` (read by the google-genai SDK itself, never by our code). The provider was switched from Anthropic to Gemini on 2026-09-07 at Anna's instruction, matching the team's free-tier decision.
 - Tests never touch the network and never need a key. Date-sensitive tests use `TODAY = date(2026, 9, 1)` from `backend/tests/conftest.py`. Never call `date.today()` inside `backend/normaliser/` except in `run.py`'s argument default.
 - Every module starts with a short docstring saying what it does. Add a one or two line comment where a rule is not obvious. No docstrings that restate the code.
 - Australian English in prose. Do not run git commands; the orchestrator commits per task.
@@ -27,7 +27,7 @@
 | `backend/tests/fixtures/crawled_rows.json` | five realistic crawler rows | done |
 | `backend/normaliser/parsers.py` + `backend/tests/test_parsers.py` | amount, deadline, status, id, summary, keywords | 1 |
 | `backend/normaliser/lexicon.py` + `backend/tests/test_lexicon.py` | phrase to code tables for citizenship, employer, career stage, funding type, FoR division | 2 |
-| `backend/normaliser/llm.py` + `backend/tests/test_llm.py` | `ExtractedFields`, `Extractor` protocol, `AnthropicExtractor`, `FakeExtractor`, `merge`, `extractor_from_env` | 3 |
+| `backend/normaliser/llm.py` + `backend/tests/test_llm.py` | `ExtractedFields`, `Extractor` protocol, `GeminiExtractor`, `FakeExtractor`, `merge`, `extractor_from_env` | 3 |
 | `backend/normaliser/rules.py` + `backend/tests/test_rules.py` | `normalise_row`, `load_fixture_rows` | 4 (needs 1, 2) |
 | `backend/normaliser/pipeline.py`, `run.py`, `backend/data/sqlite_repository.py`, edit `backend/data/repository.py`, tests | database round trip, CLI, repository switch, API on SQLite | 5 (needs 3, 4) |
 | `docs/adr/ADR-003-normaliser.md`, `backend/README.md` | design record, status row, how to run | 6 |
@@ -116,7 +116,7 @@ Commit message: `feat(normaliser): phrase lexicon for citizenship, employer, car
 **Interfaces:**
 
 ```python
-DEFAULT_MODEL = "claude-opus-5"
+DEFAULT_MODEL = "gemini-2.5-flash"
 MAX_TEXT_CHARS = 20_000
 
 class ExtractedFields(BaseModel):
@@ -139,7 +139,7 @@ class ExtractedFields(BaseModel):
 class Extractor(Protocol):
     def extract(self, title: str, url: str, text: str) -> ExtractedFields: ...
 
-class AnthropicExtractor:
+class GeminiExtractor:
     def __init__(self, client: Any | None = None, model: str | None = None) -> None: ...
     def extract(self, title: str, url: str, text: str) -> ExtractedFields: ...
 
@@ -156,16 +156,16 @@ def extractor_from_env(env: Mapping[str, str] | None = None) -> Extractor | None
 
 Rules:
 
-- `AnthropicExtractor.__init__` builds `anthropic.Anthropic()` lazily only if `client` is None (import `anthropic` inside the module at top is fine; the package is in requirements). `model` defaults to `os.environ.get("FMF_LLM_MODEL", DEFAULT_MODEL)`.
-- `extract` truncates `text` to `MAX_TEXT_CHARS`, then calls `self._client.messages.parse(model=..., max_tokens=4096, system=SYSTEM_PROMPT, messages=[{"role": "user", "content": <title, url, text>}], output_format=ExtractedFields)` and returns `response.parsed_output`. The system prompt tells the model: extract only what the page states, leave a field null or empty when not stated, use ISO 3166-1 alpha-2 for countries and citizenships, `countries` means where the applicant's institution must be based, ANZSRC 2020 codes (two or four digit) for `for_codes`, `"1"` to `"4"` for `toa_codes`, `amount_aud` is the maximum in whole Australian dollars converting other currencies approximately and saying so in `amount_note`, `eligibility_text` is a faithful one to three sentence paraphrase of the stated eligibility rules, `summary` two to three plain sentences on what the scheme funds.
+- `GeminiExtractor.__init__` builds `genai.Client()` lazily only if `client` is None (the SDK reads `GEMINI_API_KEY` from the environment; the package is in requirements). `model` defaults to `os.environ.get("FMF_LLM_MODEL", DEFAULT_MODEL)`.
+- `extract` truncates `text` to `MAX_TEXT_CHARS`, then calls `self._client.models.generate_content(model=..., contents=<title, url, text>, config=types.GenerateContentConfig(system_instruction=SYSTEM_PROMPT, response_mime_type="application/json", response_json_schema=ExtractedFields.model_json_schema(), temperature=0))` and returns `ExtractedFields.model_validate_json(response.text)`, so a malformed reply raises rather than writing junk. The system prompt tells the model: extract only what the page states, leave a field null or empty when not stated, use ISO 3166-1 alpha-2 for countries and citizenships, `countries` means where the applicant's institution must be based, ANZSRC 2020 codes (two or four digit) for `for_codes`, `"1"` to `"4"` for `toa_codes`, `amount_aud` is the maximum in whole Australian dollars converting other currencies approximately and saying so in `amount_note`, `eligibility_text` is a faithful one to three sentence paraphrase of the stated eligibility rules, `summary` two to three plain sentences on what the scheme funds.
 - `merge`: for each field in `PROSE_FIELDS` (`funder`, `summary`, `opens_at`, `countries`, `citizenships_allowed`, `employer_types_allowed`, `career_stages_allowed`, `funding_types_offered`, `for_codes`, `toa_codes`, `keywords`, `eligibility_text`), if the extracted value is non-empty (not None, not `""`, not `[]`) it replaces the record's value and provenance becomes `"llm"`. For `RULE_PRIORITY_FIELDS`, the extracted value is used only when the record's provenance for that field is `"missing"`. Returns a new `NormalisedRecord` with `used_llm=True`; never mutates the input. `amount_note` follows `amount_aud`.
-- `extractor_from_env`: returns `None` when `ANTHROPIC_API_KEY` is absent or empty, or when `FMF_LLM` is `"off"`; otherwise an `AnthropicExtractor()`.
+- `extractor_from_env`: returns `None` when `GEMINI_API_KEY` is absent or empty, or when `FMF_LLM` is `"off"`; otherwise a `GeminiExtractor()`.
 
-Required tests: `FakeExtractor` records calls; `merge` overrides a prose field and marks provenance `llm`; `merge` keeps a rule-parsed deadline when the model disagrees; `merge` fills a missing amount and marks it `llm`; empty extracted lists do not wipe rule values; input record is unchanged after merge; `AnthropicExtractor` with a stub client object (a tiny class whose `messages.parse(**kwargs)` records kwargs and returns an object with `parsed_output`) passes `output_format=ExtractedFields`, the configured model, and truncated text; `extractor_from_env({})` is None, `extractor_from_env({"ANTHROPIC_API_KEY": "x"})` is an `AnthropicExtractor` (construct with a stub client via monkeypatching `anthropic.Anthropic` or accept that constructing the real client with a fake key does not make a network call, which it does not).
+Required tests: `FakeExtractor` records calls; `merge` overrides a prose field and marks provenance `llm`; `merge` keeps a rule-parsed deadline when the model disagrees; `merge` fills a missing amount and marks it `llm`; empty extracted lists do not wipe rule values; input record is unchanged after merge; `GeminiExtractor` with a stub client object (a tiny class whose `models.generate_content(**kwargs)` records kwargs and returns an object with a `text` attribute holding JSON) passes `response_json_schema=ExtractedFields.model_json_schema()`, `response_mime_type="application/json"`, the configured model, and truncated text; JSON that does not match the schema raises; `extractor_from_env({})` is None, `extractor_from_env({"GEMINI_API_KEY": "x"})` is a `GeminiExtractor` (set the key in the process environment with monkeypatch too, since `genai.Client()` reads it at construction and makes no network call).
 
 For the record type in tests, build a `NormalisedRecord` by hand from an `Opportunity` with `provenance={"deadline": "rule", "amount_aud": "missing", "funder": "rule"}`.
 
-Commit message: `feat(normaliser): Anthropic extractor with structured output and rule-first merge policy`.
+Commit message: `feat(normaliser): Gemini extractor with schema-constrained JSON and rule-first merge policy`.
 
 ---
 
@@ -263,7 +263,7 @@ Commit message: `feat(normaliser): SQLite pipeline, CLI and repository switch fo
 **Files:** create `docs/adr/ADR-003-normaliser.md`; modify `backend/README.md`.
 
 - ADR-003 in the same table-plus-sections format as `docs/adr/ADR-002-ranking-engine.md`: Decision (rules first, model fills prose fields, own table, repository switch), Status Proposed, Context (crawler stores raw signals, ranker needs structured fields, decision 3 hybrid), Options (rules only, rules plus model, model only), Decision details (the merge policy, the provenance record, the content-hash skip, the env variables, the currency table as an approximation), Consequences (false positives such as a news page's "$5 million" become visible through provenance and are the model's job to correct; bare `$` assumed AUD), Evidence.
-- README: change the "Normalising crawler rows" status row to "Prototype built"; add a "Normaliser" section after "Running the API and tests" with: what it does in two sentences, the run command, the environment variables (`FMF_DATA_SOURCE`, `FMF_DB_PATH`, `FMF_LLM_MODEL`, and that `ANTHROPIC_API_KEY` enables the extractor and everything works without it), and one sentence on cost (the extractor runs once per changed page and is skipped for unchanged pages).
+- README: change the "Normalising crawler rows" status row to "Prototype built"; add a "Normaliser" section after "Running the API and tests" with: what it does in two sentences, the run command, the environment variables (`FMF_DATA_SOURCE`, `FMF_DB_PATH`, `FMF_LLM_MODEL`, and that `GEMINI_API_KEY` enables the extractor and everything works without it), and one sentence on cost (the extractor runs once per changed page and is skipped for unchanged pages).
 - Prose is one line per paragraph or list item, never hard-wrapped.
 
 Commit message: `docs: ADR-003 normaliser and README run instructions`.

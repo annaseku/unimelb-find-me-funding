@@ -1,7 +1,10 @@
 """The LLM extractor and the policy for merging its output onto a rule-built
 record. Rules always win on dates and amounts; the model only fills the
 prose-derived fields the rules cannot reach (funder name, summary,
-eligibility paraphrase, and the classification lists)."""
+eligibility paraphrase, and the classification lists).
+
+The model is Gemini, the team's choice for its free tier. The `Extractor`
+protocol keeps the pipeline indifferent to which provider sits behind it."""
 
 from __future__ import annotations
 
@@ -10,13 +13,16 @@ from collections.abc import Mapping
 from datetime import date
 from typing import Any, Protocol
 
-import anthropic
+from google import genai
+from google.genai import types
 from pydantic import BaseModel
 
 from backend.normaliser.models import NormalisedRecord
 from backend.ranking.models import CareerStage, EmployerType, FundingType
 
-DEFAULT_MODEL = "claude-opus-5"
+# Stable Flash model; override with FMF_LLM_MODEL. Chosen for the free tier,
+# not for peak quality; a Pro model is a one-variable change.
+DEFAULT_MODEL = "gemini-2.5-flash"
 MAX_TEXT_CHARS = 20_000
 
 # Fields the model may set or override, provided it returns a non-empty
@@ -60,7 +66,9 @@ no amount is stated.
 `eligibility_text` is a faithful one to three sentence paraphrase of the stated eligibility
 rules, not a copy of the whole page.
 
-`summary` is two to three plain sentences describing what the scheme funds."""
+`summary` is two to three plain sentences describing what the scheme funds.
+
+Dates are ISO 8601 (YYYY-MM-DD)."""
 
 
 class ExtractedFields(BaseModel):
@@ -88,25 +96,32 @@ class Extractor(Protocol):
     def extract(self, title: str, url: str, text: str) -> ExtractedFields: ...
 
 
-class AnthropicExtractor:
-    """Calls the Anthropic API with structured outputs. The client is built
-    lazily so importing this module never requires an API key."""
+class GeminiExtractor:
+    """Calls the Gemini API and asks for JSON that matches ExtractedFields.
+    The client is built lazily so importing this module never needs a key;
+    `genai.Client()` reads GEMINI_API_KEY from the environment itself."""
 
     def __init__(self, client: Any | None = None, model: str | None = None) -> None:
-        self._client = client if client is not None else anthropic.Anthropic()
+        self._client = client if client is not None else genai.Client()
         self._model = model or os.environ.get("FMF_LLM_MODEL", DEFAULT_MODEL)
 
     def extract(self, title: str, url: str, text: str) -> ExtractedFields:
         truncated = (text or "")[:MAX_TEXT_CHARS]
-        content = f"Title: {title}\nURL: {url}\n\n{truncated}"
-        response = self._client.messages.parse(
+        contents = f"Title: {title}\nURL: {url}\n\n{truncated}"
+        response = self._client.models.generate_content(
             model=self._model,
-            max_tokens=4096,
-            system=SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": content}],
-            output_format=ExtractedFields,
+            contents=contents,
+            config=types.GenerateContentConfig(
+                system_instruction=SYSTEM_PROMPT,
+                response_mime_type="application/json",
+                # The full JSON schema, so optional fields and enums round-trip
+                # exactly; we validate the text ourselves rather than rely on
+                # the SDK's parsed attribute.
+                response_json_schema=ExtractedFields.model_json_schema(),
+                temperature=0,
+            ),
         )
-        return response.parsed_output
+        return ExtractedFields.model_validate_json(response.text)
 
 
 class FakeExtractor:
@@ -159,12 +174,12 @@ def merge(record: NormalisedRecord, extracted: ExtractedFields) -> NormalisedRec
 
 
 def extractor_from_env(env: Mapping[str, str] | None = None) -> Extractor | None:
-    """None when there is no API key, or FMF_LLM is explicitly turned off;
-    otherwise a real AnthropicExtractor."""
+    """None when there is no GEMINI_API_KEY, or FMF_LLM is explicitly turned
+    off; otherwise a real GeminiExtractor."""
 
     source = env if env is not None else os.environ
-    if not source.get("ANTHROPIC_API_KEY"):
+    if not source.get("GEMINI_API_KEY"):
         return None
     if source.get("FMF_LLM", "").lower() == "off":
         return None
-    return AnthropicExtractor()
+    return GeminiExtractor()
