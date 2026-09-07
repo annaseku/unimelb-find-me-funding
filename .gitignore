@@ -7,8 +7,4 @@ data/*.db
 .vscode/
 .idea/
 .DS_Store
-
-# Secrets. Never commit a real .env; .env.example is the committed template.
 .env
-.env.*
-!.env.example

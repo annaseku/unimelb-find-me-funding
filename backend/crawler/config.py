@@ -2,6 +2,10 @@
 Shared configuration for the funding-opportunity crawler.
 """
 
+from dotenv import load_dotenv
+
+load_dotenv()  # loads variables from a .env file in the project root, if present
+
 # --- Storage ---------------------------------------------------------------
 DB_PATH = "funding_crawler.db"
 
