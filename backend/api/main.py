@@ -24,10 +24,14 @@ from backend.ranking.weights import resolve_weights
 
 app = FastAPI(title="Find Me Funding API", version=ranking.__version__)
 
-# The Vite dev server; add the deployed frontend origin here when there is one.
+# The Vite dev server plus the GitHub Pages frontend (see frontend-cd.yml).
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "https://annaseku.github.io",
+    ],
     allow_methods=["*"],
     allow_headers=["*"],
 )

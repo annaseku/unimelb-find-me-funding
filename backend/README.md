@@ -62,7 +62,13 @@ docker run --rm -p 8000:8000 find-me-funding-backend
 
 `ruff format backend` fixes formatting failures. `crawler/` is excluded from ruff until its rewrite on `feature/backend-crawler` lands; drop the `extend-exclude` line in `pyproject.toml` then.
 
-`.github/workflows/backend-cd.yml` runs after CI passes on main and pushes the image to `ghcr.io/annaseku/unimelb-find-me-funding/backend`, tagged `latest` and `sha-<commit>`. No hosting target is chosen yet; whichever host the team picks pulls that image. Pulling a private package needs a GitHub token with `read:packages`.
+`.github/workflows/backend-cd.yml` runs after CI passes on main and pushes the image to `ghcr.io/annaseku/unimelb-find-me-funding/backend`, tagged `latest` and `sha-<commit>`. Pulling a private package needs a GitHub token with `read:packages`.
+
+## Hosting
+
+The API runs on Render as a Docker web service defined in `render.yaml` at the repository root (decision record: `docs/adr/ADR-003-deployment-architecture.md`). Render builds `backend/Dockerfile` from the repository on every push to main, so a merge is a deploy; there is no separate release step. The service is `find-me-funding-api` in the Crawlers workspace, Singapore region, free plan, health-checked on `/api/health`, and the frontend on GitHub Pages is already in the CORS allow-list in `api/main.py`.
+
+The free plan spins the service down after 15 minutes idle and takes about a minute to wake, so hit `/api/health` before a client demo. `GEMINI_API_KEY` is declared in `render.yaml` with `sync: false`, which means its value lives only in the Render dashboard; nothing reads it yet, so it can stay empty. Changing the service's shape (plan, region, env var names) is an edit to `render.yaml`, not a dashboard click, so the change is reviewed like any other.
 
 ## How the ranking works
 
