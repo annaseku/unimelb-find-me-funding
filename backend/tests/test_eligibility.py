@@ -81,7 +81,9 @@ def test_employer_type_mismatch_fails():
 
 def test_career_stage_mismatch_fails():
     opportunity = make_opportunity(career_stages_allowed=[CareerStage.POSTDOC_0_2])
-    result = score_eligibility(opportunity, SearchRequest(career_stage=CareerStage.GRADUATE_STUDENT))
+    result = score_eligibility(
+        opportunity, SearchRequest(career_stage=CareerStage.GRADUATE_STUDENT)
+    )
     assert result.label == EligibilityState.LIKELY_INELIGIBLE
 
 

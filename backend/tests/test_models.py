@@ -36,9 +36,7 @@ def test_limit_outside_one_to_one_hundred_is_rejected(limit):
 
 
 def test_opportunity_lists_default_to_empty_meaning_unrestricted():
-    opportunity = Opportunity(
-        id="x", title="X", funder="F", url="https://example.org", summary="s"
-    )
+    opportunity = Opportunity(id="x", title="X", funder="F", url="https://example.org", summary="s")
     assert opportunity.citizenships_allowed == []
     assert opportunity.amount_aud is None
     assert opportunity.deadline is None
