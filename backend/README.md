@@ -20,6 +20,17 @@ source backend/.venv/bin/activate
 pip install -r backend/requirements-dev.txt
 ```
 
+### Environment variables
+
+Copy the template once: `cp backend/.env.example backend/.env`. Nothing in the backend reads a variable yet, so a fresh clone runs with that file empty, or absent entirely. The API, `pytest backend` and the evals all work with no key.
+
+`ANTHROPIC_API_KEY` is the only name listed, reserved for the LLM research-match scorer that has not been started. If you pick that work up you need your own key from console.anthropic.com in your own `backend/.env`. You do not need one to work on the crawler, the ranker, the API or the frontend. Rules that apply to everyone:
+
+- Never commit a key. `.env` is gitignored, and if `git status` ever lists it, fix the ignore rule rather than committing it. A key committed once stays in the history even after you delete the line, so a leak means rotating the key, not just reverting the commit.
+- Never paste a key into Slack, a Jira comment or a Confluence page. If one has to be shared, share it through a password manager.
+- Never put a key in `frontend/`. Vite inlines anything prefixed `VITE_` into the browser bundle, so it would ship to every visitor. LLM calls go through the backend.
+- In CI a key is a GitHub Actions repository secret referenced as `${{ secrets.ANTHROPIC_API_KEY }}`, never a file. Better still, mock the LLM in tests so the suite stays deterministic and free.
+
 ## Running the API and tests
 
 From the repository root, with the venv active:
