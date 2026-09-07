@@ -1,7 +1,6 @@
 __pycache__/
 *.pyc
 .venv/
-.env/
 venv/
 funding_crawler.db
 data/*.db

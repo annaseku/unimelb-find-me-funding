@@ -1,0 +1,91 @@
+{
+  "_note": "Researcher profiles used by the tests, the evals and the frontend demo. Illustrative only.",
+  "profiles": [
+    {
+      "id": "au-marine-postdoc",
+      "label": "Australian marine ecologist, university postdoc 2 to 5 years, wants consumables or equipment",
+      "request": {
+        "for_codes": ["3103", "3708"],
+        "toa_codes": ["2"],
+        "citizenships": ["AU"],
+        "employer_type": "university",
+        "career_stage": "postdoc_2_5",
+        "funding_types": ["consumables", "equipment"],
+        "research_description": "Coral reef resilience to ocean acidification, combining field surveys with ecosystem modelling."
+      }
+    },
+    {
+      "id": "intl-cs-phd",
+      "label": "Indian citizen, PhD student in computer science at an Australian university, needs a stipend",
+      "request": {
+        "for_codes": ["4611"],
+        "toa_codes": ["3"],
+        "citizenships": ["IN"],
+        "employer_type": "university",
+        "career_stage": "graduate_student",
+        "funding_types": ["salary"],
+        "research_description": "Machine learning for medical imaging, focusing on segmentation of MRI scans."
+      }
+    },
+    {
+      "id": "uk-industry-engineer",
+      "label": "British engineer in industry, 5 to 10 years post PhD, needs equipment",
+      "request": {
+        "for_codes": ["4008"],
+        "toa_codes": ["4"],
+        "citizenships": ["GB"],
+        "employer_type": "industry",
+        "career_stage": "postdoc_5_10",
+        "funding_types": ["equipment"],
+        "research_description": "Battery energy storage systems and their integration with the electricity grid."
+      }
+    },
+    {
+      "id": "philanthropic-health-ecr",
+      "label": "Early career researcher at a philanthropic health organisation, any funding type",
+      "request": {
+        "for_codes": ["4206"],
+        "citizenships": ["AU"],
+        "employer_type": "philanthropic",
+        "career_stage": "postdoc_0_2",
+        "funding_types": ["any"],
+        "research_description": "Evaluation of Indigenous community health programs in regional Australia."
+      }
+    },
+    {
+      "id": "undergrad-physics",
+      "label": "Australian undergraduate in physics looking for a paid summer project",
+      "request": {
+        "for_codes": ["5108"],
+        "citizenships": ["AU"],
+        "employer_type": "university",
+        "career_stage": "undergraduate",
+        "funding_types": ["salary"],
+        "research_description": "Quantum sensing summer research project using diamond defects."
+      }
+    },
+    {
+      "id": "senior-climate-scientist",
+      "label": "Dual AU and NZ citizen at a research institute, 10 plus years post PhD, no funding type preference",
+      "request": {
+        "for_codes": ["3702"],
+        "citizenships": ["AU", "NZ"],
+        "employer_type": "research_institute",
+        "career_stage": "postdoc_10_plus",
+        "research_description": "Regional climate model downscaling to support agricultural adaptation planning."
+      }
+    },
+    {
+      "id": "text-only-biostatistics",
+      "label": "Free-text description only, nothing else supplied",
+      "request": {
+        "research_description": "Statistical methods for genomic data in cancer, including survival models and machine learning."
+      }
+    },
+    {
+      "id": "empty",
+      "label": "Empty search: no personalisation at all",
+      "request": {}
+    }
+  ]
+}

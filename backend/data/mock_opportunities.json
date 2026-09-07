@@ -1,0 +1,1465 @@
+{
+  "_note": "Illustrative mock data for the Find Me Funding prototype. Scheme names are real; amounts, dates and eligibility rules are plausible but were NOT verified with the funders. Do not treat as advice.",
+  "opportunities": [
+    {
+      "id": "arc-discovery-2027",
+      "title": "ARC Discovery Projects 2027",
+      "funder": "Australian Research Council",
+      "url": "https://www.arc.gov.au/funding-research/funding-schemes/discovery-program/discovery-projects",
+      "for_codes": [
+        "31",
+        "34",
+        "37",
+        "40",
+        "44",
+        "46",
+        "49",
+        "51"
+      ],
+      "amount_aud": 2500000,
+      "amount_note": "up to $500,000 per year for five years",
+      "deadline": "2027-03-10",
+      "countries": [
+        "AU"
+      ],
+      "citizenships_allowed": [],
+      "employer_types_allowed": [
+        "university"
+      ],
+      "career_stages_allowed": [
+        "postdoc_0_2",
+        "postdoc_2_5",
+        "postdoc_5_10",
+        "postdoc_10_plus"
+      ],
+      "funding_types_offered": [
+        "salary",
+        "consumables",
+        "equipment"
+      ],
+      "status": "active",
+      "toa_codes": [
+        "1",
+        "2"
+      ],
+      "keywords": [
+        "basic research",
+        "discovery",
+        "cross-disciplinary",
+        "investigator-driven",
+        "national competitive grant"
+      ],
+      "summary": "The Australian Research Council's flagship scheme funds investigator-driven basic and applied research projects across all disciplines. It supports internationally competitive research that builds Australia's knowledge base and research capability. Projects can combine multiple research fields and career stages within a single team.",
+      "eligibility_text": "Administering organisations must be eligible Australian universities. Eligibility rules on citizenship and career stage are set project by project through the ARC's grant guidelines rather than a blanket restriction.",
+      "source_urls": [
+        "https://www.arc.gov.au/funding-research/funding-schemes/discovery-program/discovery-projects"
+      ]
+    },
+    {
+      "id": "arc-decra-2028",
+      "title": "ARC Discovery Early Career Researcher Award 2028",
+      "funder": "Australian Research Council",
+      "url": "https://www.arc.gov.au/funding-research/funding-schemes/discovery-program/discovery-early-career-researcher-award",
+      "for_codes": [
+        "31",
+        "34",
+        "37",
+        "40",
+        "44",
+        "46",
+        "49",
+        "51"
+      ],
+      "amount_aud": 480000,
+      "amount_note": "over three years",
+      "deadline": "2026-10-14",
+      "countries": [
+        "AU"
+      ],
+      "citizenships_allowed": [],
+      "employer_types_allowed": [
+        "university"
+      ],
+      "career_stages_allowed": [
+        "postdoc_0_2",
+        "postdoc_2_5"
+      ],
+      "funding_types_offered": [
+        "salary",
+        "consumables"
+      ],
+      "status": "active",
+      "toa_codes": [
+        "1",
+        "2"
+      ],
+      "keywords": [
+        "early career",
+        "fellowship",
+        "independent research",
+        "salary funding",
+        "discovery"
+      ],
+      "summary": "The Discovery Early Career Researcher Award supports early-career researchers to build an independent research career through a fully funded salary and project costs. It is open to any field of research and rewards a track record of research excellence rather than an institutional appointment. The scheme aims to retain promising researchers within the Australian research system.",
+      "eligibility_text": "Applicants must be within a set number of years post-PhD as defined by the current DECRA round and be employed by an eligible Australian university for the life of the award.",
+      "source_urls": [
+        "https://www.arc.gov.au/funding-research/funding-schemes/discovery-program/discovery-early-career-researcher-award"
+      ]
+    },
+    {
+      "id": "arc-linkage-continuous",
+      "title": "ARC Linkage Projects",
+      "funder": "Australian Research Council",
+      "url": "https://www.arc.gov.au/funding-research/funding-schemes/linkage-program/linkage-projects",
+      "for_codes": [
+        "31",
+        "34",
+        "37",
+        "40",
+        "44",
+        "46",
+        "49",
+        "51"
+      ],
+      "amount_note": "varies with partner contribution",
+      "countries": [
+        "AU"
+      ],
+      "citizenships_allowed": [],
+      "employer_types_allowed": [
+        "university"
+      ],
+      "career_stages_allowed": [
+        "postdoc_0_2",
+        "postdoc_2_5",
+        "postdoc_5_10",
+        "postdoc_10_plus"
+      ],
+      "funding_types_offered": [
+        "salary",
+        "consumables",
+        "equipment"
+      ],
+      "status": "active",
+      "toa_codes": [
+        "2",
+        "3"
+      ],
+      "keywords": [
+        "industry partnership",
+        "collaboration",
+        "applied research",
+        "co-funding",
+        "linkage"
+      ],
+      "summary": "Linkage Projects funds collaborative research between university researchers and industry, government or community partner organisations. Funding is contingent on cash and in-kind partner contributions, so the total project value varies with each application. The scheme supports applied problem-solving as well as more fundamental collaborative research.",
+      "eligibility_text": "The applicant must be based at an eligible Australian university and hold at least one formal partner organisation contributing cash or in-kind support to the project.",
+      "source_urls": [
+        "https://www.arc.gov.au/funding-research/funding-schemes/linkage-program/linkage-projects"
+      ]
+    },
+    {
+      "id": "nhmrc-ideas-2027",
+      "title": "NHMRC Ideas Grants 2027",
+      "funder": "National Health and Medical Research Council",
+      "url": "https://www.nhmrc.gov.au/funding/find-funding/ideas-grants",
+      "for_codes": [
+        "32",
+        "42",
+        "3202",
+        "4206"
+      ],
+      "amount_aud": 1200000,
+      "amount_note": "over up to five years",
+      "deadline": "2027-02-24",
+      "countries": [
+        "AU"
+      ],
+      "citizenships_allowed": [],
+      "employer_types_allowed": [
+        "university",
+        "research_institute"
+      ],
+      "career_stages_allowed": [
+        "postdoc_0_2",
+        "postdoc_2_5",
+        "postdoc_5_10",
+        "postdoc_10_plus"
+      ],
+      "funding_types_offered": [
+        "salary",
+        "consumables",
+        "equipment"
+      ],
+      "status": "active",
+      "toa_codes": [
+        "2",
+        "3"
+      ],
+      "keywords": [
+        "health research",
+        "medical research",
+        "innovation",
+        "biomedical",
+        "public health"
+      ],
+      "summary": "Ideas Grants fund innovative health and medical research projects, from laboratory discovery through to health services and public health research. The scheme covers a wide range of health for codes including biomedical, clinical and population health research. Proposals are assessed on the novelty of the idea as much as the track record of the investigator team.",
+      "eligibility_text": "Eligible administering institutions include Australian universities and medical research institutes; the scheme has no citizenship restriction on chief investigators.",
+      "source_urls": [
+        "https://www.nhmrc.gov.au/funding/find-funding/ideas-grants"
+      ]
+    },
+    {
+      "id": "nhmrc-investigator-el",
+      "title": "NHMRC Investigator Grant, Emerging Leadership",
+      "funder": "National Health and Medical Research Council",
+      "url": "https://www.nhmrc.gov.au/funding/find-funding/investigator-grants",
+      "for_codes": [
+        "32",
+        "42"
+      ],
+      "amount_aud": 1500000,
+      "amount_note": "salary plus research support over five years",
+      "deadline": "2026-09-10",
+      "countries": [
+        "AU"
+      ],
+      "citizenships_allowed": [],
+      "employer_types_allowed": [
+        "university",
+        "research_institute"
+      ],
+      "career_stages_allowed": [
+        "postdoc_0_2",
+        "postdoc_2_5",
+        "postdoc_5_10"
+      ],
+      "funding_types_offered": [
+        "salary",
+        "consumables"
+      ],
+      "status": "active",
+      "toa_codes": [
+        "2"
+      ],
+      "keywords": [
+        "salary support",
+        "health and medical research",
+        "leadership",
+        "emerging researcher",
+        "fellowship"
+      ],
+      "summary": "Investigator Grants provide salary support and a flexible research package to outstanding health and medical researchers at all career stages. The Emerging Leadership stream targets researchers building their first independent program of research. Funding covers the researcher's own salary alongside project costs, reducing time spent on separate grant applications.",
+      "eligibility_text": "Applicants must be employed by an eligible Australian university or medical research institute and fall within the years-since-PhD band for the Emerging Leadership stream.",
+      "source_urls": [
+        "https://www.nhmrc.gov.au/funding/find-funding/investigator-grants"
+      ]
+    },
+    {
+      "id": "mrff-indigenous-health",
+      "title": "MRFF Indigenous Health Research 2026",
+      "funder": "Department of Health and Aged Care",
+      "url": "https://www.health.gov.au/our-work/mrff-indigenous-health-research",
+      "for_codes": [
+        "42",
+        "4206",
+        "45"
+      ],
+      "amount_aud": 3000000,
+      "deadline": "2026-11-30",
+      "countries": [
+        "AU"
+      ],
+      "citizenships_allowed": [],
+      "employer_types_allowed": [
+        "university",
+        "research_institute",
+        "philanthropic"
+      ],
+      "career_stages_allowed": [],
+      "funding_types_offered": [
+        "salary",
+        "consumables",
+        "equipment"
+      ],
+      "status": "active",
+      "toa_codes": [
+        "3"
+      ],
+      "keywords": [
+        "Indigenous health",
+        "community health",
+        "health equity",
+        "chronic disease",
+        "MRFF"
+      ],
+      "summary": "This Medical Research Future Fund initiative supports research that improves health outcomes for Aboriginal and Torres Strait Islander communities. Priority is given to community-led projects addressing chronic disease, mental health and access to culturally safe care. The program funds partnerships between researchers and Indigenous community organisations.",
+      "eligibility_text": "Applicants must partner with an Aboriginal or Torres Strait Islander community-controlled organisation and be based at an eligible Australian research institution.",
+      "source_urls": [
+        "https://www.health.gov.au/our-work/mrff-indigenous-health-research"
+      ],
+      "amount_note": ""
+    },
+    {
+      "id": "wellcome-discovery-2026",
+      "title": "Wellcome Discovery Award",
+      "funder": "Wellcome Trust",
+      "url": "https://wellcome.org/grant-funding/schemes/discovery-award",
+      "for_codes": [
+        "31",
+        "32",
+        "42",
+        "3202"
+      ],
+      "amount_aud": 6000000,
+      "amount_note": "up to eight years",
+      "deadline": "2026-12-01",
+      "countries": [],
+      "citizenships_allowed": [],
+      "employer_types_allowed": [
+        "university",
+        "research_institute"
+      ],
+      "career_stages_allowed": [
+        "postdoc_5_10",
+        "postdoc_10_plus"
+      ],
+      "funding_types_offered": [
+        "salary",
+        "consumables",
+        "equipment"
+      ],
+      "status": "active",
+      "toa_codes": [
+        "1",
+        "2"
+      ],
+      "keywords": [
+        "discovery research",
+        "life sciences",
+        "health and wellbeing",
+        "long-term funding",
+        "high-risk research"
+      ],
+      "summary": "The Wellcome Discovery Award funds ambitious, long-term programs of discovery research into life, health and wellbeing. It supports researchers with a strong track record to pursue high-risk, high-reward questions over an extended period. The award places few restrictions on discipline as long as the work advances understanding of human health.",
+      "eligibility_text": "Applicants must be based at an eligible research organisation with a strong track record; there is no citizenship restriction, but the host institution's country must be supported by Wellcome.",
+      "source_urls": [
+        "https://wellcome.org/grant-funding/schemes/discovery-award"
+      ]
+    },
+    {
+      "id": "erc-starting-2027",
+      "title": "ERC Starting Grant 2027",
+      "funder": "European Research Council",
+      "url": "https://erc.europa.eu/apply-grant/starting-grant",
+      "for_codes": [
+        "31",
+        "32",
+        "34",
+        "37",
+        "40",
+        "44",
+        "46",
+        "49",
+        "51"
+      ],
+      "amount_aud": 2500000,
+      "amount_note": "up to five years, host must be in an EU or associated country",
+      "deadline": "2026-10-20",
+      "countries": [
+        "AT",
+        "BE",
+        "DE",
+        "DK",
+        "ES",
+        "FI",
+        "FR",
+        "IE",
+        "IT",
+        "NL",
+        "NO",
+        "PL",
+        "PT",
+        "SE"
+      ],
+      "citizenships_allowed": [],
+      "employer_types_allowed": [
+        "university",
+        "research_institute"
+      ],
+      "career_stages_allowed": [
+        "postdoc_2_5",
+        "postdoc_5_10"
+      ],
+      "funding_types_offered": [
+        "salary",
+        "consumables",
+        "equipment"
+      ],
+      "status": "active",
+      "toa_codes": [
+        "1"
+      ],
+      "keywords": [
+        "frontier research",
+        "early career",
+        "independence",
+        "European research",
+        "fellowship"
+      ],
+      "summary": "The ERC Starting Grant funds early-career researchers to establish their own independent research team and pursue frontier research in any field. Projects must be hosted at an institution in the EU or an associated country. The grant is designed to help researchers make the transition to scientific independence.",
+      "eligibility_text": "Applicants must be two to seven years post-PhD and the host institution must be located in an EU member state or an ERC-associated country.",
+      "source_urls": [
+        "https://erc.europa.eu/apply-grant/starting-grant"
+      ]
+    },
+    {
+      "id": "erc-consolidator-2027",
+      "title": "ERC Consolidator Grant 2027",
+      "funder": "European Research Council",
+      "url": "https://erc.europa.eu/apply-grant/consolidator-grant",
+      "for_codes": [
+        "31",
+        "32",
+        "34",
+        "37",
+        "40",
+        "44",
+        "46",
+        "49",
+        "51"
+      ],
+      "amount_aud": 3300000,
+      "amount_note": "up to five years",
+      "deadline": "2027-01-15",
+      "opens_at": "2026-11-01",
+      "countries": [
+        "AT",
+        "BE",
+        "DE",
+        "DK",
+        "ES",
+        "FI",
+        "FR",
+        "IE",
+        "IT",
+        "NL",
+        "NO",
+        "PL",
+        "PT",
+        "SE"
+      ],
+      "citizenships_allowed": [],
+      "employer_types_allowed": [
+        "university",
+        "research_institute"
+      ],
+      "career_stages_allowed": [
+        "postdoc_5_10",
+        "postdoc_10_plus"
+      ],
+      "funding_types_offered": [
+        "salary",
+        "consumables",
+        "equipment"
+      ],
+      "status": "active",
+      "toa_codes": [
+        "1"
+      ],
+      "keywords": [
+        "frontier research",
+        "consolidation",
+        "independent team",
+        "European research",
+        "fellowship"
+      ],
+      "summary": "The ERC Consolidator Grant supports researchers consolidating their own independent research team as they establish a lasting position in frontier research. Like the Starting Grant, it funds any field of research hosted within the EU or an associated country. The scheme rewards researchers who are strengthening an already independent research program.",
+      "eligibility_text": "Applicants must be seven to twelve years post-PhD and based at a host institution in an EU member state or an ERC-associated country.",
+      "source_urls": [
+        "https://erc.europa.eu/apply-grant/consolidator-grant"
+      ]
+    },
+    {
+      "id": "nih-r01-cancer-genomics",
+      "title": "NIH R01: Cancer Genomics and Computational Oncology",
+      "funder": "National Institutes of Health",
+      "url": "https://grants.nih.gov/grants/guide/pa-files/PAR-26-cancer-genomics.html",
+      "for_codes": [
+        "32",
+        "3202",
+        "3105",
+        "4905"
+      ],
+      "amount_aud": 3800000,
+      "amount_note": "over five years",
+      "deadline": "2026-10-05",
+      "countries": [],
+      "citizenships_allowed": [],
+      "employer_types_allowed": [
+        "university",
+        "research_institute",
+        "industry"
+      ],
+      "career_stages_allowed": [
+        "postdoc_0_2",
+        "postdoc_2_5",
+        "postdoc_5_10",
+        "postdoc_10_plus"
+      ],
+      "funding_types_offered": [
+        "salary",
+        "consumables",
+        "equipment"
+      ],
+      "status": "active",
+      "toa_codes": [
+        "2",
+        "3"
+      ],
+      "keywords": [
+        "cancer",
+        "genomics",
+        "computational oncology",
+        "statistical methods",
+        "precision medicine"
+      ],
+      "summary": "This NIH R01 mechanism funds investigator-initiated research applying genomic and computational methods to cancer biology. Priority areas include statistical methods for large-scale genomic data, tumour evolution and precision oncology. The award supports substantial multi-year research programs with significant budget flexibility.",
+      "eligibility_text": "Applications are accepted from research-active organisations of any country, though non-US institutions face additional review requirements under NIH foreign component policy.",
+      "source_urls": [
+        "https://grants.nih.gov/grants/guide/pa-files/PAR-26-cancer-genomics.html"
+      ]
+    },
+    {
+      "id": "nih-k99-r00",
+      "title": "NIH K99/R00 Pathway to Independence Award",
+      "funder": "National Institutes of Health",
+      "url": "https://researchtraining.nih.gov/programs/career-development/K99-R00",
+      "for_codes": [
+        "32",
+        "42"
+      ],
+      "amount_aud": 1400000,
+      "deadline": "2026-10-12",
+      "countries": [],
+      "citizenships_allowed": [],
+      "employer_types_allowed": [
+        "university",
+        "research_institute"
+      ],
+      "career_stages_allowed": [
+        "postdoc_0_2",
+        "postdoc_2_5"
+      ],
+      "funding_types_offered": [
+        "salary"
+      ],
+      "status": "active",
+      "toa_codes": [
+        "2"
+      ],
+      "keywords": [
+        "postdoctoral",
+        "career transition",
+        "biomedical research",
+        "mentored research",
+        "independence"
+      ],
+      "summary": "The Pathway to Independence Award supports outstanding postdoctoral researchers through a mentored phase and then an independent research phase after transitioning to a faculty-level position. It is aimed at biomedical researchers who need additional time to generate the preliminary data required for independent funding. The award bridges postdoctoral training and an independent research career.",
+      "eligibility_text": "Applicants must hold a research or clinical doctoral degree, have no more than four years of postdoctoral research experience, and commit to an independent faculty position during the R00 phase.",
+      "source_urls": [
+        "https://researchtraining.nih.gov/programs/career-development/K99-R00"
+      ],
+      "amount_note": ""
+    },
+    {
+      "id": "msca-postdoctoral-2026",
+      "title": "Marie Skłodowska-Curie Postdoctoral Fellowship 2026",
+      "funder": "European Commission",
+      "url": "https://marie-sklodowska-curie-actions.ec.europa.eu/actions/postdoctoral-fellowships",
+      "for_codes": [
+        "31",
+        "32",
+        "34",
+        "37",
+        "40",
+        "44",
+        "46",
+        "49",
+        "51"
+      ],
+      "amount_aud": 300000,
+      "amount_note": "two years",
+      "deadline": "2026-09-10",
+      "countries": [],
+      "citizenships_allowed": [],
+      "employer_types_allowed": [
+        "university",
+        "research_institute",
+        "industry"
+      ],
+      "career_stages_allowed": [
+        "postdoc_0_2",
+        "postdoc_2_5",
+        "postdoc_5_10"
+      ],
+      "funding_types_offered": [
+        "salary"
+      ],
+      "status": "active",
+      "toa_codes": [
+        "1",
+        "2"
+      ],
+      "keywords": [
+        "postdoctoral fellowship",
+        "mobility",
+        "European research",
+        "training",
+        "international"
+      ],
+      "summary": "Marie Skłodowska-Curie Postdoctoral Fellowships fund researchers to carry out a two-year research project at a host organisation in Europe or beyond. The scheme is open to all research fields and emphasises international and cross-sector mobility. Fellows gain new skills through training embedded in the host research environment.",
+      "eligibility_text": "Applicants must hold a PhD and not have resided in the country of the host organisation for more than twelve months in the three years before the call deadline.",
+      "source_urls": [
+        "https://marie-sklodowska-curie-actions.ec.europa.eu/actions/postdoctoral-fellowships"
+      ]
+    },
+    {
+      "id": "fulbright-au-postdoctoral",
+      "title": "Fulbright Future Scholarship, Postdoctoral",
+      "funder": "Fulbright Australia",
+      "url": "https://www.fulbright.org.au/scholarships/fulbright-future-scholarship/",
+      "for_codes": [
+        "31",
+        "32",
+        "34",
+        "37",
+        "40",
+        "42",
+        "44",
+        "46",
+        "49",
+        "51"
+      ],
+      "amount_aud": 60000,
+      "amount_note": "living allowance and travel",
+      "deadline": "2026-09-25",
+      "countries": [],
+      "citizenships_allowed": [
+        "AU"
+      ],
+      "employer_types_allowed": [],
+      "career_stages_allowed": [
+        "postdoc_0_2",
+        "postdoc_2_5",
+        "postdoc_5_10"
+      ],
+      "funding_types_offered": [
+        "salary"
+      ],
+      "status": "active",
+      "toa_codes": [
+        "1"
+      ],
+      "keywords": [
+        "postdoctoral exchange",
+        "US research collaboration",
+        "mobility",
+        "Fulbright",
+        "scholarship"
+      ],
+      "summary": "The Fulbright Future Scholarship supports Australian postdoctoral researchers to undertake a period of study or research at a host institution in the United States. It covers living costs and travel for a research visit of several months. The scholarship prioritises projects that build lasting research collaboration between Australia and the United States.",
+      "eligibility_text": "Applicants must be Australian citizens with a confirmed host institution in the United States and a research plan of at least three months' duration.",
+      "source_urls": [
+        "https://www.fulbright.org.au/scholarships/fulbright-future-scholarship/"
+      ]
+    },
+    {
+      "id": "fulbright-us-scholar-au",
+      "title": "Fulbright US Scholar Award to Australia",
+      "funder": "Fulbright Australia",
+      "url": "https://www.fulbright.org.au/scholarships/fulbright-us-scholar-award/",
+      "for_codes": [
+        "31",
+        "32",
+        "34",
+        "37",
+        "40",
+        "42",
+        "44",
+        "46",
+        "49",
+        "51"
+      ],
+      "amount_aud": 50000,
+      "deadline": "2026-09-15",
+      "countries": [],
+      "citizenships_allowed": [
+        "US"
+      ],
+      "employer_types_allowed": [],
+      "career_stages_allowed": [
+        "postdoc_0_2",
+        "postdoc_2_5",
+        "postdoc_5_10",
+        "postdoc_10_plus"
+      ],
+      "funding_types_offered": [
+        "salary"
+      ],
+      "status": "active",
+      "toa_codes": [
+        "1"
+      ],
+      "keywords": [
+        "US scholar",
+        "academic exchange",
+        "Australia",
+        "research visit",
+        "Fulbright"
+      ],
+      "summary": "The Fulbright US Scholar Award to Australia funds American academics and researchers to teach or conduct research at an Australian host institution. It supports a wide range of disciplines and career stages, from early-career researchers to senior scholars. The award is intended to strengthen academic ties between the United States and Australia.",
+      "eligibility_text": "Applicants must be United States citizens with a confirmed Australian host institution willing to support the proposed teaching or research program.",
+      "source_urls": [
+        "https://www.fulbright.org.au/scholarships/fulbright-us-scholar-award/"
+      ],
+      "amount_note": ""
+    },
+    {
+      "id": "gates-grand-challenges-health",
+      "title": "Grand Challenges: Global Health Equity",
+      "funder": "Gates Foundation",
+      "url": "https://gcgh.grandchallenges.org/challenge/global-health-equity",
+      "for_codes": [
+        "32",
+        "42",
+        "4206"
+      ],
+      "amount_aud": 150000,
+      "amount_note": "seed funding",
+      "deadline": "2026-11-18",
+      "countries": [],
+      "citizenships_allowed": [],
+      "employer_types_allowed": [
+        "university",
+        "research_institute",
+        "industry",
+        "philanthropic"
+      ],
+      "career_stages_allowed": [],
+      "funding_types_offered": [
+        "salary",
+        "consumables",
+        "equipment"
+      ],
+      "status": "active",
+      "toa_codes": [
+        "3",
+        "4"
+      ],
+      "keywords": [
+        "global health",
+        "health equity",
+        "seed funding",
+        "innovation",
+        "low-resource settings"
+      ],
+      "summary": "Grand Challenges: Global Health Equity funds early-stage, high-risk ideas that could lead to breakthrough solutions for global health problems in low-resource settings. The program favours unconventional approaches over incremental research and is open to researchers, clinicians and innovators worldwide. Successful concepts may be eligible for larger follow-on funding.",
+      "eligibility_text": "The program is open to applicants from any country and any type of organisation, including universities, industry, research institutes and philanthropic bodies.",
+      "source_urls": [
+        "https://gcgh.grandchallenges.org/challenge/global-health-equity"
+      ]
+    },
+    {
+      "id": "ian-potter-science-2027",
+      "title": "Ian Potter Foundation Science Grants 2027",
+      "funder": "Ian Potter Foundation",
+      "url": "https://www.ianpotter.org.au/grants/science",
+      "for_codes": [
+        "31",
+        "37",
+        "3103"
+      ],
+      "amount_aud": 400000,
+      "deadline": "2027-04-01",
+      "opens_at": "2027-01-15",
+      "countries": [
+        "AU"
+      ],
+      "citizenships_allowed": [],
+      "employer_types_allowed": [
+        "philanthropic"
+      ],
+      "career_stages_allowed": [],
+      "funding_types_offered": [
+        "equipment",
+        "consumables"
+      ],
+      "status": "active",
+      "toa_codes": [
+        "2"
+      ],
+      "keywords": [
+        "applied science",
+        "philanthropic funding",
+        "equipment grant",
+        "Australian foundation",
+        "public benefit"
+      ],
+      "summary": "Ian Potter Foundation Science Grants support applied science and technology projects run by Australian community and research organisations. The foundation favours projects with clear, near-term public benefit over long-term basic research. Funding typically covers equipment and consumables rather than salaries.",
+      "eligibility_text": "Applicants must be an Australian not-for-profit or philanthropic-sector organisation; the foundation does not fund salaries or overheads.",
+      "source_urls": [
+        "https://www.ianpotter.org.au/grants/science"
+      ],
+      "amount_note": ""
+    },
+    {
+      "id": "westpac-research-fellowship",
+      "title": "Westpac Research Fellowship",
+      "funder": "Westpac Scholars Trust",
+      "url": "https://www.westpacscholars.org.au/scholarships/westpac-research-fellowship/",
+      "for_codes": [
+        "31",
+        "34",
+        "37",
+        "40",
+        "42",
+        "44",
+        "46",
+        "49",
+        "51"
+      ],
+      "amount_aud": 500000,
+      "amount_note": "over three years",
+      "deadline": "2026-11-02",
+      "countries": [
+        "AU"
+      ],
+      "citizenships_allowed": [
+        "AU"
+      ],
+      "employer_types_allowed": [
+        "university"
+      ],
+      "career_stages_allowed": [
+        "postdoc_2_5",
+        "postdoc_5_10"
+      ],
+      "funding_types_offered": [
+        "salary",
+        "consumables"
+      ],
+      "status": "active",
+      "toa_codes": [
+        "2"
+      ],
+      "keywords": [
+        "research fellowship",
+        "mid-career",
+        "leadership",
+        "real-world impact",
+        "Australian scholars"
+      ],
+      "summary": "The Westpac Research Fellowship funds outstanding Australian researchers to pursue a bold research idea over three years, with an emphasis on work that has real-world impact. The fellowship is open to any discipline but favours researchers mid-way through their career who are ready to lead an independent project. Fellows also join a broader Westpac Scholars community and leadership program.",
+      "eligibility_text": "Applicants must be Australian citizens employed at an eligible Australian university, with several years of postdoctoral research experience.",
+      "source_urls": [
+        "https://www.westpacscholars.org.au/scholarships/westpac-research-fellowship/"
+      ]
+    },
+    {
+      "id": "csiro-early-career-postdoc",
+      "title": "CSIRO Early Research Career Postdoctoral Fellowship",
+      "funder": "CSIRO",
+      "url": "https://www.csiro.au/en/careers/scholarships/early-research-career-postdoctoral-fellowship",
+      "for_codes": [
+        "31",
+        "34",
+        "37",
+        "40",
+        "46",
+        "51"
+      ],
+      "amount_aud": 350000,
+      "amount_note": "three-year salary",
+      "deadline": "2026-09-20",
+      "countries": [
+        "AU"
+      ],
+      "citizenships_allowed": [
+        "AU",
+        "NZ"
+      ],
+      "employer_types_allowed": [
+        "research_institute"
+      ],
+      "career_stages_allowed": [
+        "postdoc_0_2"
+      ],
+      "funding_types_offered": [
+        "salary"
+      ],
+      "status": "active",
+      "toa_codes": [
+        "3"
+      ],
+      "keywords": [
+        "postdoctoral fellowship",
+        "applied research",
+        "CSIRO",
+        "early career",
+        "national priority"
+      ],
+      "summary": "The CSIRO Early Research Career Postdoctoral Fellowship offers a three-year salaried position for recent PhD graduates to conduct research within a CSIRO research team. Fellows work alongside CSIRO scientists on applied national-priority research problems. The fellowship builds research capability that can lead to ongoing CSIRO employment.",
+      "eligibility_text": "Applicants must be Australian or New Zealand citizens or permanent residents within a limited period of completing their PhD, and be based at an eligible Australian research institute.",
+      "source_urls": [
+        "https://www.csiro.au/en/careers/scholarships/early-research-career-postdoctoral-fellowship"
+      ]
+    },
+    {
+      "id": "csiro-industry-phd",
+      "title": "CSIRO Industry PhD Program",
+      "funder": "CSIRO",
+      "url": "https://www.csiro.au/en/careers/scholarships/industry-phd",
+      "for_codes": [
+        "34",
+        "40",
+        "46"
+      ],
+      "amount_aud": 180000,
+      "amount_note": "four-year stipend",
+      "deadline": "2026-10-31",
+      "countries": [
+        "AU"
+      ],
+      "citizenships_allowed": [
+        "AU",
+        "NZ"
+      ],
+      "employer_types_allowed": [
+        "university",
+        "industry"
+      ],
+      "career_stages_allowed": [
+        "graduate_student"
+      ],
+      "funding_types_offered": [
+        "salary"
+      ],
+      "status": "active",
+      "toa_codes": [
+        "4"
+      ],
+      "keywords": [
+        "industry PhD",
+        "co-supervision",
+        "doctoral scholarship",
+        "applied training",
+        "industry partnership"
+      ],
+      "summary": "The CSIRO Industry PhD Program co-funds a four-year doctoral scholarship for students undertaking a project jointly supervised by a university and an industry partner. Projects address a real industry problem alongside academic research training. The program builds a pipeline of industry-ready PhD graduates.",
+      "eligibility_text": "Applicants must be enrolling as a PhD student at an eligible Australian university with a committed industry partner, and be an Australian or New Zealand citizen or permanent resident.",
+      "source_urls": [
+        "https://www.csiro.au/en/careers/scholarships/industry-phd"
+      ]
+    },
+    {
+      "id": "google-phd-fellowship-2027",
+      "title": "Google PhD Fellowship 2027",
+      "funder": "Google",
+      "url": "https://buildyourfuture.withgoogle.com/scholarships/google-phd-fellowship",
+      "for_codes": [
+        "46",
+        "4602",
+        "4611"
+      ],
+      "amount_aud": 120000,
+      "amount_note": "two-year stipend",
+      "deadline": "2027-03-01",
+      "countries": [],
+      "citizenships_allowed": [],
+      "employer_types_allowed": [
+        "university"
+      ],
+      "career_stages_allowed": [
+        "graduate_student"
+      ],
+      "funding_types_offered": [
+        "salary"
+      ],
+      "status": "active",
+      "toa_codes": [
+        "3"
+      ],
+      "keywords": [
+        "machine learning",
+        "artificial intelligence",
+        "PhD fellowship",
+        "computer science",
+        "mentorship"
+      ],
+      "summary": "The Google PhD Fellowship recognises outstanding graduate students doing innovative research in computer science and related fields, including machine learning and artificial intelligence. Fellows receive a stipend and are paired with a Google research mentor. The program supports both fundamental and applied machine learning research.",
+      "eligibility_text": "Applicants must be enrolled as a full-time PhD student at an eligible university at the time of application, in a field related to computer science.",
+      "source_urls": [
+        "https://buildyourfuture.withgoogle.com/scholarships/google-phd-fellowship"
+      ]
+    },
+    {
+      "id": "aws-cloud-credits-research",
+      "title": "AWS Cloud Credit for Research",
+      "funder": "Amazon Web Services",
+      "url": "https://aws.amazon.com/government-education/research-and-technical-computing/cloud-credit-for-research/",
+      "for_codes": [
+        "46",
+        "49",
+        "4611"
+      ],
+      "amount_aud": 30000,
+      "amount_note": "credits, not cash",
+      "countries": [],
+      "citizenships_allowed": [],
+      "employer_types_allowed": [
+        "university",
+        "research_institute"
+      ],
+      "career_stages_allowed": [],
+      "funding_types_offered": [
+        "equipment"
+      ],
+      "status": "active",
+      "toa_codes": [
+        "4"
+      ],
+      "keywords": [
+        "cloud computing",
+        "machine learning",
+        "research infrastructure",
+        "compute credits",
+        "data-intensive research"
+      ],
+      "summary": "AWS Cloud Credit for Research provides cloud computing credits to support machine learning, data-intensive and computational research projects. Credits can be used for training models, running simulations and storing large research datasets, but cannot be converted to cash. The program is aimed at researchers who need scalable compute rather than upfront capital.",
+      "eligibility_text": "Applications are open to researchers at accredited universities and research institutes worldwide; funds are provided as cloud credits, not as a cash grant.",
+      "source_urls": [
+        "https://aws.amazon.com/government-education/research-and-technical-computing/cloud-credit-for-research/"
+      ]
+    },
+    {
+      "id": "ukri-future-leaders-2026",
+      "title": "UKRI Future Leaders Fellowship, Round 10",
+      "funder": "UK Research and Innovation",
+      "url": "https://www.ukri.org/opportunity/future-leaders-fellowships-round-10/",
+      "for_codes": [
+        "31",
+        "32",
+        "34",
+        "37",
+        "40",
+        "44",
+        "46",
+        "49",
+        "51"
+      ],
+      "amount_aud": 2800000,
+      "amount_note": "up to seven years",
+      "deadline": "2026-12-08",
+      "countries": [
+        "GB"
+      ],
+      "citizenships_allowed": [],
+      "employer_types_allowed": [
+        "university",
+        "research_institute",
+        "industry"
+      ],
+      "career_stages_allowed": [
+        "postdoc_0_2",
+        "postdoc_2_5",
+        "postdoc_5_10"
+      ],
+      "funding_types_offered": [
+        "salary",
+        "consumables",
+        "equipment"
+      ],
+      "status": "active",
+      "toa_codes": [
+        "1",
+        "2"
+      ],
+      "keywords": [
+        "future leaders",
+        "research fellowship",
+        "interdisciplinary",
+        "UK research",
+        "long-term funding"
+      ],
+      "summary": "UKRI Future Leaders Fellowships support early to mid-career researchers and innovators to develop bold, novel research programs over up to seven years. The scheme is open to all disciplines and explicitly encourages moving between academia and industry. Round 10 prioritises fellows building long-term research capability in the United Kingdom.",
+      "eligibility_text": "Applicants must be hosted by an eligible UK research organisation or business, though nationality of the applicant is not restricted.",
+      "source_urls": [
+        "https://www.ukri.org/opportunity/future-leaders-fellowships-round-10/"
+      ]
+    },
+    {
+      "id": "innovate-uk-energy-catalyst",
+      "title": "Innovate UK Energy Catalyst Round 12",
+      "funder": "Innovate UK",
+      "url": "https://apply-for-innovation-funding.service.gov.uk/competition/energy-catalyst-round-12",
+      "for_codes": [
+        "40",
+        "4008"
+      ],
+      "amount_aud": 1800000,
+      "deadline": "2026-10-08",
+      "countries": [
+        "GB"
+      ],
+      "citizenships_allowed": [],
+      "employer_types_allowed": [
+        "industry"
+      ],
+      "career_stages_allowed": [],
+      "funding_types_offered": [
+        "equipment",
+        "salary"
+      ],
+      "status": "active",
+      "toa_codes": [
+        "4"
+      ],
+      "keywords": [
+        "battery storage",
+        "energy storage",
+        "grid integration",
+        "low-carbon energy",
+        "industry innovation"
+      ],
+      "summary": "The Energy Catalyst funds industry-led projects developing innovative low-carbon energy technologies, including battery storage, grid integration and renewable generation. Round 12 particularly encourages projects that improve grid stability through energy storage. Funding supports technology development from early feasibility through to near-commercial demonstration.",
+      "eligibility_text": "Lead applicants must be a UK-registered business; academic and research organisations may participate as project partners.",
+      "source_urls": [
+        "https://apply-for-innovation-funding.service.gov.uk/competition/energy-catalyst-round-12"
+      ],
+      "amount_note": ""
+    },
+    {
+      "id": "arena-advancing-renewables",
+      "title": "ARENA Advancing Renewables Program",
+      "funder": "Australian Renewable Energy Agency",
+      "url": "https://arena.gov.au/funding/advancing-renewables-program/",
+      "for_codes": [
+        "40",
+        "4008"
+      ],
+      "amount_aud": 8000000,
+      "countries": [
+        "AU"
+      ],
+      "citizenships_allowed": [],
+      "employer_types_allowed": [
+        "industry",
+        "university",
+        "research_institute"
+      ],
+      "career_stages_allowed": [],
+      "funding_types_offered": [
+        "equipment",
+        "consumables",
+        "salary"
+      ],
+      "status": "active",
+      "toa_codes": [
+        "4"
+      ],
+      "keywords": [
+        "renewable energy",
+        "battery storage",
+        "grid",
+        "energy storage",
+        "commercialisation"
+      ],
+      "summary": "The Advancing Renewables Program funds projects that accelerate the deployment of renewable energy generation and storage technologies in Australia, including battery storage and grid-scale energy storage integration. It supports pre-commercial and early-commercial technologies moving toward market readiness. The program aims to reduce the cost and improve the reliability of the electricity grid.",
+      "eligibility_text": "Applicants must be an Australian-based industry, university or research institute proposing a project located in Australia.",
+      "source_urls": [
+        "https://arena.gov.au/funding/advancing-renewables-program/"
+      ],
+      "amount_note": ""
+    },
+    {
+      "id": "arc-future-fellowships-2026",
+      "title": "ARC Future Fellowships 2026",
+      "funder": "Australian Research Council",
+      "url": "https://www.arc.gov.au/funding-research/funding-schemes/discovery-program/future-fellowships",
+      "for_codes": [
+        "31",
+        "34",
+        "37",
+        "40",
+        "44",
+        "46",
+        "49",
+        "51"
+      ],
+      "amount_aud": 1100000,
+      "amount_note": "over four years",
+      "deadline": "2026-07-15",
+      "countries": [
+        "AU"
+      ],
+      "citizenships_allowed": [],
+      "employer_types_allowed": [
+        "university"
+      ],
+      "career_stages_allowed": [
+        "postdoc_5_10",
+        "postdoc_10_plus"
+      ],
+      "funding_types_offered": [
+        "salary",
+        "consumables"
+      ],
+      "status": "closed",
+      "toa_codes": [
+        "1"
+      ],
+      "keywords": [
+        "mid-career",
+        "fellowship",
+        "research retention",
+        "discovery",
+        "closed round"
+      ],
+      "summary": "Future Fellowships support mid-career researchers to conduct high-impact research in any discipline while building Australia's research workforce. The scheme targets researchers with a strong track record who are at risk of moving overseas or leaving research. This round has now closed to new applications.",
+      "eligibility_text": "Applicants must be employed at an eligible Australian university and fall within the years-since-PhD window set for the round; this round is now closed.",
+      "source_urls": [
+        "https://www.arc.gov.au/funding-research/funding-schemes/discovery-program/future-fellowships"
+      ]
+    },
+    {
+      "id": "nhmrc-synergy-2026",
+      "title": "NHMRC Synergy Grants 2026",
+      "funder": "National Health and Medical Research Council",
+      "url": "https://www.nhmrc.gov.au/funding/find-funding/synergy-grants",
+      "for_codes": [
+        "32",
+        "42"
+      ],
+      "amount_aud": 5000000,
+      "amount_note": "over five years",
+      "deadline": "2026-08-05",
+      "countries": [
+        "AU"
+      ],
+      "citizenships_allowed": [],
+      "employer_types_allowed": [
+        "university",
+        "research_institute"
+      ],
+      "career_stages_allowed": [
+        "postdoc_5_10",
+        "postdoc_10_plus"
+      ],
+      "funding_types_offered": [
+        "salary",
+        "consumables",
+        "equipment"
+      ],
+      "status": "active",
+      "toa_codes": [
+        "3"
+      ],
+      "keywords": [
+        "team science",
+        "multidisciplinary",
+        "health research",
+        "collaboration",
+        "synergy"
+      ],
+      "summary": "Synergy Grants fund multidisciplinary teams of investigators tackling complex health and medical research problems that cannot be addressed by a single investigator. The scheme rewards genuinely collaborative team science over individual track records. Funded teams typically span several health for codes and research institutions.",
+      "eligibility_text": "Applicant teams must include multiple chief investigators across at least two eligible Australian institutions; this round's applications have now closed.",
+      "source_urls": [
+        "https://www.nhmrc.gov.au/funding/find-funding/synergy-grants"
+      ]
+    },
+    {
+      "id": "lowitja-indigenous-health-2026",
+      "title": "Lowitja Institute Community-Led Research Grants 2026",
+      "funder": "Lowitja Institute",
+      "url": "https://www.lowitja.org.au/funding/community-led-research-grants",
+      "for_codes": [
+        "42",
+        "4206",
+        "45"
+      ],
+      "countries": [
+        "AU"
+      ],
+      "citizenships_allowed": [],
+      "employer_types_allowed": [
+        "university",
+        "research_institute",
+        "philanthropic"
+      ],
+      "career_stages_allowed": [],
+      "funding_types_offered": [
+        "consumables",
+        "salary"
+      ],
+      "status": "closed",
+      "toa_codes": [
+        "3"
+      ],
+      "keywords": [
+        "Indigenous health",
+        "community-led research",
+        "health equity",
+        "wellbeing",
+        "Aboriginal and Torres Strait Islander"
+      ],
+      "summary": "The Lowitja Institute funds community-led research that improves the health and wellbeing of Aboriginal and Torres Strait Islander peoples. Priorities include chronic disease prevention, social and emotional wellbeing, and strengthening community-controlled health services. Research must be designed and led in partnership with Indigenous communities.",
+      "eligibility_text": "Applications must be led or co-led by an Aboriginal or Torres Strait Islander community-controlled organisation; this round is now closed.",
+      "source_urls": [
+        "https://www.lowitja.org.au/funding/community-led-research-grants"
+      ],
+      "amount_note": ""
+    },
+    {
+      "id": "uom-summer-research-2026",
+      "title": "University of Melbourne Summer Research Scholarship",
+      "funder": "University of Melbourne",
+      "url": "https://scholarships.unimelb.edu.au/awards/summer-research-scholarship",
+      "for_codes": [
+        "31",
+        "32",
+        "34",
+        "37",
+        "40",
+        "42",
+        "44",
+        "46",
+        "49",
+        "51"
+      ],
+      "amount_aud": 6000,
+      "amount_note": "stipend for eight weeks",
+      "deadline": "2026-09-30",
+      "countries": [
+        "AU"
+      ],
+      "citizenships_allowed": [],
+      "employer_types_allowed": [
+        "university"
+      ],
+      "career_stages_allowed": [
+        "undergraduate"
+      ],
+      "funding_types_offered": [
+        "salary"
+      ],
+      "status": "active",
+      "toa_codes": [
+        "1"
+      ],
+      "keywords": [
+        "undergraduate research",
+        "summer scholarship",
+        "research training",
+        "stipend",
+        "University of Melbourne"
+      ],
+      "summary": "The University of Melbourne Summer Research Scholarship gives undergraduate students an eight-week, paid introduction to research under the supervision of an academic staff member. Projects span every faculty, from the sciences to the humanities. The scholarship is designed to give students a taste of research before committing to honours or graduate study.",
+      "eligibility_text": "Applicants must be currently enrolled undergraduate students at the University of Melbourne with a supervisor confirmed before applying.",
+      "source_urls": [
+        "https://scholarships.unimelb.edu.au/awards/summer-research-scholarship"
+      ]
+    },
+    {
+      "id": "amsi-vacation-research-2026",
+      "title": "AMSI Vacation Research Scholarship",
+      "funder": "Australian Mathematical Sciences Institute",
+      "url": "https://amsi.org.au/students/vacation-research-scholarships/",
+      "for_codes": [
+        "49",
+        "51",
+        "4905",
+        "5108"
+      ],
+      "amount_aud": 5000,
+      "amount_note": "six-week stipend",
+      "deadline": "2026-09-28",
+      "countries": [
+        "AU"
+      ],
+      "citizenships_allowed": [
+        "AU",
+        "NZ"
+      ],
+      "employer_types_allowed": [
+        "university"
+      ],
+      "career_stages_allowed": [
+        "undergraduate"
+      ],
+      "funding_types_offered": [
+        "salary"
+      ],
+      "status": "active",
+      "toa_codes": [
+        "1"
+      ],
+      "keywords": [
+        "mathematics",
+        "quantum",
+        "undergraduate research",
+        "vacation scholarship",
+        "statistics"
+      ],
+      "summary": "The AMSI Vacation Research Scholarship supports undergraduate students to complete a six-week mathematics or statistics research project over the summer break, including topics in quantum information and mathematical physics. Students are matched with an academic supervisor at a participating university. The program is designed to encourage students toward postgraduate study in the mathematical sciences.",
+      "eligibility_text": "Applicants must be Australian or New Zealand citizens or permanent residents, currently enrolled in an undergraduate mathematics or statistics-related degree at a participating university.",
+      "source_urls": [
+        "https://amsi.org.au/students/vacation-research-scholarships/"
+      ]
+    },
+    {
+      "id": "gbrf-reef-trust-partnership",
+      "title": "Reef Trust Partnership: Reef Restoration and Adaptation",
+      "funder": "Great Barrier Reef Foundation",
+      "url": "https://barrierreef.org/what-we-do/reef-trust-partnership",
+      "for_codes": [
+        "31",
+        "3103",
+        "3708"
+      ],
+      "amount_note": "scaled to project",
+      "deadline": "2026-12-15",
+      "countries": [
+        "AU"
+      ],
+      "citizenships_allowed": [],
+      "employer_types_allowed": [
+        "university",
+        "research_institute",
+        "philanthropic"
+      ],
+      "career_stages_allowed": [],
+      "funding_types_offered": [
+        "consumables",
+        "equipment"
+      ],
+      "status": "active",
+      "toa_codes": [
+        "3",
+        "4"
+      ],
+      "keywords": [
+        "coral reef",
+        "ocean acidification",
+        "reef resilience",
+        "restoration",
+        "Great Barrier Reef"
+      ],
+      "summary": "The Reef Trust Partnership funds large-scale reef restoration and adaptation projects addressing threats to the Great Barrier Reef, including coral bleaching and ocean acidification. It supports research into coral reef resilience and the development of interventions that help reefs adapt to a changing climate. Funding is scaled to the scope and ambition of each proposed project.",
+      "eligibility_text": "Applicants must be an eligible Australian university, research institute or philanthropic partner proposing work relevant to Great Barrier Reef restoration and adaptation.",
+      "source_urls": [
+        "https://barrierreef.org/what-we-do/reef-trust-partnership"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "_note": "Realistic crawler rows for normaliser tests. The ERC row quotes the live ERC Starting Grant page as fetched on 2026-09-07; the others are composed to resemble funder pages. Deadlines are chosen relative to the test clock TODAY = 2026-09-01.",
+  "rows": [
+    {
+      "url": "https://erc.europa.eu/apply-grant/starting-grant",
+      "title": "ERC Starting Grant - Funding Opportunities for Early-Career Researchers",
+      "raw_text": "ERC Starting Grant - Funding Opportunities for Early-Career Researchers. Home Apply for a grant Starting Grant. Starting Grants support talented early-career scientists who are ready to work independently and show potential to be research leaders. Who can apply? Researchers of any nationality with 0-10 years of experience since completion of PhD, a scientific track record showing great promise and an excellent research proposal. Research must be conducted in a public or private research organisation (known as a Host Institution) located in one of the EU Member States or associated countries. The host institution must offer suitable conditions for the PI to independently lead the research and manage funding. How much? Starting Grants may be awarded up to EUR 1.5 million for a period of 5 years. An additional EUR 1 million can be made available to cover eligible start-up costs for Principal Investigators moving from a third country to the EU. An ERC grant can cover up to 100% of the total eligible direct costs of the research plus a contribution of 25% of the total eligible costs towards indirect costs. Key dates. Starting Grant 2027 (ERC-2027-STG): Open: 22 July 2026; Deadline: 14 October 2026. Eligibility of the Principal Investigator: applicants must have been awarded their first PhD at least 2 and up to 7 years prior to 1 January 2027.",
+      "deadline_raw": "14 October 2026",
+      "deadline_parsed": "2026-10-14",
+      "funding_amount_raw": "EUR 1.5 million",
+      "eligibility_snippet": "Who can apply? Researchers of any nationality with 0-10 years of experience since completion of PhD, a scientific track record showing great promise and an excellent research proposal. Research must be conducted in a public or private research organisation (known as a Host Institution) located in one of the EU Member States or associated countries.",
+      "source_query": "early career postdoctoral fellowship research grant",
+      "first_seen_at": "2026-08-30T02:11:04+00:00",
+      "fetched_at": "2026-08-30T02:11:04+00:00",
+      "fetch_failed": 0
+    },
+    {
+      "url": "https://www.arc.gov.au/funding-research/funding-schemes/discovery-program/discovery-projects",
+      "title": "Discovery Projects | Australian Research Council",
+      "raw_text": "Discovery Projects | Australian Research Council. Skip to main content. Funding research. Discovery Projects support excellent basic and applied research and research training by individuals and teams, and expand Australia's knowledge base and research capability across all disciplines except clinical medicine and dentistry. Funding of between $30,000 and $500,000 per year for up to five years is available for each project. Eligibility. Applications must be submitted by an Eligible Organisation, which is an Australian university listed in the grant guidelines. Chief Investigators must hold a doctoral qualification and be employed by an Eligible Organisation for at least 0.2 FTE for the duration of the project. There are no citizenship or residency requirements for Chief Investigators. Key dates. Discovery Projects 2027 applications close 10 March 2027 at 5:00 pm AEDT. Funding commences 1 January 2028.",
+      "deadline_raw": "10 March 2027 at 5:00 pm AEDT",
+      "deadline_parsed": "2027-03-10",
+      "funding_amount_raw": "$500,000",
+      "eligibility_snippet": "Eligibility. Applications must be submitted by an Eligible Organisation, which is an Australian university listed in the grant guidelines. Chief Investigators must hold a doctoral qualification and be employed by an Eligible Organisation for at least 0.2 FTE for the duration of the project. There are no citizenship or residency requirements",
+      "source_query": "marine biology research grant",
+      "first_seen_at": "2026-08-30T02:12:40+00:00",
+      "fetched_at": "2026-08-30T02:12:40+00:00",
+      "fetch_failed": 0
+    },
+    {
+      "url": "https://www.nhmrc.gov.au/funding/find-funding/ideas-grants",
+      "title": "Ideas Grants | NHMRC",
+      "raw_text": "Ideas Grants | NHMRC. The Ideas Grant scheme supports innovative and creative research projects addressing a specific question in any area of health and medical research, from discovery to implementation. Budgets of up to $1,200,000 over five years may be requested. Eligibility. Applicants must be employed by, or hold an honorary appointment at, an Australian university or medical research institute that is an NHMRC Administering Institution. Early career researchers and mid-career researchers are encouraged to apply; the Chief Investigator A must be within 10 years of their PhD or equivalent. Australian citizens, permanent residents and holders of a valid visa are eligible. Salary support for the Chief Investigator is not available under this scheme; funding covers direct research costs including consumables and equipment. Key dates. Applications close 24 February 2027, 5:00 pm AEDT. Minimum data due 10 February 2027.",
+      "deadline_raw": "24 February 2027, 5:00 pm AEDT",
+      "deadline_parsed": "2027-02-24",
+      "funding_amount_raw": "$1,200,000",
+      "eligibility_snippet": "Eligibility. Applicants must be employed by, or hold an honorary appointment at, an Australian university or medical research institute that is an NHMRC Administering Institution. Early career researchers and mid-career researchers are encouraged to apply; the Chief Investigator A must be within 10 years of their PhD or equivalent. Australian citizens, permanent residents",
+      "source_query": "public health research grant",
+      "first_seen_at": "2026-08-30T02:14:02+00:00",
+      "fetched_at": "2026-08-30T02:14:02+00:00",
+      "fetch_failed": 0
+    },
+    {
+      "url": "https://www.example-news.org/2026/07/university-announces-new-lab",
+      "title": "University announces new marine science laboratory",
+      "raw_text": "University announces new marine science laboratory. Published 3 July 2026. The university today opened a new coastal laboratory that will host research into reef ecosystems and ocean acidification. The facility cost $5 million to build and was funded through a philanthropic gift. Researchers said the laboratory would support students and staff across biology and earth sciences. Read more news. Contact us. Privacy policy.",
+      "deadline_raw": null,
+      "deadline_parsed": null,
+      "funding_amount_raw": "$5 million",
+      "eligibility_snippet": null,
+      "source_query": "coral reef resilience research funding",
+      "first_seen_at": "2026-08-30T02:15:11+00:00",
+      "fetched_at": "2026-08-30T02:15:11+00:00",
+      "fetch_failed": 0
+    },
+    {
+      "url": "https://www.example-foundation.org/grants/travel-award-2026",
+      "title": "Student Travel Award 2026",
+      "raw_text": "Student Travel Award 2026. The Foundation offers travel awards of up to AUD 3,000 to support undergraduate and postgraduate students presenting at international conferences. Eligibility: applicants must be currently enrolled students at an Australian university and must be Australian or New Zealand citizens. Applications closed on 15 August 2026. Results will be announced in September.",
+      "deadline_raw": "15 August 2026",
+      "deadline_parsed": "2026-08-15",
+      "funding_amount_raw": "AUD 3,000",
+      "eligibility_snippet": "Eligibility: applicants must be currently enrolled students at an Australian university and must be Australian or New Zealand citizens. Applications closed on 15 August 2026. Results will be announced in September.",
+      "source_query": "undergraduate scholarship research grant",
+      "first_seen_at": "2026-08-30T02:16:30+00:00",
+      "fetched_at": "2026-08-30T02:16:30+00:00",
+      "fetch_failed": 0
+    }
+  ]
+}
