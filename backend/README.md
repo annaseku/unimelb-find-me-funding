@@ -7,7 +7,7 @@ Two packages live here. `crawler/` (Jummana) discovers and stores funding pages;
 | Crawler (discovery, fetch, extract, store) | Built, see `crawler/README` |
 | Ranking engine (four criterion scores, weighted overall) | Prototype built, scores structured mock data |
 | FastAPI search endpoint for the frontend | Prototype built |
-| Normalising crawler rows into structured opportunities | Not started |
+| Normalising crawler rows into structured opportunities | Prototype built, rules plus optional Anthropic extractor, see Normaliser below |
 | LLM or embedding research-match scorer | Not started, seam is in `ranking/research_match.py` |
 
 ## Setup
@@ -37,6 +37,26 @@ curl -s -X POST localhost:8000/api/search -H 'content-type: application/json' \
   -d '{"citizenships":["AU"],"career_stage":"postdoc_2_5","for_codes":["3103"],"research_description":"coral reef resilience"}'
 ```
 
+## Normaliser
+
+`normaliser/` turns the crawler's raw rows (page text, a parsed deadline, a raw dollar string, an eligibility snippet) into the structured `Opportunity` records the ranker scores. Deterministic rules run first and stamp every field with where it came from; if `ANTHROPIC_API_KEY` is set, a model extractor fills the prose-derived fields (citizenship, career stage, research codes, funder name, summary) and never overrides a rule-parsed date or amount. Results land in a `normalised_opportunities` table in the same SQLite file; the crawler's own table is never written.
+
+```bash
+python -m backend.normaliser.run --db backend/funding_crawler.db            # rules, plus the model if a key is set
+python -m backend.normaliser.run --db backend/funding_crawler.db --no-llm   # rules only
+FMF_DATA_SOURCE=sqlite FMF_DB_PATH=backend/funding_crawler.db uvicorn backend.api.main:app --reload
+```
+
+| Variable | Effect |
+| --- | --- |
+| `FMF_DATA_SOURCE` | `mock` (default) serves `data/mock_opportunities.json`; `sqlite` serves the normalised table |
+| `FMF_DB_PATH` | SQLite file for `sqlite` mode; defaults to the crawler's `DB_PATH` |
+| `ANTHROPIC_API_KEY` | Enables the extractor. Everything runs without it; the records are just sparser |
+| `FMF_LLM_MODEL` | Model for the extractor, default `claude-opus-5` |
+| `FMF_LLM` | Set to `off` to skip the extractor even when a key is present |
+
+The extractor runs once per changed page: unchanged pages are skipped by content hash on later runs, so re-running the pipeline daily costs only what the crawler found new. Design record: `docs/adr/ADR-003-normaliser.md`.
+
 ## CI/CD
 
 `.github/workflows/backend-ci.yml` runs on every pull request and push to main that touches `backend/`: ruff lint and format check, pytest plus the ranking evals on Python 3.11, 3.12 and 3.13, and a Docker build of `backend/Dockerfile`. Reproduce it locally from the repository root:
@@ -63,4 +83,4 @@ Each opportunity gets four separate scores, each with a label and plain-English 
 
 `ranking/ranker.py` combines them with the weights in `ranking/weights.py` (default eligibility 0.4, match 0.3, funding 0.15, deadline 0.15; any request can override) and filters closed opportunities unless `include_closed` is set. The API pages over the ranked list with `limit` and `offset`.
 
-The ranker currently scores the illustrative opportunities in `data/mock_opportunities.json`. Wiring it to the crawler's SQLite rows needs a normalisation step that turns raw page text into the structured `Opportunity` fields in `ranking/models.py`; `data/repository.py` is the one class to replace. Design record: `docs/adr/ADR-002-ranking-engine.md`. Decisions still needing client confirmation: `docs/ranking-discussion-points.md`.
+By default the ranker scores the illustrative opportunities in `data/mock_opportunities.json`. With `FMF_DATA_SOURCE=sqlite` it scores whatever the normaliser has produced from the crawler's rows (see Normaliser above). Design records: `docs/adr/ADR-002-ranking-engine.md` and `docs/adr/ADR-003-normaliser.md`. Decisions still needing client confirmation: `docs/ranking-discussion-points.md`.
