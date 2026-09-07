@@ -6,10 +6,9 @@ on:
     paths:
       - "frontend/**"
       - ".github/workflows/frontend-ci.yml"
+  # Every PR, unfiltered: these jobs are required status checks on main, and a
+  # required check that never reports blocks the merge forever.
   pull_request:
-    paths:
-      - "frontend/**"
-      - ".github/workflows/frontend-ci.yml"
   workflow_dispatch:
 
 permissions:
