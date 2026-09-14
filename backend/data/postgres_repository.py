@@ -17,8 +17,10 @@ uses by default.
 from __future__ import annotations
 
 from collections.abc import Iterable
+from pathlib import Path
 
 import psycopg
+from dotenv import load_dotenv
 from psycopg import errors
 from psycopg.types.json import Jsonb
 
@@ -26,6 +28,13 @@ from backend.data.repository import OpportunityRepository
 from backend.normaliser.models import NormalisedRecord
 from backend.normaliser.pipeline import NORMALISED_TABLE
 from backend.ranking.models import Opportunity
+
+# Importing this module loads backend/.env, so FMF_DATABASE_URL can live in a
+# file rather than an export in every shell. Both the API's postgres branch
+# and publish.py reach Postgres through here, so one load covers both.
+# load_dotenv never overrides a variable already set, which is what keeps
+# Render's dashboard values authoritative in the deployed service.
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 
 def init_schema(conn: psycopg.Connection) -> None:

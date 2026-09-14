@@ -76,10 +76,11 @@ SQLite is a file on whoever ran the crawler. The deployed API cannot read it, be
 
 `data/publish.py` is what puts records there. It copies either a normalised crawler database (the real path) or the illustrative mock set (to seed an empty deployment), and creates the table on first run.
 
+Put `FMF_DATABASE_URL` in `backend/.env` (copy the name from `.env.example`); `postgres_repository.py` loads that file on import, so there is nothing to export. Then, from the repository root:
+
 ```bash
-export FMF_DATABASE_URL='postgresql://postgres.<ref>:<password>@aws-N-ap-southeast-1.pooler.supabase.com:5432/postgres'
-python -m backend.data.publish --source mock
-python -m backend.data.publish --source sqlite --db-path backend/funding_crawler.db
+python3 -m backend.data.publish --source mock                                  # seed the 30 illustrative records
+python3 -m backend.data.publish --source sqlite --db-path backend/funding_crawler.db
 FMF_DATA_SOURCE=postgres uvicorn backend.api.main:app --reload
 ```
 
