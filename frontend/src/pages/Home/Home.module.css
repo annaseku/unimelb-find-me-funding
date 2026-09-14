@@ -11,6 +11,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 10px;
     height: 50px;
 }
 
@@ -33,9 +34,15 @@
     font-size: 22px;
 }
 
-.searchbarContainer [data-icon="search"] {
-    margin-left: -50px;
-    margin-right: 20px;
+.searchButton {
+    height: 50px;
+    padding: 0 20px;
+    border: none;
+    border-radius: 20px;
+    background: #000F46;
+    color: #ffffff;
+    font-family: 'Source Sans 3';
+    cursor: pointer;
 }
 
 .homeContainer{

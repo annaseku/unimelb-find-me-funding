@@ -1,0 +1,113 @@
+"""Eligibility is the client's top priority and has four states (decision 4).
+Each test names the rule it proves."""
+
+import pytest
+
+from backend.ranking.eligibility import ELIGIBILITY_SCORES, score_eligibility
+from backend.ranking.models import (
+    CareerStage,
+    EligibilityState,
+    EmployerType,
+    FundingType,
+    Opportunity,
+    SearchRequest,
+)
+
+
+def make_opportunity(**overrides) -> Opportunity:
+    base = dict(id="o1", title="T", funder="F", url="https://example.org", summary="s")
+    return Opportunity(**{**base, **overrides})
+
+
+def test_no_restrictions_stated_is_potentially_eligible():
+    result = score_eligibility(make_opportunity(), SearchRequest())
+    assert result.label == EligibilityState.POTENTIALLY_ELIGIBLE
+    assert result.score == ELIGIBILITY_SCORES[EligibilityState.POTENTIALLY_ELIGIBLE]
+    assert any("no restrictions" in r.lower() for r in result.reasons)
+
+
+def test_restriction_stated_but_nothing_supplied_is_unknown():
+    opportunity = make_opportunity(citizenships_allowed=["AU"])
+    result = score_eligibility(opportunity, SearchRequest())
+    assert result.label == EligibilityState.UNKNOWN
+
+
+def test_citizenship_mismatch_is_likely_ineligible_and_still_scored():
+    opportunity = make_opportunity(citizenships_allowed=["AU", "NZ"])
+    result = score_eligibility(opportunity, SearchRequest(citizenships=["GB"]))
+    assert result.label == EligibilityState.LIKELY_INELIGIBLE
+    assert result.score > 0, "decision 4: de-ranked, never dropped by the scorer"
+    assert any("AU" in r and "GB" in r for r in result.reasons)
+
+
+def test_one_of_several_citizenships_matching_passes():
+    opportunity = make_opportunity(citizenships_allowed=["AU"])
+    result = score_eligibility(opportunity, SearchRequest(citizenships=["GB", "AU"]))
+    assert result.label == EligibilityState.ELIGIBLE
+
+
+def test_all_stated_restrictions_passing_is_eligible_with_score_one():
+    opportunity = make_opportunity(
+        citizenships_allowed=["AU"],
+        employer_types_allowed=[EmployerType.UNIVERSITY],
+        career_stages_allowed=[CareerStage.POSTDOC_2_5],
+        funding_types_offered=[FundingType.SALARY],
+    )
+    request = SearchRequest(
+        citizenships=["AU"],
+        employer_type=EmployerType.UNIVERSITY,
+        career_stage=CareerStage.POSTDOC_2_5,
+        funding_types=[FundingType.SALARY],
+    )
+    result = score_eligibility(opportunity, request)
+    assert result.label == EligibilityState.ELIGIBLE
+    assert result.score == 1.0
+    assert len(result.reasons) == 4
+
+
+def test_mixed_pass_and_unknown_is_potentially_eligible():
+    opportunity = make_opportunity(
+        citizenships_allowed=["AU"], career_stages_allowed=[CareerStage.UNDERGRADUATE]
+    )
+    result = score_eligibility(opportunity, SearchRequest(citizenships=["AU"]))
+    assert result.label == EligibilityState.POTENTIALLY_ELIGIBLE
+
+
+def test_employer_type_mismatch_fails():
+    opportunity = make_opportunity(employer_types_allowed=[EmployerType.INDUSTRY])
+    result = score_eligibility(opportunity, SearchRequest(employer_type=EmployerType.UNIVERSITY))
+    assert result.label == EligibilityState.LIKELY_INELIGIBLE
+
+
+def test_career_stage_mismatch_fails():
+    opportunity = make_opportunity(career_stages_allowed=[CareerStage.POSTDOC_0_2])
+    result = score_eligibility(
+        opportunity, SearchRequest(career_stage=CareerStage.GRADUATE_STUDENT)
+    )
+    assert result.label == EligibilityState.LIKELY_INELIGIBLE
+
+
+@pytest.mark.parametrize("wanted", [FundingType.ALL, FundingType.ANY])
+def test_all_or_any_funding_type_never_contradicts(wanted):
+    opportunity = make_opportunity(funding_types_offered=[FundingType.EQUIPMENT])
+    result = score_eligibility(opportunity, SearchRequest(funding_types=[wanted]))
+    assert result.label == EligibilityState.ELIGIBLE
+
+
+def test_funding_type_not_offered_fails():
+    opportunity = make_opportunity(funding_types_offered=[FundingType.EQUIPMENT])
+    result = score_eligibility(opportunity, SearchRequest(funding_types=[FundingType.SALARY]))
+    assert result.label == EligibilityState.LIKELY_INELIGIBLE
+
+
+def test_funding_type_is_skipped_when_the_researcher_lists_none():
+    # No requested funding type means no need was expressed, so it is neither
+    # a pass nor an unknown; the opportunity has nothing else stated.
+    opportunity = make_opportunity(funding_types_offered=[FundingType.EQUIPMENT])
+    result = score_eligibility(opportunity, SearchRequest())
+    assert result.label == EligibilityState.POTENTIALLY_ELIGIBLE
+
+
+def test_every_result_has_at_least_one_reason():
+    for request in (SearchRequest(), SearchRequest(citizenships=["AU"])):
+        assert score_eligibility(make_opportunity(citizenships_allowed=["AU"]), request).reasons

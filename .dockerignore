@@ -1,0 +1,11 @@
+# Build context is the repository root (see backend/Dockerfile). Only the
+# backend package goes into the image.
+*
+!backend/
+backend/.venv/
+backend/tests/
+backend/.pytest_cache/
+backend/.ruff_cache/
+backend/**/__pycache__/
+backend/*.db
+backend/.env*
