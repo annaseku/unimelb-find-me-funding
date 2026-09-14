@@ -15,7 +15,7 @@ Jira: KAN-
 <!-- Tick what you ran. Delete the rows that do not apply. -->
 
 - [ ] `pytest backend` passes; `ruff check backend` and `ruff format --check backend` clean
-- [ ] `python -m backend.evals.run_evals` still scores 1.00 (ranking or normaliser changes)
+- [ ] `python -m backend.evals.run_evals` runs and the report has not regressed (ranking or normaliser changes)
 - [ ] `npm test`, `npm run lint` and `npm run build` in `frontend/` pass
 - [ ] Manually checked: <!-- what you did in the browser or with curl -->
 - [ ] All seven CI jobs green on this PR
