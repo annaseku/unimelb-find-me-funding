@@ -58,12 +58,26 @@ def load_mock_profiles(path: Path = PROFILES_FILE) -> list[MockProfile]:
 def get_repository() -> OpportunityRepository:
     """Loaded once per process; the API depends on this.
 
-    FMF_DATA_SOURCE=sqlite reads FMF_DB_PATH (default the crawler's DB_PATH);
-    anything else (including unset) keeps the illustrative mock set. Reading
-    os.environ inside the function, rather than at import time, is what lets
-    tests switch data sources with monkeypatch.setenv plus cache_clear().
+    FMF_DATA_SOURCE=postgres reads FMF_DATABASE_URL (this is what the Render
+    deployment uses); FMF_DATA_SOURCE=sqlite reads FMF_DB_PATH (default the
+    crawler's DB_PATH); anything else (including unset) keeps the
+    illustrative mock set. Reading os.environ inside the function, rather
+    than at import time, is what lets tests switch data sources with
+    monkeypatch.setenv plus cache_clear().
     """
-    if os.environ.get("FMF_DATA_SOURCE") == "sqlite":
+    source = os.environ.get("FMF_DATA_SOURCE")
+
+    if source == "postgres":
+        # Imported lazily so the mock and sqlite paths never need psycopg,
+        # and so an unset FMF_DATABASE_URL fails here rather than at import.
+        from backend.data.postgres_repository import PostgresRepository
+
+        database_url = os.environ.get("FMF_DATABASE_URL")
+        if not database_url:
+            raise RuntimeError("FMF_DATA_SOURCE=postgres requires FMF_DATABASE_URL")
+        return PostgresRepository(database_url)
+
+    if source == "sqlite":
         # Imported lazily: sqlite_repository imports OpportunityRepository
         # from this module, so importing it at module level would cycle.
         from backend.crawler.config import DB_PATH
