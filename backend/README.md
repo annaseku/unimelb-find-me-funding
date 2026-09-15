@@ -61,13 +61,32 @@ FMF_DATA_SOURCE=sqlite FMF_DB_PATH=backend/funding_crawler.db uvicorn backend.ap
 
 | Variable | Effect |
 | --- | --- |
-| `FMF_DATA_SOURCE` | `mock` (default) serves `data/mock_opportunities.json`; `sqlite` serves the normalised table |
+| `FMF_DATA_SOURCE` | `mock` (default) serves `data/mock_opportunities.json`; `sqlite` serves the normalised table; `postgres` serves Supabase (see Supabase Postgres below) |
 | `FMF_DB_PATH` | SQLite file for `sqlite` mode; defaults to the crawler's `DB_PATH` |
+| `FMF_DATABASE_URL` | Postgres connection string for `postgres` mode. Required in that mode; the API raises rather than quietly falling back to mocks |
 | `GEMINI_API_KEY` | Enables the extractor. Everything runs without it; the records are just sparser |
 | `FMF_LLM_MODEL` | Gemini model for the extractor, default `gemini-2.5-flash` |
 | `FMF_LLM` | Set to `off` to skip the extractor even when a key is present |
 
 The extractor runs once per changed page: unchanged pages are skipped by content hash on later runs, so re-running the pipeline daily costs only what the crawler found new. Design record: `docs/adr/ADR-003-normaliser.md`.
+
+## Supabase Postgres
+
+SQLite is a file on whoever ran the crawler. The deployed API cannot read it, because Render's free plan has no persistent disk, so the container filesystem resets on every deploy. `data/postgres_repository.py` serves the same `normalised_opportunities` table out of Supabase Postgres instead, behind the same repository interface, so the API code is unchanged.
+
+`data/publish.py` is what puts records there. It copies either a normalised crawler database (the real path) or the illustrative mock set (to seed an empty deployment), and creates the table on first run.
+
+Put `FMF_DATABASE_URL` in `backend/.env` (copy the name from `.env.example`); `postgres_repository.py` loads that file on import, so there is nothing to export. Then, from the repository root:
+
+```bash
+python3 -m backend.data.publish --source mock                                  # seed the 30 illustrative records
+python3 -m backend.data.publish --source sqlite --db-path backend/funding_crawler.db
+FMF_DATA_SOURCE=postgres uvicorn backend.api.main:app --reload
+```
+
+**Use the Supavisor session-mode pooler URL, port 5432, not the direct connection string.** Supabase's direct endpoint (`db.<ref>.supabase.co`) publishes only an IPv6 `AAAA` record on the free plan, and Render is IPv4-only, so a direct URL fails from the deployed service while working fine from a laptop. Transaction mode (port 6543) is also wrong here: it does not support the prepared statements psycopg uses. Copy the exact string from the Supabase dashboard's **Connect** button, session mode.
+
+Free-plan projects pause after seven days of low database activity, which the scheduled crawl prevents once it runs against Postgres. Until then, an idle project pauses and the API serves zero results.
 
 ## CI/CD
 

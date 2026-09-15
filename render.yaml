@@ -18,3 +18,13 @@ services:
       # Value is entered in the Render dashboard, never in the repo. Unused so far.
       - key: GEMINI_API_KEY
         sync: false
+      # Serve ranked results out of Supabase Postgres rather than the
+      # illustrative mock set (backend/data/repository.py).
+      - key: FMF_DATA_SOURCE
+        value: postgres
+      # Entered in the Render dashboard, never in the repo. This MUST be the
+      # Supavisor *session mode* pooler URL (port 5432,
+      # aws-N-ap-southeast-1.pooler.supabase.com), because Render's network is
+      # IPv4-only and Supabase's direct connection string resolves to IPv6.
+      - key: FMF_DATABASE_URL
+        sync: false

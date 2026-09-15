@@ -41,6 +41,23 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.11", "3.12", "3.13"]
+    # The Postgres repository tests assert what Postgres does with what we
+    # send (JSONB round-trip, ON CONFLICT upsert), so they run against a real
+    # one. Without this service they would skip, and a skipped test would
+    # report green while proving nothing.
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: fmf_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -50,6 +67,8 @@ jobs:
           cache-dependency-path: backend/requirements*.txt
       - run: pip install -r backend/requirements-dev.txt
       - run: pytest backend -q
+        env:
+          FMF_TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/fmf_test
       - name: Ranking evals
         run: python -m backend.evals.run_evals
 
