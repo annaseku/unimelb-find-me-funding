@@ -1,8 +1,19 @@
 # API contract: backend to frontend
 
-The seam between `backend/api/` and `frontend/`. This answers Jira KAN-11 (create API agreement). The authoritative version is the OpenAPI schema the backend serves at `http://localhost:8000/openapi.json`, with interactive docs at `/docs`. This file is the human summary; if the two disagree, the running backend wins and this file is stale.
+The seam between `backend/api/` and `frontend/`. This answers Jira KAN-11 (create API agreement). The authoritative version is the OpenAPI schema the backend serves at `/openapi.json`, with interactive docs at `/docs`. This file is the human summary; if the two disagree, the running backend wins and this file is stale.
 
-All endpoints are under `/api`. Requests and responses are JSON. CORS allows the Vite dev server on port 5173.
+All endpoints are under `/api`. Requests and responses are JSON.
+
+## Base URL
+
+| Where | URL |
+| --- | --- |
+| Deployed | `https://find-me-funding-api.onrender.com` |
+| Local | `http://localhost:8000` (`uvicorn backend.api.main:app --reload` from the repository root) |
+
+Read it from an environment variable rather than hardcoding it, so the same build can point at either. The deployed service is on Render's free plan, which sleeps after about 15 minutes idle: the first request after that takes close to a minute while the container wakes, and the UI should say so rather than show a spinner that looks stuck.
+
+CORS allows the Vite dev server (`localhost:5173` and `127.0.0.1:5173`) and the deployed frontend at `https://annaseku.github.io`. Serving the frontend from anywhere else needs that origin adding in `backend/api/main.py`.
 
 ## `GET /api/health`
 
