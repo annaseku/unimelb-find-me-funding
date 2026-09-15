@@ -48,3 +48,7 @@
     font-family: 'Source Sans 3';
     cursor: pointer;
 }
+.resultsContainer { width: min(1100px, calc(100% - 40px)); max-width: none; margin: 150px auto 40px; }
+.dropdownContainer { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.searchInput { max-width: 100%; min-width: 0; }
+.searchButton:disabled { opacity: .6; cursor: wait; }

@@ -41,7 +41,7 @@ describe('Home', () => {
     renderHome();
 
     dropdownLabels.forEach((label) => {
-      expect(screen.getByRole('button', { name: label })).toBeInTheDocument();
+      expect(screen.getByRole('combobox', { name: label })).toBeInTheDocument();
     });
     expect(screen.getByPlaceholderText(searchPlaceholder)).toBeInTheDocument();
   });
@@ -69,19 +69,17 @@ describe('Home', () => {
     const user = userEvent.setup();
     renderHome();
 
-    await user.click(screen.getByRole('button', { name: 'Field of Research' }));
-    await user.click(screen.getByRole('button', { name: 'Climate Science' }));
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Field of Research' }), '3103');
 
-    await user.click(screen.getByRole('button', { name: 'Career Stage' }));
-    await user.click(screen.getByRole('button', { name: 'Postdoc 2-5' }));
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Career Stage' }), 'postdoc_2_5');
 
     await user.click(screen.getByRole('button', { name: 'Search funding' }));
 
     const state = readNavigatedState();
     expect(state.filters).toEqual({
       ...defaultFilterValues,
-      fieldOfResearch: 'Climate Science',
-      careerStage: 'Postdoc 2-5',
+      fieldOfResearch: '3103',
+      careerStage: 'postdoc_2_5',
     });
   });
 });

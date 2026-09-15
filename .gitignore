@@ -7,4 +7,9 @@ data/*.db
 .vscode/
 .idea/
 .DS_Store
+
+# Frontend dependencies and build output
+node_modules/
+dist/
 .env
+.env.local

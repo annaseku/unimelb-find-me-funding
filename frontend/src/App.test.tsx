@@ -1,8 +1,12 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import App from './App';
+
+import { page } from './test/fundingFixture';
+beforeEach(() => { vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => page })); });
+afterEach(() => vi.unstubAllGlobals());
 
 const findTimeout = { timeout: 2000 };
 
@@ -52,6 +56,6 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: 'Search funding' }));
 
     await screen.findByText('1 Results Found', {}, findTimeout);
-    expect(screen.getByText('Climate and Ocean Research Fellowship')).toBeInTheDocument();
+    expect(screen.getByText('ARC Research Grant')).toBeInTheDocument();
   });
 });
