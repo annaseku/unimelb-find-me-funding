@@ -1,0 +1,30 @@
+# Render Blueprint for the backend API (docs/adr/ADR-003-deployment-architecture.md).
+# Render builds backend/Dockerfile from the repository root on every push to main.
+# The frontend stays on GitHub Pages (.github/workflows/frontend-cd.yml).
+services:
+  - type: web
+    name: find-me-funding-api
+    runtime: docker
+    region: singapore
+    plan: free
+    branch: main
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    envVars:
+      # The Dockerfile binds uvicorn to 8000; telling Render the port avoids detection.
+      - key: PORT
+        value: "8000"
+      # Value is entered in the Render dashboard, never in the repo. Unused so far.
+      - key: GEMINI_API_KEY
+        sync: false
+      # Serve ranked results out of Supabase Postgres rather than the
+      # illustrative mock set (backend/data/repository.py).
+      - key: FMF_DATA_SOURCE
+        value: postgres
+      # Entered in the Render dashboard, never in the repo. This MUST be the
+      # Supavisor *session mode* pooler URL (port 5432,
+      # aws-N-ap-southeast-1.pooler.supabase.com), because Render's network is
+      # IPv4-only and Supabase's direct connection string resolves to IPv6.
+      - key: FMF_DATABASE_URL
+        sync: false

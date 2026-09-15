@@ -1,6 +1,5 @@
-.resultContainer {
-    background-color: #BFCED5;
-    border-radius: 20px;
-    padding: 10px;
-    margin-top: 10px;
-}
+.resultContainer { background-color: #BFCED5; border-radius: 20px; padding: 24px; margin-top: 16px; overflow-wrap: anywhere; }
+.resultContainer h2 { font-size: 26px; }
+.resultContainer h3 { font-size: 20px; }
+.criteria { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+.criteria ul { padding-left: 20px; }

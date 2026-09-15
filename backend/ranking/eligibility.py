@@ -30,7 +30,7 @@ ELIGIBILITY_SCORES: dict[EligibilityState, float] = {
 class Check(Enum):
     PASS = "pass"
     FAIL = "fail"
-    UNKNOWN = "unknown"   # the funder restricts this, the researcher said nothing
+    UNKNOWN = "unknown"  # the funder restricts this, the researcher said nothing
 
 
 def _join(values) -> str:
@@ -47,7 +47,10 @@ def _check_membership(label: str, allowed: list, supplied: list) -> tuple[Check,
         return Check.UNKNOWN, f"{label} is restricted to {_join(allowed)}; you did not say."
     matches = [s for s in supplied if s in allowed]
     if matches:
-        return Check.PASS, f"{label} accepted: open to {_join(allowed)}; you selected {_join(matches)}."
+        return (
+            Check.PASS,
+            f"{label} accepted: open to {_join(allowed)}; you selected {_join(matches)}.",
+        )
     return Check.FAIL, f"{label} restricted to {_join(allowed)}; you selected {_join(supplied)}."
 
 
@@ -111,7 +114,7 @@ def _state_from_checks(checks: list[Check]) -> EligibilityState:
     passes = checks.count(Check.PASS)
     unknowns = checks.count(Check.UNKNOWN)
     if passes == 0 and unknowns == 0:
-        return EligibilityState.POTENTIALLY_ELIGIBLE   # nothing checkable was stated
+        return EligibilityState.POTENTIALLY_ELIGIBLE  # nothing checkable was stated
     if passes == 0:
         return EligibilityState.UNKNOWN
     if unknowns == 0:

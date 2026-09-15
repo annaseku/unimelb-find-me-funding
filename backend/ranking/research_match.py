@@ -52,7 +52,10 @@ def _for_overlap(wanted: list[str], offered: list[str]) -> tuple[float, str]:
         return 1.0, f"Matches your field of research code {', '.join(exact)}."
     divisions = {c[:2] for c in wanted} & {c[:2] for c in offered}
     if divisions:
-        return 0.5, f"Same research division ({', '.join(sorted(divisions))}) but not your exact code."
+        return (
+            0.5,
+            f"Same research division ({', '.join(sorted(divisions))}) but not your exact code.",
+        )
     return 0.0, "Different field of research codes."
 
 
@@ -65,7 +68,10 @@ def _text_overlap(description: str, opportunity: Opportunity) -> tuple[float, st
     coverage = len(shared) / len(wanted)
     score = min(coverage / FULL_TEXT_COVERAGE, 1.0)
     if shared:
-        return score, f"Your description shares terms with the opportunity: {', '.join(sorted(shared)[:5])}."
+        return (
+            score,
+            f"Your description shares terms with the opportunity: {', '.join(sorted(shared)[:5])}.",
+        )
     return 0.0, "Your description shares no terms with the opportunity."
 
 

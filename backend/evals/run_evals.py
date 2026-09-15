@@ -110,15 +110,18 @@ def evaluate(today: date, weights: Weights = DEFAULT_WEIGHTS) -> EvalReport:
                 report.top5_passed += 1
             else:
                 position = order.index(opp_id) + 1 if opp_id in order else None
-                report.failures.append(f"{profile.id}: {opp_id} expected in top 5, was at {position}")
+                report.failures.append(
+                    f"{profile.id}: {opp_id} expected in top 5, was at {position}"
+                )
 
         for opp_id in expected.get("must_not_be_in_top_10", []):
             report.top10_checks += 1
             if opp_id not in order[:10]:
                 report.top10_passed += 1
             else:
+                position = order.index(opp_id) + 1
                 report.failures.append(
-                    f"{profile.id}: {opp_id} expected outside top 10, was at {order.index(opp_id) + 1}"
+                    f"{profile.id}: {opp_id} expected outside top 10, was at {position}"
                 )
         reports.append(report)
     return EvalReport(per_profile=reports)
@@ -149,7 +152,9 @@ def _print_weight_sensitivity(today: date) -> None:
     for profile in load_mock_profiles():
         print(f"\n{profile.id}")
         for name, weights in ALTERNATIVE_WEIGHTS.items():
-            top = [r.opportunity.id for r in rank(opportunities, profile.request, weights, today)[:5]]
+            top = [
+                r.opportunity.id for r in rank(opportunities, profile.request, weights, today)[:5]
+            ]
             print(f"  {name:18} {', '.join(top)}")
 
 

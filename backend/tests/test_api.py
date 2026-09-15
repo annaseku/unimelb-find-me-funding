@@ -29,6 +29,33 @@ def test_health(client):
     assert body["version"]
 
 
+@pytest.mark.parametrize(
+    "origin",
+    ["http://localhost:5173", "http://127.0.0.1:5173", "https://annaseku.github.io"],
+)
+def test_cors_allows_the_vite_dev_server_and_the_pages_frontend(client, origin):
+    # A browser preflight for the search endpoint from an allowed origin.
+    response = client.options(
+        "/api/search",
+        headers={
+            "Origin": origin,
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "content-type",
+        },
+    )
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == origin
+    assert "POST" in response.headers["access-control-allow-methods"]
+
+
+def test_cors_rejects_an_unknown_origin(client):
+    response = client.options(
+        "/api/search",
+        headers={"Origin": "https://evil.example", "Access-Control-Request-Method": "POST"},
+    )
+    assert "access-control-allow-origin" not in response.headers
+
+
 def test_empty_search_returns_first_ten_and_total_of_open_set(client):
     body = client.post("/api/search", json={}).json()
     assert len(body["results"]) == 10
@@ -66,9 +93,7 @@ def test_weights_are_echoed_and_overridable(client):
 def test_hide_ineligible_removes_likely_ineligible_end_to_end(client):
     request = {"citizenships": ["US"], "employer_type": "industry", "limit": 100}
     shown = client.post("/api/search", json=request).json()["results"]
-    hidden = client.post("/api/search", json={**request, "hide_ineligible": True}).json()[
-        "results"
-    ]
+    hidden = client.post("/api/search", json={**request, "hide_ineligible": True}).json()["results"]
     assert any(r["eligibility"]["label"] == "likely_ineligible" for r in shown)
     assert not any(r["eligibility"]["label"] == "likely_ineligible" for r in hidden)
     assert len(hidden) < len(shown)
@@ -94,3 +119,42 @@ def test_get_opportunity_by_id_including_closed(client):
 
 def test_unknown_opportunity_is_404(client):
     assert client.get("/api/opportunities/nope").status_code == 404
+
+
+def _crawled_row_fields(row) -> dict:
+    return {
+        "title": row.title,
+        "raw_text": row.raw_text,
+        "deadline_raw": row.deadline_raw,
+        "deadline_parsed": row.deadline_parsed,
+        "funding_amount_raw": row.funding_amount_raw,
+        "eligibility_snippet": row.eligibility_snippet,
+    }
+
+
+@pytest.fixture
+def sqlite_data_source(tmp_path, monkeypatch):
+    """Points get_repository at a normalised temp database for the duration
+    of one test, then clears the cache again so the mock-backed tests above
+    keep passing regardless of test order."""
+    from backend.crawler.storage import init_db, save_opportunity
+    from backend.normaliser.pipeline import normalise_database
+    from backend.normaliser.rules import load_fixture_rows
+    from backend.tests.conftest import TODAY
+
+    db = tmp_path / "crawler.db"
+    init_db(str(db))
+    for row in load_fixture_rows():
+        save_opportunity(row.url, _crawled_row_fields(row), row.source_query or "", db_path=str(db))
+    normalise_database(db, TODAY)
+
+    monkeypatch.setenv("FMF_DATA_SOURCE", "sqlite")
+    monkeypatch.setenv("FMF_DB_PATH", str(db))
+    get_repository.cache_clear()
+    yield db
+    get_repository.cache_clear()
+
+
+def test_search_reads_from_the_sqlite_repository_when_selected(client, sqlite_data_source):
+    body = client.post("/api/search", json={"include_closed": True, "limit": 100}).json()
+    assert body["total"] == 5
