@@ -1,0 +1,162 @@
+<mxfile host="app.diagrams.net" agent="Find Me Funding" type="device">
+  <diagram name="ER Diagram" id="er-v2">
+    <mxGraphModel dx="1400" dy="900" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1240" pageHeight="930" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="t1" value="Find Me Funding — Database ER Diagram" style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=20;fontStyle=1;fontColor=#1F2937;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="40" y="14" width="1160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="t2" value="Last Updated: 21 Sep 2026  ·  v1.1" style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;fontStyle=0;fontColor=#4B5563;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="40" y="44" width="1160" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="t3" value="// Physical schema as created by backend/crawler/storage.py and backend/data/postgres_repository.py.&lt;br/&gt;// The normalised record is stored as JSONB, so its logical entities are shown separately on the right." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontStyle=0;fontColor=#4B5563;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="80" y="64" width="1080" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="phys" value="Physical schema" style="rounded=1;arcSize=3;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=13;fontStyle=1;fontColor=#DC2626;verticalAlign=top;spacingTop=6;dashed=1;dashPattern=6 4;strokeWidth=1.3;fillColor=#FEE2E2;fillOpacity=35;strokeColor=#DC2626;" vertex="1" parent="1">
+          <mxGeometry x="50" y="120" width="440" height="775" as="geometry" />
+        </mxCell>
+        <mxCell id="t_opp" value="&lt;i&gt;&amp;#171;crawler raw store&amp;#187;&lt;/i&gt;&lt;br/&gt;&lt;b&gt;opportunities&lt;/b&gt;&lt;hr size='1'/&gt;&lt;b&gt;url&lt;/b&gt; : TEXT &amp;nbsp;&lt;i&gt;PK&lt;/i&gt;&lt;br/&gt;title : TEXT&lt;br/&gt;raw_text : TEXT&lt;br/&gt;deadline_raw : TEXT&lt;br/&gt;deadline_parsed : TEXT&lt;br/&gt;funding_amount_raw : TEXT&lt;br/&gt;eligibility_snippet : TEXT&lt;br/&gt;source_query : TEXT&lt;br/&gt;first_seen_at : TEXT&lt;br/&gt;fetched_at : TEXT&lt;br/&gt;fetch_failed : INTEGER DEFAULT 0" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=11;fontColor=#1F2937;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;strokeWidth=1.5;fillColor=#FEE2E2;strokeColor=#DC2626;" vertex="1" parent="1">
+          <mxGeometry x="80" y="160" width="380" height="215" as="geometry" />
+        </mxCell>
+        <mxCell id="t_norm" value="&lt;i&gt;&amp;#171;normalised store&amp;#187;&lt;/i&gt;&lt;br/&gt;&lt;b&gt;normalised_opportunities&lt;/b&gt;&lt;hr size='1'/&gt;&lt;b&gt;id&lt;/b&gt; : TEXT &amp;nbsp;&lt;i&gt;PK&lt;/i&gt;&lt;br/&gt;&lt;b&gt;url&lt;/b&gt; : TEXT &amp;nbsp;&lt;i&gt;UNIQUE, FK&lt;/i&gt;&lt;br/&gt;content_hash : TEXT NOT NULL&lt;br/&gt;opportunity_json : JSONB NOT NULL&lt;br/&gt;provenance_json : JSONB NOT NULL&lt;br/&gt;used_llm : BOOLEAN DEFAULT FALSE&lt;br/&gt;normalised_at : TIMESTAMPTZ DEFAULT now()" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=11;fontColor=#1F2937;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;strokeWidth=1.5;fillColor=#FEE2E2;strokeColor=#DC2626;" vertex="1" parent="1">
+          <mxGeometry x="80" y="465" width="380" height="165" as="geometry" />
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=11;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=none;endFill=1;startArrow=none;startFill=1;endSize=8;startSize=8;exitX=0.5;exitY=1.0;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0.0;entryDx=0;entryDy=0;entryPerimeter=0;" id="r1" value="joined on &lt;b&gt;url&lt;/b&gt;" edge="1" parent="1" source="t_opp" target="t_norm">
+          <mxGeometry relative="1" as="geometry" x="0.0">
+            <mxPoint x="58" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r1a" value="1" style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontStyle=0;fontColor=#1F2937;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="278" y="378" width="20" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="r1b" value="0..1" style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontStyle=0;fontColor=#1F2937;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="278" y="446" width="30" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="note_j" value="&lt;b&gt;Why JSONB, not normalised tables?&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;An Opportunity has eight list-valued attributes (citizenships, employer types, career stages, funding types, FoR codes, ToA codes, keywords, source URLs). Fully normalising these would need eight join tables for data that is only ever read as a whole object by &lt;i&gt;OpportunityRepository.all()&lt;/i&gt;.&lt;br/&gt;&lt;br/&gt;JSONB keeps the read path to one query and lets the shape evolve without a migration. The trade-off is that the database cannot enforce the inner structure &amp;#8212; Pydantic does that at the application boundary instead." style="shape=note;size=14;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=10;spacingRight=14;fontFamily=Helvetica;fontSize=11;fontColor=#1F2937;strokeWidth=1.2;fillColor=#FFFBEB;strokeColor=#D9A91A;" vertex="1" parent="1">
+          <mxGeometry x="80" y="665" width="380" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="logi" value="Logical model inside opportunity_json" style="rounded=1;arcSize=3;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=13;fontStyle=1;fontColor=#7C3AED;verticalAlign=top;spacingTop=6;dashed=1;dashPattern=6 4;strokeWidth=1.3;fillColor=#EDE9FE;fillOpacity=35;strokeColor=#7C3AED;" vertex="1" parent="1">
+          <mxGeometry x="530" y="120" width="660" height="775" as="geometry" />
+        </mxCell>
+        <mxCell id="l_op" value="&lt;i&gt;&amp;#171;entity&amp;#187;&lt;/i&gt;&lt;br/&gt;&lt;b&gt;Opportunity&lt;/b&gt;&lt;hr size='1'/&gt;&lt;b&gt;id&lt;/b&gt; : str &amp;nbsp;&lt;i&gt;PK&lt;/i&gt;&lt;br/&gt;title : str&lt;br/&gt;funder : str&lt;br/&gt;url : str&lt;br/&gt;summary : str&lt;br/&gt;amount_aud : int | None&lt;br/&gt;amount_note : str&lt;br/&gt;deadline : date | None&lt;br/&gt;opens_at : date | None&lt;br/&gt;eligibility_text : str&lt;br/&gt;status : OpportunityStatus" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=11;fontColor=#1F2937;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;strokeWidth=1.5;fillColor=#EDE9FE;strokeColor=#7C3AED;" vertex="1" parent="1">
+          <mxGeometry x="560" y="160" width="280" height="215" as="geometry" />
+        </mxCell>
+        <mxCell id="lst0" value="&lt;b&gt;source_urls&lt;/b&gt;&lt;br/&gt;list[str]" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=11;fontColor=#1F2937;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;strokeWidth=1.5;fillColor=#FFFFFF;strokeColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="930" y="160" width="230" height="48" as="geometry" />
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=10;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=none;endFill=1;startArrow=diamondThin;startFill=1;endSize=8;startSize=8;startSize=14;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" id="le0" value="0..*" edge="1" parent="1" source="l_op" target="lst0">
+          <mxGeometry relative="1" as="geometry" x="0.9">
+            <Array as="points">
+              <mxPoint x="885" y="267.5" />
+              <mxPoint x="885" y="184.0" />
+            </Array>
+            <mxPoint x="-10" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lst1" value="&lt;b&gt;countries&lt;/b&gt;&lt;br/&gt;list[str]" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=11;fontColor=#1F2937;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;strokeWidth=1.5;fillColor=#FFFFFF;strokeColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="930" y="224" width="230" height="48" as="geometry" />
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=10;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=none;endFill=1;startArrow=diamondThin;startFill=1;endSize=8;startSize=8;startSize=14;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" id="le1" value="0..*" edge="1" parent="1" source="l_op" target="lst1">
+          <mxGeometry relative="1" as="geometry" x="0.9">
+            <Array as="points">
+              <mxPoint x="885" y="267.5" />
+              <mxPoint x="885" y="248.0" />
+            </Array>
+            <mxPoint x="-10" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lst2" value="&lt;b&gt;citizenships_allowed&lt;/b&gt;&lt;br/&gt;list[str]" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=11;fontColor=#1F2937;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;strokeWidth=1.5;fillColor=#FFFFFF;strokeColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="930" y="288" width="230" height="48" as="geometry" />
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=10;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=none;endFill=1;startArrow=diamondThin;startFill=1;endSize=8;startSize=8;startSize=14;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" id="le2" value="0..*" edge="1" parent="1" source="l_op" target="lst2">
+          <mxGeometry relative="1" as="geometry" x="0.9">
+            <Array as="points">
+              <mxPoint x="885" y="267.5" />
+              <mxPoint x="885" y="312.0" />
+            </Array>
+            <mxPoint x="-10" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lst3" value="&lt;b&gt;employer_types_allowed&lt;/b&gt;&lt;br/&gt;list[EmployerType]" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=11;fontColor=#1F2937;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;strokeWidth=1.5;fillColor=#FFFFFF;strokeColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="930" y="352" width="230" height="48" as="geometry" />
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=10;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=none;endFill=1;startArrow=diamondThin;startFill=1;endSize=8;startSize=8;startSize=14;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" id="le3" value="0..*" edge="1" parent="1" source="l_op" target="lst3">
+          <mxGeometry relative="1" as="geometry" x="0.9">
+            <Array as="points">
+              <mxPoint x="885" y="267.5" />
+              <mxPoint x="885" y="376.0" />
+            </Array>
+            <mxPoint x="-10" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lst4" value="&lt;b&gt;career_stages_allowed&lt;/b&gt;&lt;br/&gt;list[CareerStage]" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=11;fontColor=#1F2937;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;strokeWidth=1.5;fillColor=#FFFFFF;strokeColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="930" y="416" width="230" height="48" as="geometry" />
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=10;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=none;endFill=1;startArrow=diamondThin;startFill=1;endSize=8;startSize=8;startSize=14;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" id="le4" value="0..*" edge="1" parent="1" source="l_op" target="lst4">
+          <mxGeometry relative="1" as="geometry" x="0.9">
+            <Array as="points">
+              <mxPoint x="885" y="267.5" />
+              <mxPoint x="885" y="440.0" />
+            </Array>
+            <mxPoint x="-10" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lst5" value="&lt;b&gt;funding_types_offered&lt;/b&gt;&lt;br/&gt;list[FundingType]" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=11;fontColor=#1F2937;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;strokeWidth=1.5;fillColor=#FFFFFF;strokeColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="930" y="480" width="230" height="48" as="geometry" />
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=10;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=none;endFill=1;startArrow=diamondThin;startFill=1;endSize=8;startSize=8;startSize=14;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" id="le5" value="0..*" edge="1" parent="1" source="l_op" target="lst5">
+          <mxGeometry relative="1" as="geometry" x="0.9">
+            <Array as="points">
+              <mxPoint x="885" y="267.5" />
+              <mxPoint x="885" y="504.0" />
+            </Array>
+            <mxPoint x="-10" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lst6" value="&lt;b&gt;for_codes&lt;/b&gt;&lt;br/&gt;list[str &amp;#183; ANZSRC 2020]" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=11;fontColor=#1F2937;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;strokeWidth=1.5;fillColor=#FFFFFF;strokeColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="930" y="544" width="230" height="48" as="geometry" />
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=10;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=none;endFill=1;startArrow=diamondThin;startFill=1;endSize=8;startSize=8;startSize=14;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" id="le6" value="0..*" edge="1" parent="1" source="l_op" target="lst6">
+          <mxGeometry relative="1" as="geometry" x="0.9">
+            <Array as="points">
+              <mxPoint x="885" y="267.5" />
+              <mxPoint x="885" y="568.0" />
+            </Array>
+            <mxPoint x="-10" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lst7" value="&lt;b&gt;toa_codes&lt;/b&gt;&lt;br/&gt;list[str &amp;#183; '1'&amp;#8211;'4']" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=11;fontColor=#1F2937;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;strokeWidth=1.5;fillColor=#FFFFFF;strokeColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="930" y="608" width="230" height="48" as="geometry" />
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=10;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=none;endFill=1;startArrow=diamondThin;startFill=1;endSize=8;startSize=8;startSize=14;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" id="le7" value="0..*" edge="1" parent="1" source="l_op" target="lst7">
+          <mxGeometry relative="1" as="geometry" x="0.9">
+            <Array as="points">
+              <mxPoint x="885" y="267.5" />
+              <mxPoint x="885" y="632.0" />
+            </Array>
+            <mxPoint x="-10" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lst8" value="&lt;b&gt;keywords&lt;/b&gt;&lt;br/&gt;list[str]" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=11;fontColor=#1F2937;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;strokeWidth=1.5;fillColor=#FFFFFF;strokeColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="930" y="672" width="230" height="48" as="geometry" />
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=10;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=none;endFill=1;startArrow=diamondThin;startFill=1;endSize=8;startSize=8;startSize=14;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" id="le8" value="0..*" edge="1" parent="1" source="l_op" target="lst8">
+          <mxGeometry relative="1" as="geometry" x="0.9">
+            <Array as="points">
+              <mxPoint x="885" y="267.5" />
+              <mxPoint x="885" y="696.0" />
+            </Array>
+            <mxPoint x="-10" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="note_e" value="An empty list means the funder states no restriction (or none was found) &amp;#8212; never &quot;nobody&quot;. This distinction is load-bearing in the eligibility scorer, which returns four states rather than a yes/no." style="shape=note;size=14;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=10;spacingRight=14;fontFamily=Helvetica;fontSize=11;fontColor=#1F2937;strokeWidth=1.2;fillColor=#FFFBEB;strokeColor=#D9A91A;" vertex="1" parent="1">
+          <mxGeometry x="560" y="420" width="280" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="note_p" value="&lt;b&gt;provenance_json&lt;/b&gt;&lt;br/&gt;maps each Opportunity field name to the stage that set it: &lt;i&gt;rule&lt;/i&gt;, &lt;i&gt;llm&lt;/i&gt; or &lt;i&gt;missing&lt;/i&gt;. This is the audit trail for LLM-derived values." style="shape=note;size=14;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=10;spacingRight=14;fontFamily=Helvetica;fontSize=11;fontColor=#1F2937;strokeWidth=1.2;fillColor=#FFFBEB;strokeColor=#D9A91A;" vertex="1" parent="1">
+          <mxGeometry x="560" y="545" width="280" height="96" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

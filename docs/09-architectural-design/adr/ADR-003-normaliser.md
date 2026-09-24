@@ -36,4 +36,4 @@ Costs and known weaknesses: the rules produce false positives the model must cle
 
 ## Evidence
 
-Confluence: Project Crawler Architecture, Our Decisions (decisions 3, 7); the crawler README's own note that banding and classification are the ranker's job, not the crawler's. Code: `backend/crawler/storage.py` schema; `backend/ranking/models.py`. Plan: `docs/superpowers/plans/2026-09-07-normaliser.md`.
+Confluence: Project Crawler Architecture, Our Decisions (decisions 3, 7); the crawler README's own note that banding and classification are the ranker's job, not the crawler's. Code: `backend/crawler/storage.py` schema; `backend/ranking/models.py`. Plan: `docs/10-coding/implementation-plans/2026-09-07-normaliser.md`.

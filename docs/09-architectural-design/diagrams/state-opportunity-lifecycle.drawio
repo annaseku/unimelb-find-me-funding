@@ -1,0 +1,136 @@
+<mxfile host="app.diagrams.net" agent="Find Me Funding" type="device">
+  <diagram name="Opportunity Lifecycle" id="state-v2">
+    <mxGraphModel dx="1400" dy="900" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="t1" value="Find Me Funding — Opportunity Lifecycle (State Diagram)" style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=20;fontStyle=1;fontColor=#1F2937;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="40" y="14" width="1120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="t2" value="Last Updated: 21 Sep 2026  ·  v1.1" style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;fontStyle=0;fontColor=#4B5563;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="40" y="44" width="1120" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="t3" value="// The states one funding opportunity passes through, from discovery to closure.&lt;br/&gt;// Closure is a soft delete: the row is retained and filtered at read time, never deleted." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontStyle=0;fontColor=#4B5563;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="80" y="64" width="1040" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="i0" value="" style="ellipse;html=1;fillColor=#374151;strokeColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="77" y="183" width="26" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="s_disc" value="Discovered" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=13;fontStyle=1;fontColor=#1F2937;strokeWidth=1.5;fillColor=#DBEAFE;strokeColor=#3B82F6;" vertex="1" parent="1">
+          <mxGeometry x="210" y="170" width="170" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="d_robot" value="robots.txt&lt;br/&gt;allows?" style="rhombus;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=11;fontColor=#1F2937;strokeWidth=1.5;fillColor=#FEF3C7;strokeColor=#D97706;" vertex="1" parent="1">
+          <mxGeometry x="490" y="154" width="170" height="84" as="geometry" />
+        </mxCell>
+        <mxCell id="s_skip" value="Skipped" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=13;fontStyle=1;fontColor=#1F2937;strokeWidth=1.5;fillColor=#F3F4F6;strokeColor=#6B7280;" vertex="1" parent="1">
+          <mxGeometry x="780" y="170" width="170" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="f_skip" value="" style="ellipse;html=1;shape=endState;fillColor=#374151;strokeColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="183" width="26" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="s_fetch" value="Fetched" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=13;fontStyle=1;fontColor=#1F2937;strokeWidth=1.5;fillColor=#FEF3C7;strokeColor=#D97706;" vertex="1" parent="1">
+          <mxGeometry x="490" y="310" width="170" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="d_ok" value="fetch&lt;br/&gt;succeeded?" style="rhombus;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=11;fontColor=#1F2937;strokeWidth=1.5;fillColor=#FEF3C7;strokeColor=#D97706;" vertex="1" parent="1">
+          <mxGeometry x="490" y="424" width="170" height="84" as="geometry" />
+        </mxCell>
+        <mxCell id="s_fail" value="Fetch Failed" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=13;fontStyle=1;fontColor=#1F2937;strokeWidth=1.5;fillColor=#FEE2E2;strokeColor=#DC2626;" vertex="1" parent="1">
+          <mxGeometry x="780" y="440" width="170" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="s_norm" value="Normalised" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=13;fontStyle=1;fontColor=#1F2937;strokeWidth=1.5;fillColor=#FEF3C7;strokeColor=#D97706;" vertex="1" parent="1">
+          <mxGeometry x="490" y="570" width="170" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="s_active" value="Active" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=13;fontStyle=1;fontColor=#1F2937;strokeWidth=1.5;fillColor=#DCFCE7;strokeColor=#16A34A;" vertex="1" parent="1">
+          <mxGeometry x="490" y="690" width="170" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="s_stale" value="Stale" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=13;fontStyle=1;fontColor=#1F2937;strokeWidth=1.5;fillColor=#F3F4F6;strokeColor=#6B7280;" vertex="1" parent="1">
+          <mxGeometry x="60" y="690" width="170" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="s_closed" value="Closed&lt;br/&gt;&lt;span style='font-weight:normal;font-size:11px'&gt;status = closed&lt;/span&gt;" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=13;fontStyle=1;fontColor=#1F2937;strokeWidth=1.5;fillColor=#FEE2E2;strokeColor=#DC2626;" vertex="1" parent="1">
+          <mxGeometry x="490" y="810" width="170" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="f_end" value="" style="ellipse;html=1;shape=endState;fillColor=#374151;strokeColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="830" y="825" width="26" height="26" as="geometry" />
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=11;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=0;startArrow=none;startFill=1;endSize=8;startSize=8;endSize=10;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" id="tr1" value="discovery&lt;br/&gt;finds a URL" edge="1" parent="1" source="i0" target="s_disc">
+          <mxGeometry relative="1" as="geometry" x="0.0">
+            <mxPoint x="0" y="-18" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=11;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=0;startArrow=none;startFill=1;endSize=8;startSize=8;endSize=10;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" id="tr2" value="" edge="1" parent="1" source="s_disc" target="d_robot">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=11;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=0;startArrow=none;startFill=1;endSize=8;startSize=8;endSize=10;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" id="tr3" value="[no]" edge="1" parent="1" source="d_robot" target="s_skip">
+          <mxGeometry relative="1" as="geometry" x="0.0">
+            <mxPoint x="0" y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=11;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=0;startArrow=none;startFill=1;endSize=8;startSize=8;endSize=10;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" id="tr4" value="never fetched" edge="1" parent="1" source="s_skip" target="f_skip">
+          <mxGeometry relative="1" as="geometry" x="0.0">
+            <mxPoint x="0" y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=11;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=0;startArrow=none;startFill=1;endSize=8;startSize=8;endSize=10;exitX=0.5;exitY=1.0;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0.0;entryDx=0;entryDy=0;entryPerimeter=0;" id="tr5" value="[yes] / GET page" edge="1" parent="1" source="d_robot" target="s_fetch">
+          <mxGeometry relative="1" as="geometry" x="0.0">
+            <mxPoint x="60" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=11;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=0;startArrow=none;startFill=1;endSize=8;startSize=8;endSize=10;exitX=0.5;exitY=1.0;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0.0;entryDx=0;entryDy=0;entryPerimeter=0;" id="tr6" value="" edge="1" parent="1" source="s_fetch" target="d_ok">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=11;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=0;startArrow=none;startFill=1;endSize=8;startSize=8;endSize=10;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" id="tr7" value="[no] /&lt;br/&gt;fetch_failed += 1" edge="1" parent="1" source="d_ok" target="s_fail">
+          <mxGeometry relative="1" as="geometry" x="0.0">
+            <mxPoint x="0" y="-18" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=11;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=0;startArrow=none;startFill=1;endSize=8;startSize=8;endSize=10;exitX=0.5;exitY=0.0;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1.0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" id="tr8" value="scheduler retries" edge="1" parent="1" source="s_fail" target="s_fetch">
+          <mxGeometry relative="1" as="geometry" x="0.3">
+            <Array as="points">
+              <mxPoint x="865" y="336" />
+            </Array>
+            <mxPoint x="0" y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=11;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=0;startArrow=none;startFill=1;endSize=8;startSize=8;endSize=10;exitX=0.5;exitY=1.0;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0.0;entryDx=0;entryDy=0;entryPerimeter=0;" id="tr9" value="[yes] / rules, then Gemini" edge="1" parent="1" source="d_ok" target="s_norm">
+          <mxGeometry relative="1" as="geometry" x="0.0">
+            <mxPoint x="84" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=11;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=0;startArrow=none;startFill=1;endSize=8;startSize=8;endSize=10;exitX=0.5;exitY=1.0;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0.0;entryDx=0;entryDy=0;entryPerimeter=0;" id="tr10" value="upsert on url" edge="1" parent="1" source="s_norm" target="s_active">
+          <mxGeometry relative="1" as="geometry" x="0.0">
+            <mxPoint x="48" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=11;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=0;startArrow=none;startFill=1;endSize=8;startSize=8;endSize=10;exitX=0.0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1.0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" id="tr12" value="[older than&lt;br/&gt;STALE_AFTER_DAYS]" edge="1" parent="1" source="s_active" target="s_stale">
+          <mxGeometry relative="1" as="geometry" x="0.0">
+            <mxPoint x="0" y="-18" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=11;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=0;startArrow=none;startFill=1;endSize=8;startSize=8;endSize=10;exitX=0.5;exitY=0.0;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" id="tr13" value="re-crawl same URL" edge="1" parent="1" source="s_stale" target="s_fetch">
+          <mxGeometry relative="1" as="geometry" x="0.45">
+            <Array as="points">
+              <mxPoint x="145" y="336" />
+            </Array>
+            <mxPoint x="0" y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=11;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=0;startArrow=none;startFill=1;endSize=8;startSize=8;endSize=10;exitX=0.5;exitY=1.0;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0.0;entryDx=0;entryDy=0;entryPerimeter=0;" id="tr15" value="[deadline passed]" edge="1" parent="1" source="s_active" target="s_closed">
+          <mxGeometry relative="1" as="geometry" x="0.0">
+            <mxPoint x="60" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=11;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=open;endFill=0;startArrow=none;startFill=1;endSize=8;startSize=8;endSize=10;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" id="tr16" value="retained,&lt;br/&gt;not deleted" edge="1" parent="1" source="s_closed" target="f_end">
+          <mxGeometry relative="1" as="geometry" x="0.0">
+            <mxPoint x="0" y="-18" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n1" value="&lt;b&gt;content_hash short-circuit.&lt;/b&gt; On a re-crawl the SHA-256 of title plus raw text is compared first. If it is unchanged the page skips normalisation entirely, so an unchanged funder page costs one fetch and no LLM call." style="shape=note;size=14;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=10;spacingRight=14;fontFamily=Helvetica;fontSize=11;fontColor=#1F2937;strokeWidth=1.2;fillColor=#FFFBEB;strokeColor=#D9A91A;" vertex="1" parent="1">
+          <mxGeometry x="780" y="556" width="370" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="n2" value="&lt;b&gt;Soft delete.&lt;/b&gt; A closed opportunity keeps its row and is filtered out by the ranker at read time unless the search sets &lt;i&gt;include_closed&lt;/i&gt;. History is never destroyed by a deadline passing." style="shape=note;size=14;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=10;spacingRight=14;fontFamily=Helvetica;fontSize=11;fontColor=#1F2937;strokeWidth=1.2;fillColor=#FFFBEB;strokeColor=#D9A91A;" vertex="1" parent="1">
+          <mxGeometry x="780" y="690" width="370" height="90" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

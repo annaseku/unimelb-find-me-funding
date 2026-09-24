@@ -2,7 +2,7 @@
 
 The defaults are placeholders that put eligibility first because the client
 called it the top priority. The relative weighting is still an open team
-decision; see docs/ranking-discussion-points.md.
+decision; see docs/07-requirements/ranking-discussion-points.md.
 """
 
 from __future__ import annotations

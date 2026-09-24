@@ -1,0 +1,95 @@
+<mxfile host="app.diagrams.net" agent="Find Me Funding" type="device">
+  <diagram name="Deployment Diagram" id="deploy-v2">
+    <mxGraphModel dx="1400" dy="900" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1340" pageHeight="860" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="t1" value="Find Me Funding — Deployment Diagram" style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=20;fontStyle=1;fontColor=#1F2937;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="40" y="14" width="1260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="t2" value="Last Updated: 21 Sep 2026  ·  v1.1" style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;fontStyle=0;fontColor=#4B5563;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="40" y="44" width="1260" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="t3" value="// Where each artefact runs, and over what protocol the nodes talk.&lt;br/&gt;// Reflects render.yaml and the four GitHub Actions workflows as at 21 Sep 2026." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontStyle=0;fontColor=#4B5563;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="80" y="64" width="1180" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="dev" value="&amp;#171;device&amp;#187;&lt;br/&gt;&lt;b&gt;Researcher's computer&lt;/b&gt;&lt;br/&gt;web browser" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;size=12;fontFamily=Helvetica;fontSize=12;fontColor=#1F2937;verticalAlign=top;spacingTop=4;strokeWidth=1.5;fillColor=#FFFFFF;strokeColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="80" y="130" width="270" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="pages" value="&amp;#171;execution environment&amp;#187;&lt;br/&gt;&lt;b&gt;GitHub Pages&lt;/b&gt;&lt;hr size='1'/&gt;React + TypeScript SPA&lt;br/&gt;static build from &lt;i&gt;vite build&lt;/i&gt;&lt;br/&gt;&lt;i&gt;404.html&lt;/i&gt; SPA fallback so deep&lt;br/&gt;links such as /results survive a refresh" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;size=12;fontFamily=Helvetica;fontSize=12;fontColor=#1F2937;verticalAlign=top;spacingTop=4;strokeWidth=1.5;fillColor=#DBEAFE;strokeColor=#3B82F6;" vertex="1" parent="1">
+          <mxGeometry x="80" y="300" width="270" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="render" value="&amp;#171;execution environment&amp;#187;&lt;br/&gt;&lt;b&gt;Render &amp;#183; Singapore &amp;#183; free plan&lt;/b&gt;&lt;hr size='1'/&gt;service &lt;i&gt;find-me-funding-api&lt;/i&gt;&lt;br/&gt;Docker runtime, built from &lt;i&gt;backend/Dockerfile&lt;/i&gt;&lt;br/&gt;uvicorn bound to :8000&lt;br/&gt;health check &lt;i&gt;/api/health&lt;/i&gt;&lt;br/&gt;deploys on push to &lt;i&gt;main&lt;/i&gt;" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;size=12;fontFamily=Helvetica;fontSize=12;fontColor=#1F2937;verticalAlign=top;spacingTop=4;strokeWidth=1.5;fillColor=#DCFCE7;strokeColor=#16A34A;" vertex="1" parent="1">
+          <mxGeometry x="500" y="290" width="320" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="gem" value="&amp;#171;external service&amp;#187;&lt;br/&gt;&lt;b&gt;Google Gemini API&lt;/b&gt;&lt;hr size='1'/&gt;gemini-2.5-flash" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;size=12;fontFamily=Helvetica;fontSize=12;fontColor=#1F2937;verticalAlign=top;spacingTop=4;strokeWidth=1.5;fillColor=#F3F4F6;strokeColor=#6B7280;" vertex="1" parent="1">
+          <mxGeometry x="1010" y="150" width="270" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="supa" value="&amp;#171;database&amp;#187;&lt;br/&gt;&lt;b&gt;Supabase Postgres&lt;/b&gt;&lt;hr size='1'/&gt;ap-southeast-1&lt;br/&gt;table &lt;i&gt;normalised_opportunities&lt;/i&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=14;fontFamily=Helvetica;fontSize=12;fontColor=#1F2937;strokeWidth=1.5;fillColor=#FEE2E2;strokeColor=#DC2626;" vertex="1" parent="1">
+          <mxGeometry x="1010" y="330" width="270" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="repo_n" value="&amp;#171;source&amp;#187;&lt;br/&gt;&lt;b&gt;GitHub repository&lt;/b&gt;&lt;hr size='1'/&gt;annaseku/unimelb-find-me-funding" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;size=12;fontFamily=Helvetica;fontSize=12;fontColor=#1F2937;verticalAlign=top;spacingTop=4;strokeWidth=1.5;fillColor=#FFFFFF;strokeColor=#374151;" vertex="1" parent="1">
+          <mxGeometry x="80" y="650" width="270" height="95" as="geometry" />
+        </mxCell>
+        <mxCell id="gha" value="&amp;#171;CI/CD&amp;#187;&lt;br/&gt;&lt;b&gt;GitHub Actions&lt;/b&gt;&lt;hr size='1'/&gt;&lt;i&gt;backend-ci&lt;/i&gt; &amp;#183; ruff, pytest 3.11&amp;#8211;3.13 against a Postgres&lt;br/&gt;service container, ranking evals, Docker build check&lt;br/&gt;&lt;i&gt;frontend-ci&lt;/i&gt; &amp;#183; ESLint, Vitest, tsc + vite build&lt;br/&gt;&lt;i&gt;backend-cd&lt;/i&gt; &amp;#8594; Render &amp;nbsp;&amp;#183;&amp;nbsp; &lt;i&gt;frontend-cd&lt;/i&gt; &amp;#8594; Pages&lt;br/&gt;required status checks protect &lt;i&gt;main&lt;/i&gt;" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;size=12;fontFamily=Helvetica;fontSize=12;fontColor=#1F2937;verticalAlign=top;spacingTop=4;strokeWidth=1.5;fillColor=#FEF3C7;strokeColor=#D97706;" vertex="1" parent="1">
+          <mxGeometry x="470" y="620" width="430" height="160" as="geometry" />
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=11;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;startArrow=none;startFill=1;endSize=8;startSize=8;exitX=0.5;exitY=1.0;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0.0;entryDx=0;entryDy=0;entryPerimeter=0;" id="d1" value="HTTPS" edge="1" parent="1" source="dev" target="pages">
+          <mxGeometry relative="1" as="geometry" x="0.0">
+            <mxPoint x="30" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=11;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;startArrow=none;startFill=1;endSize=8;startSize=8;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" id="d2" value="HTTPS / JSON" edge="1" parent="1" source="pages" target="render">
+          <mxGeometry relative="1" as="geometry" x="0.0">
+            <mxPoint x="0" y="-12" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d2n" value="CORS allow-listed origin" style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#4B5563;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="352" y="386" width="146" height="18" as="geometry" />
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=11;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;startArrow=none;startFill=1;endSize=8;startSize=8;exitX=1.0;exitY=0.5833;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" id="d3" value="postgresql:// &amp;#183; port 5432" edge="1" parent="1" source="render" target="supa">
+          <mxGeometry relative="1" as="geometry" x="0.0">
+            <mxPoint x="0" y="-12" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d3n" value="session-mode pooler" style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#4B5563;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="822" y="401" width="186" height="18" as="geometry" />
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=11;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;startArrow=none;startFill=1;endSize=8;startSize=8;exitX=1.0;exitY=0.2222;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" id="d4" value="HTTPS" edge="1" parent="1" source="render" target="gem">
+          <mxGeometry relative="1" as="geometry" x="0.0">
+            <Array as="points">
+              <mxPoint x="915" y="330" />
+              <mxPoint x="915" y="195" />
+            </Array>
+            <mxPoint x="28" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=11;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;startArrow=none;startFill=1;endSize=8;startSize=8;exitX=1.0;exitY=0.5263;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" id="d5" value="push / PR" edge="1" parent="1" source="repo_n" target="gha">
+          <mxGeometry relative="1" as="geometry" x="0.0">
+            <mxPoint x="0" y="-12" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=11;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;startArrow=none;startFill=1;endSize=8;startSize=8;dashed=1;dashPattern=6 4;exitX=0.4419;exitY=0.0;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=1.0;entryDx=0;entryDy=0;entryPerimeter=0;" id="d6" value="deploy" edge="1" parent="1" source="gha" target="render">
+          <mxGeometry relative="1" as="geometry" x="0.0">
+            <mxPoint x="30" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell style="html=1;rounded=1;arcSize=10;fontFamily=Helvetica;fontSize=11;fontColor=#374151;strokeColor=#374151;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;endArrow=block;endFill=1;startArrow=none;startFill=1;endSize=8;startSize=8;dashed=1;dashPattern=6 4;exitX=0.1163;exitY=0.0;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=1.0;entryDx=0;entryDy=0;entryPerimeter=0;" id="d7" value="deploy" edge="1" parent="1" source="gha" target="pages">
+          <mxGeometry relative="1" as="geometry" x="0.0">
+            <Array as="points">
+              <mxPoint x="520" y="550" />
+              <mxPoint x="215" y="550" />
+            </Array>
+            <mxPoint x="0" y="-12" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="note_ip" value="&lt;b&gt;Connection constraint worth knowing.&lt;/b&gt; &lt;i&gt;FMF_DATABASE_URL&lt;/i&gt; must be the Supavisor &lt;b&gt;session mode&lt;/b&gt; pooler URL (&lt;i&gt;aws-N-ap-southeast-1.pooler.supabase.com&lt;/i&gt;, port 5432), not Supabase's direct connection string. Render's network is IPv4-only and the direct string resolves to IPv6, so the direct URL fails to connect." style="shape=note;size=14;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=10;spacingRight=14;fontFamily=Helvetica;fontSize=11;fontColor=#1F2937;strokeWidth=1.2;fillColor=#FFFBEB;strokeColor=#D9A91A;" vertex="1" parent="1">
+          <mxGeometry x="960" y="530" width="330" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="note_sec" value="&lt;b&gt;Secrets.&lt;/b&gt; &lt;i&gt;GEMINI_API_KEY&lt;/i&gt; and &lt;i&gt;FMF_DATABASE_URL&lt;/i&gt; are set in the Render dashboard with &lt;i&gt;sync: false&lt;/i&gt; &amp;#8212; never committed. &lt;i&gt;backend/.env.example&lt;/i&gt; documents their shape without values." style="shape=note;size=14;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=10;spacingRight=14;fontFamily=Helvetica;fontSize=11;fontColor=#1F2937;strokeWidth=1.2;fillColor=#FFFBEB;strokeColor=#D9A91A;" vertex="1" parent="1">
+          <mxGeometry x="960" y="690" width="330" height="100" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

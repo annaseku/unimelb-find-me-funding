@@ -68,7 +68,7 @@ FMF_DATA_SOURCE=sqlite FMF_DB_PATH=backend/funding_crawler.db uvicorn backend.ap
 | `FMF_LLM_MODEL` | Gemini model for the extractor, default `gemini-2.5-flash` |
 | `FMF_LLM` | Set to `off` to skip the extractor even when a key is present |
 
-The extractor runs once per changed page: unchanged pages are skipped by content hash on later runs, so re-running the pipeline daily costs only what the crawler found new. Design record: `docs/adr/ADR-003-normaliser.md`.
+The extractor runs once per changed page: unchanged pages are skipped by content hash on later runs, so re-running the pipeline daily costs only what the crawler found new. Design record: `docs/09-architectural-design/adr/ADR-003-normaliser.md`.
 
 ## Supabase Postgres
 
@@ -105,7 +105,7 @@ docker run --rm -p 8000:8000 find-me-funding-backend
 
 ## Hosting
 
-The API runs on Render as a Docker web service defined in `render.yaml` at the repository root (decision record: `docs/adr/ADR-003-deployment-architecture.md`). Render builds `backend/Dockerfile` from the repository on every push to main, so a merge is a deploy; there is no separate release step. The service is `find-me-funding-api` in the Crawlers workspace, Singapore region, free plan, health-checked on `/api/health`, and the frontend on GitHub Pages is already in the CORS allow-list in `api/main.py`.
+The API runs on Render as a Docker web service defined in `render.yaml` at the repository root (decision record: `docs/09-architectural-design/adr/ADR-003-deployment-architecture.md`). Render builds `backend/Dockerfile` from the repository on every push to main, so a merge is a deploy; there is no separate release step. The service is `find-me-funding-api` in the Crawlers workspace, Singapore region, free plan, health-checked on `/api/health`, and the frontend on GitHub Pages is already in the CORS allow-list in `api/main.py`.
 
 The free plan spins the service down after 15 minutes idle and takes about a minute to wake, so hit `/api/health` before a client demo. `GEMINI_API_KEY` is declared in `render.yaml` with `sync: false`, which means its value lives only in the Render dashboard; nothing reads it yet, so it can stay empty. Changing the service's shape (plan, region, env var names) is an edit to `render.yaml`, not a dashboard click, so the change is reviewed like any other.
 
@@ -120,4 +120,4 @@ Each opportunity gets four separate scores, each with a label and plain-English 
 
 `ranking/ranker.py` combines them with the weights in `ranking/weights.py` (default eligibility 0.4, match 0.3, funding 0.15, deadline 0.15; any request can override) and filters closed opportunities unless `include_closed` is set. The API pages over the ranked list with `limit` and `offset`.
 
-By default the ranker scores the illustrative opportunities in `data/mock_opportunities.json`. With `FMF_DATA_SOURCE=sqlite` it scores whatever the normaliser has produced from the crawler's rows (see Normaliser above). Design records: `docs/adr/ADR-002-ranking-engine.md` and `docs/adr/ADR-003-normaliser.md`. Decisions still needing client confirmation: `docs/ranking-discussion-points.md`.
+By default the ranker scores the illustrative opportunities in `data/mock_opportunities.json`. With `FMF_DATA_SOURCE=sqlite` it scores whatever the normaliser has produced from the crawler's rows (see Normaliser above). Design records: `docs/09-architectural-design/adr/ADR-002-ranking-engine.md` and `docs/09-architectural-design/adr/ADR-003-normaliser.md`. Decisions still needing client confirmation: `docs/07-requirements/ranking-discussion-points.md`.

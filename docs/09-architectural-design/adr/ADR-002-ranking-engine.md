@@ -40,8 +40,8 @@ Closed opportunities (status closed, or deadline passed) are filtered out at rea
 
 Benefits: every result explains itself; each rule is a constant or a small function a teammate can change in one place; the eval suite (`backend/evals`) catches ranking regressions; the frontend contract does not change when the LLM arrives.
 
-Costs: keyword overlap is a weak proxy for research fit until the semantic scorer lands; the four-band funding scale puts most single-project grants in the bottom band; six behaviours were decided without client confirmation and are listed in `docs/ranking-discussion-points.md`.
+Costs: keyword overlap is a weak proxy for research fit until the semantic scorer lands; the four-band funding scale puts most single-project grants in the bottom band; six behaviours were decided without client confirmation and are listed in `docs/07-requirements/ranking-discussion-points.md`.
 
 ## Evidence
 
-Confluence: Project Crawler Architecture, Our Decisions (decisions 3, 4, 5, 6, 9); 20/08 Post Meeting Notes (eligibility is the top priority, uncertain results stay in, a six-month deadline beats one due next week); Sprint Description (LLM out of scope). Spec: `docs/superpowers/specs/2026-09-06-ranking-engine-design.md`.
+Confluence: Project Crawler Architecture, Our Decisions (decisions 3, 4, 5, 6, 9); 20/08 Post Meeting Notes (eligibility is the top priority, uncertain results stay in, a six-month deadline beats one due next week); Sprint Description (LLM out of scope). Spec: `docs/09-architectural-design/design-specs/2026-09-06-ranking-engine-design.md`.
