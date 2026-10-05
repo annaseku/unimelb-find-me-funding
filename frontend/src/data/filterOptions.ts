@@ -34,12 +34,10 @@ export const filterOptions = {
     { value: '4', label: 'Experimental development' },
   ],
   citizenship: [
-    { value: 'AU', label: 'Australia' },
-    { value: 'NZ', label: 'New Zealand' },
-    { value: 'GB', label: 'United Kingdom' },
-    { value: 'US', label: 'United States' },
-    { value: 'CN', label: 'China' },
-    { value: 'IN', label: 'India' },
+    { value: 'AU', label: 'Australian citizen' },
+    { value: 'AU_PR', label: 'Australian permanent resident' },
+    { value: 'NZ', label: 'New Zealand citizen' },
+    { value: 'OTHER', label: 'Other' },
   ],
   employerType: [
     { value: 'university', label: 'University' },
@@ -50,17 +48,17 @@ export const filterOptions = {
   careerStage: [
     { value: 'undergraduate', label: 'Undergraduate' },
     { value: 'graduate_student', label: 'Graduate Student' },
-    { value: 'postdoc_0_2', label: 'Postdoctoral (0-2 years)' },
-    { value: 'postdoc_2_5', label: 'Postdoctoral (2-5 years)' },
-    { value: 'postdoc_5_10', label: 'Postdoctoral (5-10 years)' },
-    { value: 'postdoc_10_plus', label: 'Postdoctoral (10+ years)' },
+    { value: 'postdoc_0_2', label: '0-2 years since PhD' },
+    { value: 'postdoc_2_5', label: '2-5 years since PhD' },
+    { value: 'postdoc_5_10', label: '5-10 years since PhD' },
+    { value: 'postdoc_10_plus', label: '10+ years since PhD' },
   ],
   fundingType: [
     { value: 'salary', label: 'Salary' },
     { value: 'consumables', label: 'Consumables' },
     { value: 'equipment', label: 'Equipment' },
-    { value: 'all', label: 'All categories' },
-    { value: 'any', label: 'Any category' },
+    { value: 'all', label: 'Must cover all of these' },
+    { value: 'any', label: 'No preference' },
   ],
 } satisfies Record<string, FilterOption[]>;
 
