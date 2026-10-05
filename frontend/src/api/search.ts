@@ -27,60 +27,19 @@ function toBackendRequest(filters: SearchFilters): BackendSearchRequest {
 }
 
 export async function searchFunding(filters: SearchFilters): Promise<SearchResponse> {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/search`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(toBackendRequest(filters)),
-    });
+  const response = await fetch(`${API_BASE_URL}/api/search`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(toBackendRequest(filters)),
+  });
 
-    if (!response.ok) {
-      throw new Error(`Search failed with status ${response.status}`);
-    }
-
-    return response.json() as Promise<SearchResponse>;
-  } catch (error) {
-    if (!(error instanceof TypeError) || import.meta.env.MODE !== 'test') {
-      throw error;
-    }
-
-    const { fetchMockResults } = await import('../services/mockFundingService');
-    const mockResponse = await fetchMockResults(filters.description, {
-      fieldOfResearch: filters.fieldOfResearch,
-      typeOfActivity: filters.typeOfActivity,
-      citizenship: filters.citizenship,
-      employerType: filters.employerType,
-      careerStage: filters.careerStage,
-      fundingType: filters.fundingType,
-    });
-
-    return {
-      results: mockResponse.results.map((opportunity) => ({
-        opportunity: {
-          id: opportunity.url,
-          title: opportunity.title,
-          funder: '',
-          url: opportunity.url,
-          summary: opportunity.raw_text,
-          amount_aud: null,
-          amount_note: opportunity.funding_amount_raw ?? '',
-          deadline: opportunity.deadline_parsed ?? null,
-          status: 'active',
-        },
-        overall: 0,
-        eligibility: { score: 0, label: 'unknown', reasons: [] },
-        research_match: { score: 0, label: 'unknown', reasons: [] },
-        funding_value: { score: 0, label: 'unknown', reasons: [] },
-        deadline: { score: 0, label: 'unknown', reasons: [] },
-      })),
-      total: mockResponse.total,
-      limit: 10,
-      offset: 0,
-      weights: {},
-    };
+  if (!response.ok) {
+    throw new Error(`Search failed with status ${response.status}`);
   }
+
+  return response.json() as Promise<SearchResponse>;
 }
 
 export function formatRankedOpportunity(result: RankedOpportunity) {
