@@ -4,7 +4,7 @@
 | --- | --- |
 | Decision ID | ADR-003 |
 | Decision | Convert the crawler's raw rows into structured `Opportunity` records with deterministic rules first and an optional model extractor that fills only prose-derived fields. Write the result to a separate SQLite table in the crawler's database, served to the API through the existing repository seam and selected by an environment variable. |
-| Status | ⚪ Proposed (implemented as a prototype on branch `feat/normaliser`) |
+| Status | ⚪ Proposed (implemented on main, not yet ratified with the client) |
 | Owner | Anna Sekulic |
 | Date | 2026-09-07 |
 
@@ -36,4 +36,4 @@ Costs and known weaknesses: the rules produce false positives the model must cle
 
 ## Evidence
 
-Confluence: Project Crawler Architecture, Our Decisions (decisions 3, 7); the crawler README's own note that banding and classification are the ranker's job, not the crawler's. Code: `backend/crawler/storage.py` schema; `backend/ranking/models.py`. Plan: `docs/superpowers/plans/2026-09-07-normaliser.md`.
+Confluence: Project Crawler Architecture, Our Decisions (decisions 3, 7); the crawler README's own note that banding and classification are the ranker's job, not the crawler's. Code: `backend/crawler/storage.py` schema; `backend/ranking/models.py`. Plan: `docs/10-coding/implementation-plans/2026-09-07-normaliser.md`.

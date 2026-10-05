@@ -146,7 +146,7 @@ def _print_report(report: EvalReport) -> None:
 def _print_weight_sensitivity(today: date) -> None:
     print(
         "\nTop 5 under alternative weightings "
-        "(open decision, see docs/ranking-discussion-points.md)"
+        "(open decision, see docs/07-requirements/ranking-discussion-points.md)"
     )
     opportunities = load_mock_opportunities()
     for profile in load_mock_profiles():

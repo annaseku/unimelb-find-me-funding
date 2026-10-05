@@ -1,4 +1,4 @@
-# Render Blueprint for the backend API (docs/adr/ADR-003-deployment-architecture.md).
+# Render Blueprint for the backend API (docs/09-architectural-design/adr/ADR-004-deployment-architecture.md).
 # Render builds backend/Dockerfile from the repository root on every push to main.
 # The frontend stays on GitHub Pages (.github/workflows/frontend-cd.yml).
 services:

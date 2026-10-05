@@ -1,5 +1,5 @@
 """The API is the seam with the React frontend (Jira KAN-11). These tests pin
-the contract rules in docs/api-contract.md."""
+the contract rules in docs/09-architectural-design/api-contract.md."""
 
 from datetime import date
 

@@ -2,7 +2,7 @@
 
 Backend for "Find Me Funding", a research funding search tool. This repo covers the **crawler** component: dynamic discovery, fetching, structured extraction, and storage of research funding opportunities from across the web (not a fixed/curated list of sites, per the client's requirement).
 
-Frontend (React) lives in a separate repo/branch and will be integrated once the API layer exists.
+The ranking engine, API and frontend live alongside it in this repository; see the root README.
 
 ## Status
 
@@ -11,8 +11,8 @@ Frontend (React) lives in a separate repo/branch and will be integrated once the
 | Web crawler (discovery, fetch, extract, store)  |  Built                             |
 | robots.txt compliance                           |  Built                             |
 | Scheduled re-crawling                           |  Built (basic loop)                |
-| Matching / ranking engine                       |  Not started                       |
-| FastAPI endpoints for frontend                  |  Not started                       |
+| Matching / ranking engine                       |  Built, see `backend/ranking`      |
+| FastAPI endpoints for frontend                  |  Built, see `backend/api`          |
 
 ## Setup
 
@@ -24,7 +24,7 @@ pip install -r requirements.txt
 
 ## Running the crawler
 
-From the `backend/` root:
+From the repository root:
 
 ```bash
 # Run once, using the example search profile in main.py
@@ -34,12 +34,12 @@ python3 main.py
 python3 main.py --schedule
 ```
 
-Results are stored in `data/funding_crawler.db` (SQLite). This file is gitignored — everyone on the team generates their own local copy by running the crawler.
+Results are stored in `funding_crawler.db` (SQLite) in the directory you run from. This file is gitignored — everyone on the team generates their own local copy by running the crawler.
 
 To inspect what's been stored:
 
 ```bash
-sqlite3 data/funding_crawler.db "SELECT title, url, deadline_parsed, funding_amount_raw FROM opportunities LIMIT 10;"
+sqlite3 funding_crawler.db "SELECT title, url, deadline_parsed, funding_amount_raw FROM opportunities LIMIT 10;"
 ```
 
 ## How it works
@@ -167,8 +167,8 @@ Goal: things that make this robust, accurate, and closer to production-ready —
 
 #### Infrastructure
 
-- [ ]  Move from SQLite to Postgres
-- [ ]  Dockerize the backend
+- [x]  Move from SQLite to Postgres (normalised records publish to Supabase; see `backend/data/publish.py`)
+- [x]  Dockerize the backend
 - [ ]  API authentication/rate limiting
 - [ ]  Monitoring/logging for crawl runs (success rate, pages found per query, etc.)
 - [ ]  `.env`based config for API keys once you're using a paid search API

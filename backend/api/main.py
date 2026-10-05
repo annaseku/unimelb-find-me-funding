@@ -2,7 +2,7 @@
 
 Run from the repository root:  uvicorn backend.api.main:app --reload
 Interactive docs at http://localhost:8000/docs are the authoritative API
-agreement (Jira KAN-11); docs/api-contract.md is the human summary.
+agreement (Jira KAN-11); docs/09-architectural-design/api-contract.md is the human summary.
 
 Decision 6: a search ranks what is already indexed and "more results" pages
 over the same ranked set. Nothing here triggers a crawl.
