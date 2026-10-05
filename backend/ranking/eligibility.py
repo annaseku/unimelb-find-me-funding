@@ -69,8 +69,10 @@ def score_eligibility(opportunity: Opportunity, request: SearchRequest) -> Crite
     reasons: list[str] = []
 
     if opportunity.citizenships_allowed:
+        # Australian PRs count as AU, matching the normaliser's lexicon assumption.
+        supplied = ["AU" if c == "AU_PR" else c for c in request.citizenships]
         outcome, reason = _check_membership(
-            "Citizenship", opportunity.citizenships_allowed, request.citizenships
+            "Citizenship", opportunity.citizenships_allowed, supplied
         )
         checks.append(outcome)
         reasons.append(reason)

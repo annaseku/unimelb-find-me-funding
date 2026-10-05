@@ -29,7 +29,7 @@ Rank funding opportunities against a researcher's inputs. Every field is optiona
 | --- | --- | --- |
 | `for_codes` | `string[]` | ANZSRC 2020 Field of Research codes, two or four digits, e.g. `["3103"]` |
 | `toa_codes` | `string[]` | ANZSRC type of activity, `"1"` to `"4"` |
-| `citizenships` | `string[]` | ISO 3166-1 alpha-2, multiple allowed |
+| `citizenships` | `string[]` | ISO 3166-1 alpha-2, multiple allowed. Also `AU_PR` (Australian permanent resident, ranked as `AU`) and `OTHER` (passes no citizenship restriction) |
 | `employer_type` | enum or null | `university`, `research_institute`, `industry`, `philanthropic` |
 | `career_stage` | enum or null | `undergraduate`, `graduate_student`, `postdoc_0_2`, `postdoc_2_5`, `postdoc_5_10`, `postdoc_10_plus` |
 | `funding_types` | enum[] | `salary`, `consumables`, `equipment`, `all`, `any` |

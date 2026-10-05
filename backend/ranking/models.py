@@ -118,7 +118,9 @@ class SearchRequest(BaseModel):
 
     for_codes: list[str] = Field(default_factory=list)
     toa_codes: list[str] = Field(default_factory=list)
-    citizenships: list[str] = Field(default_factory=list, description="ISO 3166-1 alpha-2.")
+    citizenships: list[str] = Field(
+        default_factory=list, description="ISO 3166-1 alpha-2, plus AU_PR and OTHER."
+    )
     employer_type: EmployerType | None = None
     career_stage: CareerStage | None = None
     funding_types: list[FundingType] = Field(default_factory=list)

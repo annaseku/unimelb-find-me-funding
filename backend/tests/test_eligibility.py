@@ -40,6 +40,18 @@ def test_citizenship_mismatch_is_likely_ineligible_and_still_scored():
     assert any("AU" in r and "GB" in r for r in result.reasons)
 
 
+def test_australian_permanent_resident_counts_as_au():
+    opportunity = make_opportunity(citizenships_allowed=["AU"])
+    result = score_eligibility(opportunity, SearchRequest(citizenships=["AU_PR"]))
+    assert result.label == EligibilityState.ELIGIBLE
+
+
+def test_other_citizenship_fails_a_restricted_opportunity():
+    opportunity = make_opportunity(citizenships_allowed=["AU", "NZ"])
+    result = score_eligibility(opportunity, SearchRequest(citizenships=["OTHER"]))
+    assert result.label == EligibilityState.LIKELY_INELIGIBLE
+
+
 def test_one_of_several_citizenships_matching_passes():
     opportunity = make_opportunity(citizenships_allowed=["AU"])
     result = score_eligibility(opportunity, SearchRequest(citizenships=["GB", "AU"]))
