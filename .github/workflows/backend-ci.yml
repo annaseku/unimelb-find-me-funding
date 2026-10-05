@@ -66,9 +66,12 @@ jobs:
           cache: pip
           cache-dependency-path: backend/requirements*.txt
       - run: pip install -r backend/requirements-dev.txt
-      - run: pytest backend -q
+      - run: pytest backend -q --cov=backend --cov-config=backend/pyproject.toml --cov-report=term-missing:skip-covered
         env:
           FMF_TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/fmf_test
+      - name: Coverage summary
+        if: matrix.python-version == '3.12'
+        run: coverage report --rcfile=backend/pyproject.toml --format=markdown >> "$GITHUB_STEP_SUMMARY"
       - name: Ranking evals
         run: python -m backend.evals.run_evals
 
