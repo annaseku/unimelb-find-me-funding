@@ -1,3 +1,4 @@
+// mutation-check: characterisation
 import { expect, test, type Page } from '@playwright/test'
 import type { SearchRequest, SearchResultsResponse } from '../src/types/funding'
 

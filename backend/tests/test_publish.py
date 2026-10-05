@@ -2,6 +2,8 @@
 content hashes and the command-line entry point. Writing to Postgres is
 tested against a real one in test_postgres_repository.py."""
 
+# mutation-check: characterisation
+
 from __future__ import annotations
 
 import pytest

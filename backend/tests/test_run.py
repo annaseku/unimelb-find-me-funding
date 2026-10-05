@@ -1,6 +1,8 @@
 """Tests for backend.normaliser.run, the normaliser's command-line entry
 point: argument handling and the summary it prints."""
 
+# mutation-check: characterisation
+
 from __future__ import annotations
 
 import sqlite3
