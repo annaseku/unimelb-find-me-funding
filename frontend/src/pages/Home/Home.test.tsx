@@ -69,7 +69,7 @@ describe('Home', () => {
     const user = userEvent.setup();
     renderHome();
 
-    await user.selectOptions(screen.getByRole('combobox', { name: 'Field of Research' }), '3103');
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Field of Research' }), '31');
 
     await user.selectOptions(screen.getByRole('combobox', { name: 'Career Stage' }), 'postdoc_2_5');
 
@@ -78,7 +78,7 @@ describe('Home', () => {
     const state = readNavigatedState();
     expect(state.filters).toEqual({
       ...defaultFilterValues,
-      fieldOfResearch: '3103',
+      fieldOfResearch: '31',
       careerStage: 'postdoc_2_5',
     });
   });
