@@ -4,7 +4,7 @@ A web tool that finds research funding opportunities for University of Melbourne
 
 A researcher fills in a short form: field of research and type of activity (ANZSRC codes), citizenship, employer type, career stage, the kind of funding they need, and a few sentences about the project. The tool searches a continuously refreshed collection of funding pages gathered from across the web, not a fixed list of funders, and returns the top ten with more on request. Every result shows a link and a rating on four criteria: eligibility, match to the research, funding value, and time to deadline.
 
-Live frontend: https://annaseku.github.io/unimelb-find-me-funding/, calling the API at https://find-me-funding-api.onrender.com.
+Live frontend: https://annaseku.github.io/unimelb-find-me-funding/, calling the API at https://find-me-funding-api.onrender.com. The deployed database currently holds the 30 illustrative records, not crawled data.
 
 ## How it works
 
@@ -13,7 +13,8 @@ funder websites
    -> crawler          discover pages via search, fetch politely, extract raw signals   backend/crawler
    -> normaliser       raw text -> structured Opportunity records, rules first,         backend/normaliser
                        optional Gemini extractor for the prose-derived fields
-   -> store            normalised_opportunities table in SQLite                          backend/data
+   -> store            normalised_opportunities table: SQLite locally, Supabase Postgres  backend/data
+                       when deployed (python -m backend.data.publish)
    -> ranker           four separate scores + weighted overall, plain-English reasons    backend/ranking
    -> API              POST /api/search, paging, weights echoed                          backend/api
    -> frontend         React search form and results page                               frontend
@@ -34,12 +35,13 @@ Default weights are eligibility 0.4, research match 0.3, funding value 0.15, dea
 
 | Component | Status | Owner |
 | --- | --- | --- |
-| Crawler: SerpApi discovery, robots.txt, fetch, extract, SQLite, scheduler loop | Built | Jummana |
+| Crawler: SerpApi discovery, robots.txt, fetch, extract, SQLite, scheduler loop | Built, run by hand | Jummana |
 | Normaliser: rules plus optional Gemini extractor, provenance per field | Prototype | Anna |
 | Ranking engine: four criterion scores, weighted overall, golden-set evals | Prototype | Anna |
-| FastAPI search endpoint | Prototype, serves mock data by default or the normalised table | Anna |
+| FastAPI search endpoint | Deployed on Render, reading Supabase Postgres | Anna |
 | Frontend: search form and results page, UoM design system | Built, calling the deployed API | Paige, Andrew, Sophia |
 | LLM research-match scorer | Not started; seam in `backend/ranking/research_match.py` | |
+| Scheduled daily crawl, normalise and publish to Postgres | Not started; see ADR-004 | |
 | Deduplication across sources, researcher profiles | Not started | |
 
 ## Repository layout
@@ -49,7 +51,7 @@ backend/
   crawler/       discovery, fetch, extract, storage, scheduler (see backend/crawler/README)
   normaliser/    crawler rows -> Opportunity records; python -m backend.normaliser.run
   ranking/       models, four scorers, weights, ranker
-  data/          mock opportunities and profiles, repository seam, SQLite repository
+  data/          mock data, repository seam, SQLite and Postgres repositories, publish step
   api/           FastAPI app: /api/health, /api/search, /api/opportunities/{id}
   evals/         golden-set ranking evals; python -m backend.evals.run_evals
   tests/         pytest, one file per module
@@ -57,7 +59,7 @@ backend/
 frontend/        React 19 + TypeScript + Vite, Vitest tests beside the code
 docs/            numbered by the COMP30022 Progress Checklist; docs/README.md maps all twelve items
   07-requirements/          ranking decisions awaiting client confirmation
-  09-architectural-design/  ADRs, draw.io diagrams, API contract (Jira KAN-11), design specs
+  09-architectural-design/  ADRs, API contract (Jira KAN-11), design specs
   10-coding/                implementation plans
   11-testing/               how to run every test suite
   12-deployment/            pipeline, environments, releases, rollback
@@ -92,9 +94,9 @@ Running on real crawled data instead of the mock set:
 
 ```bash
 export SERPAPI_API_KEY=...                 # free key from serpapi.com
-python3 main.py                            # crawl once; writes backend/funding_crawler.db
-python -m backend.normaliser.run --db backend/funding_crawler.db --no-llm
-FMF_DATA_SOURCE=sqlite FMF_DB_PATH=backend/funding_crawler.db uvicorn backend.api.main:app --reload
+python3 main.py                            # crawl once; writes funding_crawler.db in the current directory
+python -m backend.normaliser.run --db funding_crawler.db --no-llm
+FMF_DATA_SOURCE=sqlite FMF_DB_PATH=funding_crawler.db uvicorn backend.api.main:app --reload
 ```
 
 Set `GEMINI_API_KEY` (free key from Google AI Studio) and drop `--no-llm` to let the extractor fill the fields the rules cannot read. Copy `backend/.env.example` to `backend/.env` for the full list of variables. Never commit a key; `.env` is gitignored.

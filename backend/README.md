@@ -5,8 +5,8 @@ Two packages live here. `crawler/` (Jummana) discovers and stores funding pages;
 | Component | Status |
 | --- | --- |
 | Crawler (discovery, fetch, extract, store) | Built, see `crawler/README` |
-| Ranking engine (four criterion scores, weighted overall) | Prototype built, scores structured mock data |
-| FastAPI search endpoint for the frontend | Prototype built |
+| Ranking engine (four criterion scores, weighted overall) | Prototype built; deployed API ranks the records in Supabase Postgres |
+| FastAPI search endpoint for the frontend | Deployed on Render |
 | Normalising crawler rows into structured opportunities | Prototype built, rules plus optional Gemini extractor, see Normaliser below |
 | LLM or embedding research-match scorer | Not started, seam is in `ranking/research_match.py` |
 
@@ -54,9 +54,9 @@ curl -s -X POST localhost:8000/api/search -H 'content-type: application/json' \
 `normaliser/` turns the crawler's raw rows (page text, a parsed deadline, a raw dollar string, an eligibility snippet) into the structured `Opportunity` records the ranker scores. Deterministic rules run first and stamp every field with where it came from; if `GEMINI_API_KEY` is set, a Gemini extractor fills the prose-derived fields (citizenship, career stage, research codes, funder name, summary) and never overrides a rule-parsed date or amount. Results land in a `normalised_opportunities` table in the same SQLite file; the crawler's own table is never written.
 
 ```bash
-python -m backend.normaliser.run --db backend/funding_crawler.db            # rules, plus the model if a key is set
-python -m backend.normaliser.run --db backend/funding_crawler.db --no-llm   # rules only
-FMF_DATA_SOURCE=sqlite FMF_DB_PATH=backend/funding_crawler.db uvicorn backend.api.main:app --reload
+python -m backend.normaliser.run --db funding_crawler.db            # rules, plus the model if a key is set
+python -m backend.normaliser.run --db funding_crawler.db --no-llm   # rules only
+FMF_DATA_SOURCE=sqlite FMF_DB_PATH=funding_crawler.db uvicorn backend.api.main:app --reload
 ```
 
 | Variable | Effect |
@@ -80,13 +80,13 @@ Put `FMF_DATABASE_URL` in `backend/.env` (copy the name from `.env.example`); `p
 
 ```bash
 python3 -m backend.data.publish --source mock                                  # seed the 30 illustrative records
-python3 -m backend.data.publish --source sqlite --db-path backend/funding_crawler.db
+python3 -m backend.data.publish --source sqlite --db-path funding_crawler.db
 FMF_DATA_SOURCE=postgres uvicorn backend.api.main:app --reload
 ```
 
 **Use the Supavisor session-mode pooler URL, port 5432, not the direct connection string.** Supabase's direct endpoint (`db.<ref>.supabase.co`) publishes only an IPv6 `AAAA` record on the free plan, and Render is IPv4-only, so a direct URL fails from the deployed service while working fine from a laptop. Transaction mode (port 6543) is also wrong here: it does not support the prepared statements psycopg uses. Copy the exact string from the Supabase dashboard's **Connect** button, session mode.
 
-Free-plan projects pause after seven days of low database activity, which the scheduled crawl prevents once it runs against Postgres. Until then, an idle project pauses and the API serves zero results.
+Free-plan projects pause after seven days of low database activity, which the scheduled crawl prevents once it runs against Postgres. Until then, an idle project pauses and `/api/search` returns HTTP 500 while `/api/health` still returns 200. Restore the project from the Supabase dashboard.
 
 ## CI/CD
 
@@ -99,13 +99,13 @@ docker build -f backend/Dockerfile -t find-me-funding-backend .
 docker run --rm -p 8000:8000 find-me-funding-backend
 ```
 
-`ruff format backend` fixes formatting failures. `crawler/` is excluded from ruff until its rewrite on `feature/backend-crawler` lands; drop the `extend-exclude` line in `pyproject.toml` then.
+`ruff format backend` fixes formatting failures. `crawler/` is excluded from ruff; drop the `extend-exclude` line in `pyproject.toml` once it passes the lint rules.
 
 `.github/workflows/backend-cd.yml` runs after CI passes on main and pushes the image to `ghcr.io/annaseku/unimelb-find-me-funding/backend`, tagged `latest` and `sha-<commit>`. Pulling a private package needs a GitHub token with `read:packages`.
 
 ## Hosting
 
-The API runs on Render as a Docker web service defined in `render.yaml` at the repository root (decision record: `docs/09-architectural-design/adr/ADR-003-deployment-architecture.md`). Render builds `backend/Dockerfile` from the repository on every push to main, so a merge is a deploy; there is no separate release step. The service is `find-me-funding-api` in the Crawlers workspace, Singapore region, free plan, health-checked on `/api/health`, and the frontend on GitHub Pages is already in the CORS allow-list in `api/main.py`.
+The API runs on Render as a Docker web service defined in `render.yaml` at the repository root (decision record: `docs/09-architectural-design/adr/ADR-004-deployment-architecture.md`). Render builds `backend/Dockerfile` from the repository on every push to main, so a merge is a deploy; there is no separate release step. The service is `find-me-funding-api` in the Crawlers workspace, Singapore region, free plan, health-checked on `/api/health`, and the frontend on GitHub Pages is already in the CORS allow-list in `api/main.py`.
 
 The free plan spins the service down after 15 minutes idle and takes about a minute to wake, so hit `/api/health` before a client demo. `GEMINI_API_KEY` is declared in `render.yaml` with `sync: false`, which means its value lives only in the Render dashboard; nothing reads it yet, so it can stay empty. Changing the service's shape (plan, region, env var names) is an edit to `render.yaml`, not a dashboard click, so the change is reviewed like any other.
 
@@ -120,4 +120,4 @@ Each opportunity gets four separate scores, each with a label and plain-English 
 
 `ranking/ranker.py` combines them with the weights in `ranking/weights.py` (default eligibility 0.4, match 0.3, funding 0.15, deadline 0.15; any request can override) and filters closed opportunities unless `include_closed` is set. The API pages over the ranked list with `limit` and `offset`.
 
-By default the ranker scores the illustrative opportunities in `data/mock_opportunities.json`. With `FMF_DATA_SOURCE=sqlite` it scores whatever the normaliser has produced from the crawler's rows (see Normaliser above). Design records: `docs/09-architectural-design/adr/ADR-002-ranking-engine.md` and `docs/09-architectural-design/adr/ADR-003-normaliser.md`. Decisions still needing client confirmation: `docs/07-requirements/ranking-discussion-points.md`.
+Locally the ranker scores the illustrative opportunities in `data/mock_opportunities.json` by default. With `FMF_DATA_SOURCE=sqlite` it scores whatever the normaliser has produced from the crawler's rows (see Normaliser above), and the deployed API uses `postgres`. Design records: `docs/09-architectural-design/adr/ADR-002-ranking-engine.md` and `docs/09-architectural-design/adr/ADR-003-normaliser.md`. Decisions still needing client confirmation: `docs/07-requirements/ranking-discussion-points.md`.

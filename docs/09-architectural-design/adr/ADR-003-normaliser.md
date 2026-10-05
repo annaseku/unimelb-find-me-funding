@@ -4,7 +4,7 @@
 | --- | --- |
 | Decision ID | ADR-003 |
 | Decision | Convert the crawler's raw rows into structured `Opportunity` records with deterministic rules first and an optional model extractor that fills only prose-derived fields. Write the result to a separate SQLite table in the crawler's database, served to the API through the existing repository seam and selected by an environment variable. |
-| Status | ⚪ Proposed (implemented as a prototype on branch `feat/normaliser`) |
+| Status | ⚪ Proposed (implemented on main, not yet ratified with the client) |
 | Owner | Anna Sekulic |
 | Date | 2026-09-07 |
 

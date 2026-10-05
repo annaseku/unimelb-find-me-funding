@@ -4,7 +4,7 @@
 | --- | --- |
 | Decision ID | ADR-002 |
 | Decision | Rank opportunities with four separately computed criterion scores (eligibility, research match, funding value, deadline), each returning a score, a label and plain-English reasons, combined by a weighted average with configurable weights. Deterministic rules only in this sprint; a named seam is left for an LLM or embedding scorer. |
-| Status | ⚪ Proposed (implemented as a prototype on branch `feat/ranking-engine`, not yet ratified with the client) |
+| Status | ⚪ Proposed (implemented on main, not yet ratified with the client) |
 | Owner | Anna Sekulic |
 | Date | 2026-09-06 |
 

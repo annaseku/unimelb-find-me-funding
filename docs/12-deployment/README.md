@@ -9,7 +9,7 @@ A merge to main is a deploy. There is no manual step.
 | API image | `ghcr.io/annaseku/unimelb-find-me-funding/backend`, tagged `latest` and `sha-<commit>` | Backend CI passing on main | `.github/workflows/backend-cd.yml` |
 | Database | Supabase Postgres | `CREATE TABLE IF NOT EXISTS` in `backend/data/postgres_repository.py` | `backend/data/` |
 
-Diagram: `docs/09-architectural-design/diagrams/deployment-diagram.drawio`.
+Decision record: `docs/09-architectural-design/adr/ADR-004-deployment-architecture.md`.
 
 ## Pipeline
 
