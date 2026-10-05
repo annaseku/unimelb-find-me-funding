@@ -1,11 +1,12 @@
 import styles from './Navbar.module.css'
+import UniMelbLogo from '../../assets/icons/UniMelbLogo'
 
 function Navbar() {
 
   return (
     <>
         <nav className={styles.navbar}>
-            <p className={styles.title}></p>
+            <UniMelbLogo />
         </nav>
     </>
   )
