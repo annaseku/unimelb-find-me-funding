@@ -12,3 +12,7 @@ it('shows readable labels, emits backend values, and allows clearing', async () 
   await user.selectOptions(screen.getByRole('combobox'), '');
   expect(onChange).toHaveBeenLastCalledWith('');
 });
+it('separates the label from "Any" with an en dash in the blank option', () => {
+  render(<Dropdown label="Career Stage" options={[]} value="" onChange={vi.fn()} />);
+  expect(screen.getByRole('combobox')).toHaveDisplayValue('Career Stage – Any');
+});
