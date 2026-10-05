@@ -50,7 +50,7 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       # Vitest with jsdom; test files live next to the code as *.test.tsx.
-      - run: npm test
+      - run: npm run test:coverage
       - run: npm run build
       - name: Upload built site for review
         uses: actions/upload-artifact@v7
