@@ -2,19 +2,29 @@ import styles from './Home.module.css';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Dropdown from '../../components/Dropdown/Dropdown';
+import FieldOfResearchDropdown from '../../components/FieldOfResearchDropdown/FieldOfResearchDropdown';
+import CitizenshipDropdown from '../../components/CitizenshipDropdown/CitizenshipDropdown';
+
 import {
   filterOptions,
   defaultFilterValues,
   type FilterKey,
 } from '../../data/filterOptions';
 
+
 function Home() {
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState(defaultFilterValues);
   const navigate = useNavigate();
 
-  const handleFilterChange = (key: FilterKey, value: string) => {
-    setFilters((current) => ({ ...current, [key]: value }));
+  const handleFilterChange = (
+      key: FilterKey,
+      value: string | string[]
+  ) => {
+      setFilters((current) => ({
+          ...current,
+          [key]: value,
+      }));
   };
 
   const handleSearch = (event: React.FormEvent) => {
@@ -32,12 +42,12 @@ function Home() {
     <>
       <div className={styles.homeContainer}>
         <h1 className={styles.title}>Find Me Funding</h1>
-        <div className={styles.dropdownContainer}>
-          <Dropdown
-            label="Field of Research"
-            options={filterOptions.fieldOfResearch}
+        <div>
+          <FieldOfResearchDropdown
             value={filters.fieldOfResearch}
-            onChange={(value) => handleFilterChange('fieldOfResearch', value)}
+            onChange={(value) =>
+                handleFilterChange('fieldOfResearch', value)
+            }
           />
           <Dropdown
             label="Type of Activity"
@@ -45,11 +55,11 @@ function Home() {
             value={filters.typeOfActivity}
             onChange={(value) => handleFilterChange('typeOfActivity', value)}
           />
-          <Dropdown
-            label="Citizenship"
-            options={filterOptions.citizenship}
-            value={filters.citizenship}
-            onChange={(value) => handleFilterChange('citizenship', value)}
+          <CitizenshipDropdown
+              value={filters.citizenship}
+              onChange={(value) =>
+                  handleFilterChange('citizenship', value)
+              }
           />
           <Dropdown
             label="Employer Type"

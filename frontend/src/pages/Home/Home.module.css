@@ -5,12 +5,12 @@
 
 .searchSubmit {
     width: 100%;
+    margin: 0 !important;
 }
 
 .searchbarContainer {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 10px;
     height: 50px;
 }
@@ -22,7 +22,6 @@
 }
 
 .searchbar{
-    background-color: #BFCED5;
     width: 100% !important;
     height: 50px;
     padding: 0 20px;
@@ -39,7 +38,6 @@
     padding: 0 20px;
     border: none;
     border-radius: 20px;
-    background: #000F46;
     color: #ffffff;
     font-family: 'Source Sans 3';
     cursor: pointer;
@@ -47,12 +45,12 @@
 
 .homeContainer{
     min-height: 100vh;
-    max-width: fit-content;
 
     display: flex;
     flex-direction: column;
 
     margin-top: 200px;
     margin-left: 100px;
+    margin-right: 100px;
 
 }

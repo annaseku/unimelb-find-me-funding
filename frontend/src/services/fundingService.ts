@@ -1,5 +1,5 @@
 import { filterOptions, type FilterValues } from '../data/filterOptions';
-import type { CareerStage, EmployerType, FundingType, SearchRequest, SearchResultsResponse } from '../types/funding';
+import type { CareerStage, EmployerType, FundingType, SearchRequest, SearchResponse } from '../types/funding';
 
 const baseUrl = (import.meta.env.VITE_API_BASE_URL?.trim() || 'https://find-me-funding-api.onrender.com').replace(/\/+$/, '');
 const list = (value: string) => value ? [value] : [];
@@ -19,7 +19,7 @@ export function buildSearchRequest(search: string, filters: FilterValues, offset
     include_closed: false, hide_ineligible: false, limit: 10, offset,
   };
 }
-export async function fetchResults(search: string, filters: FilterValues, offset = 0, signal?: AbortSignal): Promise<SearchResultsResponse> {
+export async function fetchResults(search: string, filters: FilterValues, offset = 0, signal?: AbortSignal): Promise<SearchResponse> {
   const timeout = AbortSignal.timeout(120_000);
   try {
     const response = await fetch(`${baseUrl}/api/search`, {
@@ -30,7 +30,7 @@ export async function fetchResults(search: string, filters: FilterValues, offset
     if (!response.ok) throw new Error(response.status === 422
       ? 'The search filters were not accepted. Please check your selections and try again.'
       : 'The funding service is unavailable. Please try again shortly.');
-    return await response.json() as SearchResultsResponse;
+    return await response.json() as SearchResponse;
   } catch (error) {
     if (timeout.aborted && !signal?.aborted) throw new Error('The funding service took too long to respond. Please try again.', { cause: error });
     if (error instanceof TypeError) throw new Error('Could not reach the funding service. Check your connection and try again.', { cause: error });

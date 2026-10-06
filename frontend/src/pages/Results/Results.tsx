@@ -5,7 +5,7 @@ import Dropdown from '../../components/Dropdown/Dropdown';
 import Result from '../../components/Result/Result';
 import { fetchResults } from '../../services/fundingService';
 import { defaultFilterValues, filterOptions, type FilterKey, type FilterValues } from '../../data/filterOptions';
-import { criteria, type CriterionKey, type SearchResultsResponse } from '../../types/funding';
+import { criteria, type CriterionKey, type SearchResponse } from '../../types/funding';
 
 type Query = { search: string; filters: FilterValues };
 export default function Results() {
@@ -14,7 +14,7 @@ export default function Results() {
   const [search, setSearch] = useState(initial.search);
   const [filters, setFilters] = useState(initial.filters);
   const [submitted, setSubmitted] = useState(initial);
-  const [response, setResponse] = useState<SearchResultsResponse | null>(null);
+  const [response, setResponse] = useState<SearchResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const controller = useRef<AbortController | null>(null);
