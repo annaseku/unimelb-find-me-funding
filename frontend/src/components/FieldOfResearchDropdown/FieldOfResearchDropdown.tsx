@@ -16,7 +16,7 @@ export default function FieldOfResearchDropdown({
     const [expandedDivision, setExpandedDivision] = useState<string | null>(null);
 
     const containerRef = useRef<HTMLDivElement>(null);
-    
+
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (
@@ -95,7 +95,8 @@ export default function FieldOfResearchDropdown({
     };
 
     return (
-        <div ref={containerRef} className={styles.container}>
+        <div ref={containerRef} className={styles.dropdownWrapper}>
+            <span className={styles.label}>Field of Research</span>
             <button
                 type="button"
                 className={styles.trigger}

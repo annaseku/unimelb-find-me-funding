@@ -76,7 +76,8 @@ export default function CitizenshipDropdown({
     };
 
     return (
-        <div ref={containerRef} className={styles.container}>
+        <div ref={containerRef} className={styles.dropdownWrapper}>
+            <span className={styles.label}>Citizenship</span>
             <button
                 type="button"
                 className={styles.trigger}

@@ -3,22 +3,29 @@
     display: inline-block;
 }
 
-.container {
+.dropdownWrapper {
     position: relative;
-    display: inline-block;
+    min-width: 0;
+    width: 100%;
+}
+
+.label {
+    display: block;
+    margin-bottom: 4px;
 }
 
 .trigger {
+    box-sizing: border-box;
+    width: 89% !important;
+    height: 52px !important;
+
     display: flex !important;
     align-items: stretch !important;
 
-    height: 51px !important;
     padding: 0 !important;
 
     background: white !important;
-
     border: 1px solid #000f46 !important;
-    border-radius: 20px !important;
 
     font-family: inherit !important;
     font-size: inherit !important;
@@ -26,38 +33,37 @@
     font-weight: 600 !important;
 
     cursor: pointer;
-    white-space: nowrap;
     overflow: hidden;
 }
 
 .triggerLabel {
+    flex: 1;
+    min-width: 0;
+
     display: flex;
     align-items: center;
 
     padding: 0 16px;
 
-    color: inherit;
-    font-weight: inherit;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .triggerArrow {
+    width: 50px;
+    flex: 0 0 50px;
+
     display: flex;
     align-items: center;
     justify-content: center;
 
-    width: 48px;
-
     border-left: 1px solid #000f46;
 }
 
-.trigger:hover {
-    background-color: #D1F1FB !important;
-}
-
-.trigger:focus,
 .trigger:focus-visible {
-    outline: 2px solid #006fdc !important;
-    outline-offset: 3px !important;
+    outline: 2px solid #000f46 !important;
+    outline-offset: 2px !important;
 }
 
 .menu {

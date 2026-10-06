@@ -42,7 +42,7 @@ function Home() {
     <>
       <div className={styles.homeContainer}>
         <h1 className={styles.title}>Find Me Funding</h1>
-        <div>
+        <div className={styles.dropdownContainer}>
           <FieldOfResearchDropdown
             value={filters.fieldOfResearch}
             onChange={(value) =>
