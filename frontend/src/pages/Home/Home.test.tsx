@@ -41,7 +41,7 @@ describe('Home', () => {
     renderHome();
 
     dropdownLabels.forEach((label) => {
-      expect(screen.getByRole('combobox', { name: label })).toBeInTheDocument();
+      expect(screen.getByText(`${label} – Any`)).toBeInTheDocument();
     });
     expect(screen.getByPlaceholderText(searchPlaceholder)).toBeInTheDocument();
   });
@@ -69,9 +69,10 @@ describe('Home', () => {
     const user = userEvent.setup();
     renderHome();
 
-    await user.selectOptions(screen.getByRole('combobox', { name: 'Field of Research' }), '3103');
-
-    await user.selectOptions(screen.getByRole('combobox', { name: 'Career Stage' }), 'postdoc_2_5');
+    await user.click(screen.getByText('Field of Research – Any'));
+    await user.click(screen.getByRole('radio', { name: 'Ecology' }));
+    await user.click(screen.getByText('Career Stage – Any'));
+    await user.click(screen.getByRole('radio', { name: 'Postdoctoral (2-5 years)' }));
 
     await user.click(screen.getByRole('button', { name: 'Search funding' }));
 
