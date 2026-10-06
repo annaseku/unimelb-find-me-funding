@@ -1,5 +1,35 @@
+.dropdownWrapper {
+    min-width: 0;
+}
+
 .dropdown {
-    width: auto !important;
-    margin: 5px !important;
-    border-radius: 20px;
+    width: 100% !important;
+    box-sizing: border-box;
+}
+
+.dropdown > :global(summary) {
+    box-sizing: border-box;
+    width: 100% !important;
+    border: 1px solid #000f46 !important;
+    box-shadow: none !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    list-style: none !important;
+}
+
+.dropdown > :global(summary::marker),
+.dropdown > :global(summary::-webkit-details-marker) {
+    display: none !important;
+    content: "" !important;
+}
+
+.dropdown > :global(summary:focus-visible) {
+    outline: 2px solid #000f46 !important;
+    outline-offset: 2px !important;
+}
+
+.label {
+    display: block;
+    margin-bottom: 4px;
 }

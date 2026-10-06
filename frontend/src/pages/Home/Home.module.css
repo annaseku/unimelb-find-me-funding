@@ -45,12 +45,32 @@
 
 .homeContainer{
     min-height: 100vh;
+    width: min(1400px, calc(100% - 40px));
+    max-width: none;
 
     display: flex;
     flex-direction: column;
 
-    margin-top: 200px;
-    margin-left: 100px;
-    margin-right: 100px;
+    margin: 200px auto 40px;
 
+}
+
+.dropdownContainer {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 20px;
+    row-gap: 16px;
+    align-items: center;
+}
+
+@media (max-width: 760px) {
+    .dropdownContainer {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 560px) {
+    .dropdownContainer {
+        grid-template-columns: 1fr;
+    }
 }
