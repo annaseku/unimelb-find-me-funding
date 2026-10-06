@@ -1,18 +1,18 @@
-import { filterOptions, type FilterValues } from '../data/filterOptions';
+import { /*filterOptions,*/ type FilterValues } from '../data/filterOptions';
 import type { CareerStage, EmployerType, FundingType, SearchRequest, SearchResponse } from '../types/funding';
 
 const baseUrl = (import.meta.env.VITE_API_BASE_URL?.trim() || 'https://find-me-funding-api.onrender.com').replace(/\/+$/, '');
 const list = (value: string) => value ? [value] : [];
 export function buildSearchRequest(search: string, filters: FilterValues, offset = 0): SearchRequest {
-  for (const key of Object.keys(filterOptions) as (keyof FilterValues)[]) {
-    if (filters[key] && !filterOptions[key].some((option) => option.value === filters[key])) {
-      throw new Error('A selected filter is no longer available. Please clear it and choose again.');
-    }
-  }
+  // for (const key of Object.keys(filterOptions) as (keyof FilterValues)[]) {
+  //   if (filters[key] && !filterOptions[key].some((option) => option.value === filters[key])) {
+  //     throw new Error('A selected filter is no longer available. Please clear it and choose again.');
+  //   }
+  // }
   return {
     research_description: search.trim(),
     for_codes: list(filters.fieldOfResearch), toa_codes: list(filters.typeOfActivity),
-    citizenships: list(filters.citizenship),
+    citizenships: filters.citizenship,
     employer_type: (filters.employerType || null) as EmployerType | null,
     career_stage: (filters.careerStage || null) as CareerStage | null,
     funding_types: list(filters.fundingType) as FundingType[],

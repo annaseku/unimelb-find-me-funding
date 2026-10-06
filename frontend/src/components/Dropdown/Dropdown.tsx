@@ -1,5 +1,5 @@
 import styles from './Dropdown.module.css';
-import { useId, useRef } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import type { FilterOption } from '../../data/filterOptions';
 
 interface DropdownProps {
@@ -12,6 +12,24 @@ interface DropdownProps {
 export default function Dropdown({ label, options, value, onChange }: DropdownProps) {
   const dropdownId = useId();
   const dropdownRef = useRef<HTMLDetailsElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        dropdownRef.current.open = false;
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   const selectedOption = options.find((option) => option.value === value);
 
   const selectOption = (nextValue: string) => {
