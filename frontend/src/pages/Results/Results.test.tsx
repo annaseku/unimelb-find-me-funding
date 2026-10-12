@@ -9,7 +9,7 @@ const fetchMock = vi.fn();
 const response = (body = page) => ({ ok: true, json: async () => body });
 beforeEach(() => { fetchMock.mockReset(); vi.stubGlobal('fetch', fetchMock); });
 afterEach(() => vi.unstubAllGlobals());
-function show() { return render(<MemoryRouter initialEntries={[{ pathname: '/results', state: { search: 'coral', filters: { ...defaultFilterValues, fieldOfResearch: '3103' } } }]}><Results /></MemoryRouter>); }
+function show() { return render(<MemoryRouter initialEntries={[{ pathname: '/results', state: { search: 'coral', filters: { ...defaultFilterValues, fieldOfResearch: '31' } } }]}><Results /></MemoryRouter>); }
 it('explains cold starts and shows the total from the server, not the page count', async () => {
   fetchMock.mockResolvedValue(response({ ...page, total: 27 })); show();
   expect(screen.getByRole('status')).toHaveTextContent('first search can take about a minute');
@@ -33,7 +33,7 @@ it('appends pages using the submitted filters, then resets on a new search', asy
   await user.click(screen.getByRole('button', { name: 'Show more' }));
   await screen.findByText('Wellcome Grant');
   expect(screen.getByText('ARC Research Grant')).toBeInTheDocument();
-  expect(JSON.parse(fetchMock.mock.calls[1][1].body)).toMatchObject({ offset: 1, research_description: 'coral', for_codes: ['3103'] });
+  expect(JSON.parse(fetchMock.mock.calls[1][1].body)).toMatchObject({ offset: 1, research_description: 'coral', for_codes: ['31'] });
   expect(screen.queryByRole('button', { name: 'Show more' })).not.toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Search' }));
   await screen.findByText('0 Results Found');

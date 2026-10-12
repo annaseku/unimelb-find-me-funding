@@ -1,6 +1,6 @@
 <!-- Title: type(scope): what changed. Types: feat, fix, test, docs, ci, infra, chore. Scope: backend, frontend, crawler, ranking, normaliser, api. -->
 
-Jira: KAN-
+Jira: KAN-  ·  User story: US
 
 ## Summary
 
@@ -8,7 +8,7 @@ Jira: KAN-
 
 ## Why
 
-<!-- The problem or ticket this solves. If it changes a decision in docs/adr/ or Confluence, say which. -->
+<!-- The problem or ticket this solves. If it changes a decision in docs/09-architectural-design/adr/ or Confluence, say which. -->
 
 ## Test plan
 
@@ -23,9 +23,13 @@ Jira: KAN-
 ## Checklist
 
 - [ ] No secrets, `.env` files or API keys in the diff
-- [ ] Docs updated where behaviour changed (`README.md`, `backend/README.md`, `docs/api-contract.md`)
-- [ ] Architecture or long-term direction change: ADR added to `docs/adr/`
+- [ ] Docs updated where behaviour changed (`README.md`, `backend/README.md`, `docs/09-architectural-design/api-contract.md`)
+- [ ] Architecture or long-term direction change: ADR added to `docs/09-architectural-design/adr/`
 - [ ] Anything left for a follow-up is listed below, not silently dropped
+
+## GenAI use
+
+<!-- None, or which tool and what it did (drafted code, tests, docs, review). Commits it helped write carry a Co-Authored-By trailer. Add a row to the GenAI Usage Log on Confluence. -->
 
 ## Follow-ups
 

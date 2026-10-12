@@ -4,7 +4,7 @@ A web tool that finds research funding opportunities for University of Melbourne
 
 A researcher fills in a short form: field of research and type of activity (ANZSRC codes), citizenship, employer type, career stage, the kind of funding they need, and a few sentences about the project. The tool searches a continuously refreshed collection of funding pages gathered from across the web, not a fixed list of funders, and returns the top ten with more on request. Every result shows a link and a rating on four criteria: eligibility, match to the research, funding value, and time to deadline.
 
-Live frontend: https://annaseku.github.io/unimelb-find-me-funding/ (mock data, not yet wired to the API).
+Live frontend: https://annaseku.github.io/unimelb-find-me-funding/, calling the API at https://find-me-funding-api.onrender.com. The deployed database currently holds the 30 illustrative records, not crawled data.
 
 ## How it works
 
@@ -13,7 +13,8 @@ funder websites
    -> crawler          discover pages via search, fetch politely, extract raw signals   backend/crawler
    -> normaliser       raw text -> structured Opportunity records, rules first,         backend/normaliser
                        optional Gemini extractor for the prose-derived fields
-   -> store            normalised_opportunities table in SQLite                          backend/data
+   -> store            normalised_opportunities table: SQLite locally, Supabase Postgres  backend/data
+                       when deployed (python -m backend.data.publish)
    -> ranker           four separate scores + weighted overall, plain-English reasons    backend/ranking
    -> API              POST /api/search, paging, weights echoed                          backend/api
    -> frontend         React search form and results page                               frontend
@@ -28,18 +29,19 @@ Each ranked result carries four scores between 0 and 1, each with a label and re
 | Funding value | amount in AUD, banded | under $1M, $1M to $2M, $2M to $5M, $5M and over, unknown |
 | Deadline | days remaining, banded; more lead time scores higher | over 60 days, 60 to 30, 30 to 15, under 15, closed, unknown |
 
-Default weights are eligibility 0.4, research match 0.3, funding value 0.15, deadline 0.15. Any request can override them and the response echoes what was used. Likely-ineligible results always sort after everything the researcher could apply for. Six of these behaviours are still to be confirmed with the client; see `docs/ranking-discussion-points.md`.
+Default weights are eligibility 0.4, research match 0.3, funding value 0.15, deadline 0.15. Any request can override them and the response echoes what was used. Likely-ineligible results always sort after everything the researcher could apply for. Six of these behaviours are still to be confirmed with the client; see `docs/07-requirements/ranking-discussion-points.md`.
 
 ## Status
 
 | Component | Status | Owner |
 | --- | --- | --- |
-| Crawler: SerpApi discovery, robots.txt, fetch, extract, SQLite, scheduler loop | Built | Jummana |
+| Crawler: SerpApi discovery, robots.txt, fetch, extract, SQLite, scheduler loop | Built, run by hand | Jummana |
 | Normaliser: rules plus optional Gemini extractor, provenance per field | Prototype | Anna |
 | Ranking engine: four criterion scores, weighted overall, golden-set evals | Prototype | Anna |
-| FastAPI search endpoint | Prototype, serves mock data by default or the normalised table | Anna |
-| Frontend: search form and results page, UoM design system | Layout built, runs on mock data, not yet calling the API | Paige, Andrew, Sophia |
+| FastAPI search endpoint | Deployed on Render, reading Supabase Postgres | Anna |
+| Frontend: search form and results page, UoM design system | Built, calling the deployed API | Paige, Andrew, Sophia |
 | LLM research-match scorer | Not started; seam in `backend/ranking/research_match.py` | |
+| Scheduled daily crawl, normalise and publish to Postgres | Not started; see ADR-004 | |
 | Deduplication across sources, researcher profiles | Not started | |
 
 ## Repository layout
@@ -49,20 +51,22 @@ backend/
   crawler/       discovery, fetch, extract, storage, scheduler (see backend/crawler/README)
   normaliser/    crawler rows -> Opportunity records; python -m backend.normaliser.run
   ranking/       models, four scorers, weights, ranker
-  data/          mock opportunities and profiles, repository seam, SQLite repository
+  data/          mock data, repository seam, SQLite and Postgres repositories, publish step
   api/           FastAPI app: /api/health, /api/search, /api/opportunities/{id}
   evals/         golden-set ranking evals; python -m backend.evals.run_evals
   tests/         pytest, one file per module
   README.md      backend setup, environment variables, how the ranking works
 frontend/        React 19 + TypeScript + Vite, Vitest tests beside the code
-docs/
-  adr/           architecture decision records (ADR-002 ranking, ADR-003 normaliser)
-  api-contract.md            the backend-to-frontend agreement (Jira KAN-11)
-  ranking-discussion-points.md   decisions awaiting client confirmation
-  superpowers/   design specs and implementation plans
+docs/            numbered by the COMP30022 Progress Checklist; docs/README.md maps all twelve items
+  07-requirements/          ranking decisions awaiting client confirmation
+  09-architectural-design/  ADRs, API contract (Jira KAN-11), design specs
+  10-coding/                implementation plans
+  11-testing/               how to run every test suite
+  12-deployment/            pipeline, environments, releases, rollback
 main.py          run the crawler from the repository root
-render.yaml      Render blueprint for hosting the API (not yet applied)
-.github/workflows/   backend-ci, backend-cd, frontend-ci, frontend-cd
+render.yaml      Render blueprint for the API
+CONTRIBUTING.md  workflow, coding standards, code review policy and checklist
+.github/         CI/CD workflows, PR template, bug report template
 ```
 
 ## Quick start
@@ -90,9 +94,9 @@ Running on real crawled data instead of the mock set:
 
 ```bash
 export SERPAPI_API_KEY=...                 # free key from serpapi.com
-python3 main.py                            # crawl once; writes backend/funding_crawler.db
-python -m backend.normaliser.run --db backend/funding_crawler.db --no-llm
-FMF_DATA_SOURCE=sqlite FMF_DB_PATH=backend/funding_crawler.db uvicorn backend.api.main:app --reload
+python3 main.py                            # crawl once; writes funding_crawler.db in the current directory
+python -m backend.normaliser.run --db funding_crawler.db --no-llm
+FMF_DATA_SOURCE=sqlite FMF_DB_PATH=funding_crawler.db uvicorn backend.api.main:app --reload
 ```
 
 Set `GEMINI_API_KEY` (free key from Google AI Studio) and drop `--no-llm` to let the extractor fill the fields the rules cannot read. Copy `backend/.env.example` to `backend/.env` for the full list of variables. Never commit a key; `.env` is gitignored.
@@ -101,10 +105,10 @@ Set `GEMINI_API_KEY` (free key from Google AI Studio) and drop `--no-llm` to let
 
 Four GitHub Actions workflows. `backend-ci` runs ruff, pytest on Python 3.11 to 3.13, the ranking evals and a Docker build; `frontend-ci` runs eslint, Vitest, type-check and build. Both run on every pull request. On main, `backend-cd` publishes the API image to GHCR and `frontend-cd` deploys the site to GitHub Pages.
 
-Main is protected: changes land by pull request only, all seven CI jobs must pass, and nobody can push directly. Branch from main, open a PR, merge on green.
+Main is protected: changes land by pull request only, all seven CI jobs must pass, one teammate must approve, and nobody can push directly. See `CONTRIBUTING.md` for the workflow and review checklist.
 
-The API has no live host yet. `render.yaml` describes a Render web service built from `backend/Dockerfile`; applying it in the Render dashboard is the remaining step.
+The API runs on Render as the web service in `render.yaml`, built from `backend/Dockerfile` on every push to main. Environments, releases and rollback: `docs/12-deployment/README.md`.
 
 ## Where the decisions live
 
-Confluence space "Crawlers" is the source of truth for requirements and meeting notes; Jira project KAN tracks the work. In this repo, `docs/adr/` records the architecture decisions, `docs/api-contract.md` is the contract the frontend builds against, and `docs/ranking-discussion-points.md` lists what still needs the client's answer.
+Confluence space "Crawlers" is the source of truth for requirements and meeting notes; Jira project KAN tracks the work. In this repo, `docs/09-architectural-design/adr/` records the architecture decisions, `docs/09-architectural-design/api-contract.md` is the contract the frontend builds against, and `docs/07-requirements/ranking-discussion-points.md` lists what still needs the client's answer.

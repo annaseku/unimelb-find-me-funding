@@ -2,3 +2,4 @@
 pytest
 httpx
 ruff==0.16.6
+pytest-cov

@@ -2,7 +2,36 @@ export interface FilterOption { value: string; label: string }
 import { fieldOfResearchOptions } from './fieldOfResearchOptions';
 
 export const filterOptions = {
+<<<<<<< HEAD
   fieldOfResearch: fieldOfResearchOptions,
+=======
+  fieldOfResearch: [
+    // ANZSRC 2020 FoR divisions (ABS anzsrc2020_for.xlsx)
+    { value: '30', label: 'Agricultural, Veterinary and Food Sciences' },
+    { value: '31', label: 'Biological Sciences' },
+    { value: '32', label: 'Biomedical and Clinical Sciences' },
+    { value: '33', label: 'Built Environment and Design' },
+    { value: '34', label: 'Chemical Sciences' },
+    { value: '35', label: 'Commerce, Management, Tourism and Services' },
+    { value: '36', label: 'Creative Arts and Writing' },
+    { value: '37', label: 'Earth Sciences' },
+    { value: '38', label: 'Economics' },
+    { value: '39', label: 'Education' },
+    { value: '40', label: 'Engineering' },
+    { value: '41', label: 'Environmental Sciences' },
+    { value: '42', label: 'Health Sciences' },
+    { value: '43', label: 'History, Heritage and Archaeology' },
+    { value: '44', label: 'Human Society' },
+    { value: '45', label: 'Indigenous Studies' },
+    { value: '46', label: 'Information and Computing Sciences' },
+    { value: '47', label: 'Language, Communication and Culture' },
+    { value: '48', label: 'Law and Legal Studies' },
+    { value: '49', label: 'Mathematical Sciences' },
+    { value: '50', label: 'Philosophy and Religious Studies' },
+    { value: '51', label: 'Physical Sciences' },
+    { value: '52', label: 'Psychology' },
+  ],
+>>>>>>> origin/main
   typeOfActivity: [
     { value: '1', label: 'Pure basic research' },
     { value: '2', label: 'Strategic basic research' },

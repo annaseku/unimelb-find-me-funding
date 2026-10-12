@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Planned work (features, tasks, stories)
+    url: https://annaseku01.atlassian.net/jira/software/projects/KAN/boards
+    about: All planned work is tracked on the KAN board in Jira, not in GitHub issues.
