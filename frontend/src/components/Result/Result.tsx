@@ -8,6 +8,18 @@ const labels: Record<string, string> = {
   over_60_days: 'Over 60 days', days_60_to_30: '30–60 days',
   days_30_to_15: '15–30 days', under_15_days: 'Under 15 days', closed: 'Closed',
 };
+
+function formatReason(reason: string) {
+  return reason.replace(/\bpostdoc_(?:0_2|2_5|5_10|10_plus)\b(?:, postdoc_(?:0_2|2_5|5_10|10_plus)\b)*/g, (stages) => {
+    const ranges = stages.split(', ').map((stage) =>
+      stage.replace('postdoc_', '').replace('10_plus', '10+').replace('_', '-'));
+    const list = ranges.length > 2
+      ? `${ranges.slice(0, -1).join(', ')}, or ${ranges.at(-1)}`
+      : ranges.join(' or ');
+    return `postdoc with ${list} years of experience`;
+  });
+}
+
 export default function Result({ result }: { result: RankedOpportunity }) {
   const { opportunity } = result;
   return <article className={styles.resultContainer}>
@@ -18,7 +30,7 @@ export default function Result({ result }: { result: RankedOpportunity }) {
       {(Object.keys(criteria) as CriterionKey[]).map((key) => <section key={key}>
         <h3>{criteria[key]}</h3>
         <p>{labels[result[key].label] ?? result[key].label.replaceAll('_', ' ')}{' · '}{Math.round(result[key].score * 100)}%</p>
-        <ul>{result[key].reasons.map((reason, index) => <li key={index}>{reason}</li>)}</ul>
+        <ul>{result[key].reasons.map((reason, index) => <li key={index}>{formatReason(reason)}</li>)}</ul>
       </section>)}
     </div>
     <p><a href={opportunity.url} target="_blank" rel="noreferrer">View opportunity</a></p>
