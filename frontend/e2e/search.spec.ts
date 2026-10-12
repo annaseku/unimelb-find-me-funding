@@ -1,6 +1,7 @@
 // mutation-check: characterisation
 import { expect, test, type Page } from '@playwright/test'
-import type { SearchRequest, SearchResultsResponse } from '../src/types/funding'
+import type { SearchRequest, SearchResponse } from '../src/types/funding'
+
 
 // The API that playwright.config.ts starts; the tests ask it directly for the
 // ranking they expect the UI to show.
@@ -21,6 +22,7 @@ async function searchFromHome(page: Page, description: string, citizenship = '')
   }
   await page.getByText('Citizenship – Any').click()
   await page.getByText(citizenshipLabels[citizenship], { exact: true }).click()
+  await page.getByRole('heading', { name: /Find Me Funding/i }).click()
 }
   await page.getByPlaceholder('What kind of research are you searching for funding for?').fill(description)
   const sent = page.waitForRequest((request) => request.url().endsWith('/api/search'))
@@ -36,7 +38,7 @@ test('a search from the home page shows the API ranking in order', async ({ page
   const sent = await searchFromHome(page, 'marine ecology', 'AU')
   expect(sent).toMatchObject({ research_description: 'marine ecology', citizenships: ['AU'], offset: 0, limit: 10 })
 
-  const expected = await (await request.post(`${API}/api/search`, { data: sent })).json() as SearchResultsResponse
+  const expected = await (await request.post(`${API}/api/search`, { data: sent })).json() as SearchResponse
   expect(expected.total, 'the mock data set should have open opportunities').toBeGreaterThan(0)
 
   await expect(page.getByText(`${expected.total} Results Found`)).toBeVisible()
@@ -56,7 +58,7 @@ test('each result explains its rating against every criterion and links out', as
 
 test('show more appends the next page of results', async ({ page, request }) => {
   const sent = await searchFromHome(page, 'research')
-  const firstPage = await (await request.post(`${API}/api/search`, { data: sent })).json() as SearchResultsResponse
+  const firstPage = await (await request.post(`${API}/api/search`, { data: sent })).json() as SearchResponse
   expect(
     firstPage.total,
     'fewer than 11 open mock opportunities: mock deadlines have lapsed, refresh backend/data/mock_opportunities.json',

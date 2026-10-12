@@ -81,7 +81,7 @@ describe('Home', () => {
     const state = readNavigatedState();
     expect(state.filters).toEqual({
       ...defaultFilterValues,
-      fieldOfResearch: '31',
+      fieldOfResearch: '3103',
       careerStage: 'postdoc_2_5',
     });
   });
