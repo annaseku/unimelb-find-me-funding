@@ -7,6 +7,13 @@
 pythonpath = [".."]
 testpaths = ["tests"]
 
+# Read via `--cov-config=backend/pyproject.toml`: pytest runs from the
+# repository root, where coverage would not find this file on its own.
+# Report only, no fail-under, until the team agrees a threshold (KAN-50).
+[tool.coverage.run]
+branch = true
+omit = ["*/tests/*"]
+
 [tool.ruff]
 line-length = 100
 target-version = "py311"

@@ -70,7 +70,8 @@ describe('Home', () => {
     renderHome();
 
     await user.click(screen.getByText('Field of Research – Any'));
-    await user.click(screen.getByRole('radio', { name: 'Ecology' }));
+    //await user.click(screen.getByRole('radio', { name: 'Ecology' }));
+    await user.click(screen.getByRole('radio', { name: 'Biological Sciences' }));
     await user.click(screen.getByText('Career Stage – Any'));
     await user.click(screen.getByRole('radio', { name: 'Postdoctoral (2-5 years)' }));
 
@@ -79,7 +80,7 @@ describe('Home', () => {
     const state = readNavigatedState();
     expect(state.filters).toEqual({
       ...defaultFilterValues,
-      fieldOfResearch: '3103',
+      fieldOfResearch: '31',
       careerStage: 'postdoc_2_5',
     });
   });
