@@ -70,7 +70,8 @@ describe('Home', () => {
     renderHome();
 
     await user.click(screen.getByText('Field of Research – Any'));
-    await user.click(screen.getByRole('radio', { name: 'Ecology' }));
+    //await user.click(screen.getByRole('radio', { name: 'Ecology' }));
+    await user.click(screen.getByRole('radio', { name: 'Biological Sciences' }));
     await user.click(screen.getByText('Career Stage – Any'));
     await user.click(screen.getByRole('radio', { name: 'Postdoctoral (2-5 years)' }));
 

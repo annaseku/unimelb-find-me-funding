@@ -16,5 +16,5 @@ it('shows readable labels, emits backend values, and allows clearing', async () 
 });
 it('separates the label from "Any" with an en dash in the blank option', () => {
   render(<Dropdown label="Career Stage" options={[]} value="" onChange={vi.fn()} />);
-  expect(screen.getByRole('combobox')).toHaveDisplayValue('Career Stage – Any');
+  expect(screen.getByText('Career Stage – Any', { selector: 'summary' })).toBeInTheDocument();
 });
