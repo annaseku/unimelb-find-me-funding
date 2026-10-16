@@ -1,13 +1,24 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { expect, it } from 'vitest';
 import Result from './Result';
 import { ranked } from '../../test/fundingFixture';
-it('renders all four criteria, researcher-facing reasons, labels, and the funder link', () => {
+it('expands to show all four criteria, reasons, labels, and the funder link', async () => {
+  const user = userEvent.setup();
   render(<Result result={ranked} />);
+  const toggle = screen.getByRole('button', { name: ranked.opportunity.title });
+  expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  expect(screen.getByText(ranked.opportunity.funder)).toBeVisible();
+  expect(screen.queryByRole('link', { name: 'View opportunity' })).not.toBeInTheDocument();
+  await user.click(toggle);
+  expect(toggle).toHaveAttribute('aria-expanded', 'true');
   for (const name of ['Eligibility', 'Research match', 'Funding value', 'Time to deadline']) expect(screen.getByRole('heading', { name })).toBeInTheDocument();
   for (const key of ['eligibility', 'research_match', 'funding_value', 'deadline'] as const) expect(screen.getByText(ranked[key].reasons[0])).toBeInTheDocument();
   expect(screen.getByText(/Potentially eligible/)).toBeInTheDocument();
   expect(screen.getByText(/Over 60 days/)).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'View opportunity' })).toHaveAttribute('href', ranked.opportunity.url);
   expect(screen.getAllByText(/Not specified/)).toHaveLength(2);
+  await user.keyboard('{Enter}');
+  expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  expect(screen.queryByRole('heading', { name: 'Eligibility' })).not.toBeInTheDocument();
 });

@@ -1,3 +1,4 @@
+import { useId, useState } from 'react';
 import styles from './Result.module.css';
 import { criteria, type CriterionKey, type RankedOpportunity } from '../../types/funding';
 const labels: Record<string, string> = {
@@ -22,10 +23,22 @@ function formatReason(reason: string) {
 
 export default function Result({ result }: { result: RankedOpportunity }) {
   const { opportunity } = result;
+  const [expanded, setExpanded] = useState(false);
+  const detailsId = useId();
   return <article className={styles.resultContainer}>
-    <h2>{opportunity.title}</h2><p>{opportunity.funder}</p><p>{opportunity.summary}</p>
+    <h2 className={styles.resultHeading}>
+      <button className={styles.toggle} type="button" aria-expanded={expanded} aria-controls={detailsId} onClick={() => setExpanded(!expanded)}>
+        <span>{opportunity.title}</span>
+        <svg className={styles.toggleArrow} viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+          <path d="M6 11L16 21L26 11" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+    </h2>
+    <p>{opportunity.funder}</p>
     <p><strong>Closing date:</strong> {opportunity.deadline ?? 'Not specified'}</p>
     <p><strong>Funding (AUD):</strong> {opportunity.amount_aud === null ? 'Not specified' : new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD', maximumFractionDigits: 0 }).format(opportunity.amount_aud)}{opportunity.amount_note && ` (${opportunity.amount_note})`}</p>
+    <div id={detailsId} hidden={!expanded}>
+    <p>{opportunity.summary}</p>
     <div className={styles.criteria}>
       {(Object.keys(criteria) as CriterionKey[]).map((key) => <section key={key}>
         <h3>{criteria[key]}</h3>
@@ -34,5 +47,6 @@ export default function Result({ result }: { result: RankedOpportunity }) {
       </section>)}
     </div>
     <p><a href={opportunity.url} target="_blank" rel="noreferrer">View opportunity</a></p>
+    </div>
   </article>;
 }
