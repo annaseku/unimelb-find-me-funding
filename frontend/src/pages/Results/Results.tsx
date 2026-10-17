@@ -5,7 +5,9 @@ import Dropdown from '../../components/Dropdown/Dropdown';
 import Result from '../../components/Result/Result';
 import { fetchResults } from '../../services/fundingService';
 import { defaultFilterValues, filterOptions, type FilterKey, type FilterValues } from '../../data/filterOptions';
-import { criteria, type CriterionKey, type SearchResultsResponse } from '../../types/funding';
+import { criteria, type CriterionKey, type SearchResponse } from '../../types/funding';
+import FieldOfResearchDropdown from '../../components/FieldOfResearchDropdown/FieldOfResearchDropdown';
+import CitizenshipDropdown from '../../components/CitizenshipDropdown/CitizenshipDropdown';
 
 type Query = { search: string; filters: FilterValues };
 export default function Results() {
@@ -14,7 +16,7 @@ export default function Results() {
   const [search, setSearch] = useState(initial.search);
   const [filters, setFilters] = useState(initial.filters);
   const [submitted, setSubmitted] = useState(initial);
-  const [response, setResponse] = useState<SearchResultsResponse | null>(null);
+  const [response, setResponse] = useState<SearchResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const controller = useRef<AbortController | null>(null);
@@ -46,7 +48,15 @@ export default function Results() {
     void load(query, offset);
   }
 
-  const handleFilterChange = (key: FilterKey, value: string) => setFilters((current) => ({ ...current, [key]: value }));
+  const handleFilterChange = (
+    key: FilterKey,
+    value: string | string[]
+  ) => {
+    setFilters((current) => ({
+      ...current,
+      [key]: value,
+    }));
+  };
   const runSearch = () => {
     const query = { search, filters: { ...filters } };
     setSubmitted(query);
@@ -57,11 +67,11 @@ export default function Results() {
   return <div className={styles.resultsContainer}>
     <h1 className={styles.title}>Search Results</h1>
         <div className={styles.dropdownContainer}>
-          <Dropdown
-            label="Field of Research"
-            options={filterOptions.fieldOfResearch}
+          <FieldOfResearchDropdown
             value={filters.fieldOfResearch}
-            onChange={(value) => handleFilterChange('fieldOfResearch', value)}
+            onChange={(value) =>
+              handleFilterChange('fieldOfResearch', value)
+            }
           />
           <Dropdown
             label="Type of Activity"
@@ -69,11 +79,11 @@ export default function Results() {
             value={filters.typeOfActivity}
             onChange={(value) => handleFilterChange('typeOfActivity', value)}
           />
-          <Dropdown
-            label="Citizenship"
-            options={filterOptions.citizenship}
+          <CitizenshipDropdown
             value={filters.citizenship}
-            onChange={(value) => handleFilterChange('citizenship', value)}
+            onChange={(value) =>
+              handleFilterChange('citizenship', value)
+            }
           />
           <Dropdown
             label="Employer Type"

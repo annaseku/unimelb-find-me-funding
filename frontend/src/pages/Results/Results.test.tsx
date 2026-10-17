@@ -15,7 +15,8 @@ it('explains cold starts and shows the total from the server, not the page count
   expect(screen.getByRole('status')).toHaveTextContent('first search can take about a minute');
   await screen.findByText('27 Results Found');
   //expect(screen.getByText('Ecology', { selector: 'summary' })).toBeInTheDocument();
-  expect(screen.getByText('Biological Sciences', { selector: 'summary' })).toBeInTheDocument();
+  //expect(screen.getByRole('button', { name: 'Ecology' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Biological Sciences' })).toBeInTheDocument();
   expect(screen.getByText('ARC Research Grant')).toBeInTheDocument();
 });
 it('appends pages using the submitted filters, then resets on a new search', async () => {
@@ -27,8 +28,10 @@ it('appends pages using the submitted filters, then resets on a new search', asy
   await user.clear(screen.getByPlaceholderText('Search by keyword'));
   await user.type(screen.getByPlaceholderText('Search by keyword'), 'new research');
   //await user.click(screen.getByText('Ecology', { selector: 'summary' }));
-  await user.click(screen.getByText('Biological Sciences', { selector: 'summary' }));
-  await user.click(screen.getByRole('radio', { name: 'Biological Sciences' }));
+  //await user.click(screen.getByRole('radio', { name: 'Biological Sciences' }));
+  //await user.click(screen.getByRole('button', { name: 'Ecology' }));
+  await user.click(screen.getByRole('button', { name: 'Biological Sciences' }));
+  await user.click(screen.getByRole('button', { name: /31\s*Biological Sciences/i }));
   await user.click(screen.getByRole('button', { name: 'Show more' }));
   await screen.findByText('Wellcome Grant');
   expect(screen.getByText('ARC Research Grant')).toBeInTheDocument();
