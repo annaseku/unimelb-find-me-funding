@@ -48,6 +48,7 @@ test('a search from the home page shows the API ranking in order', async ({ page
 test('each result explains its rating against every criterion and links out', async ({ page }) => {
   await searchFromHome(page, 'climate')
   const first = page.getByRole('article').first()
+  await first.locator('summary').click();
   await expect(first).toBeVisible()
 
   for (const criterion of ['Eligibility', 'Research match', 'Funding value', 'Time to deadline']) {
