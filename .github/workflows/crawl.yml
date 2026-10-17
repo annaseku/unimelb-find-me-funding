@@ -1,0 +1,59 @@
+# Five profiles a week: 20 SerpApi searches, about 87 a month, inside the free 100.
+name: Crawl and publish
+
+on:
+  schedule:
+    # Sunday 20:00 UTC is Monday morning in Melbourne.
+    - cron: "0 20 * * 0"
+  workflow_dispatch:
+    inputs:
+      all:
+        description: "Crawl every seed research area instead of this week's slice"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: crawl
+  cancel-in-progress: false
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements*.txt
+      - run: pip install -r backend/requirements.txt
+      - name: Check required secrets
+        env:
+          SERPAPI_API_KEY: ${{ secrets.SERPAPI_API_KEY }}
+          FMF_DATABASE_URL: ${{ secrets.FMF_DATABASE_URL }}
+        run: |
+          if [ -z "$SERPAPI_API_KEY" ] || [ -z "$FMF_DATABASE_URL" ]; then
+            echo "Set repository secrets SERPAPI_API_KEY and FMF_DATABASE_URL before running the crawl." >&2
+            exit 1
+          fi
+      - name: Crawl, normalise and publish
+        env:
+          SERPAPI_API_KEY: ${{ secrets.SERPAPI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          FMF_DATABASE_URL: ${{ secrets.FMF_DATABASE_URL }}
+          CRAWL_ALL: ${{ inputs.all }}
+        run: |
+          if [ "$CRAWL_ALL" = "true" ]; then
+            python -m backend.data.refresh --all
+          else
+            python -m backend.data.refresh
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: funding-crawler-database
+          path: funding_crawler.db
+          retention-days: 7
