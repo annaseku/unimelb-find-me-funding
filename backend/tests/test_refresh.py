@@ -72,10 +72,10 @@ def test_dry_run_prints_ten_profiles_and_search_budget_without_credentials_or_cr
 
     output = capsys.readouterr()
     assert output.err == ""
-    for profile in refresh.load_seed_profiles()[:5]:
+    for profile in refresh.load_seed_profiles()[:10]:
         assert f"{profile.for_division}: {profile.field_of_research}" in output.out
     assert "SerpApi searches: 40" in output.out
-    assert len(output.out.splitlines()) == 6
+    assert len(output.out.splitlines()) == 11
 
 
 def test_dry_run_counts_generated_queries_instead_of_assuming_four(
@@ -126,7 +126,7 @@ def test_main_runs_crawl_then_normalise_then_publish(monkeypatch, tmp_path, caps
 
     monkeypatch.setattr(refresh, "normalise", normalise)
     monkeypatch.setattr(refresh, "publish_to_postgres", publish)
-    args = ["--week", "4", "--db-path", str(db), "--no-llm"]
+    args = ["--week", "4", "--per-run", "5", "--db-path", str(db), "--no-llm"]
     if all_profiles:
         args.append("--all")
     else:
