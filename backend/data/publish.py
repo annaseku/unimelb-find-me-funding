@@ -1,24 +1,14 @@
-"""Pushes normalised opportunities into the Postgres store the deployed API
-reads.
-
-Two sources. `sqlite` copies a crawler database that has already been through
-the normaliser, which is the real path once the crawl runs on a schedule.
-`mock` copies the illustrative set in mock_opportunities.json, which seeds an
-empty deployment so the API has something to rank before the crawler has run
-against Postgres.
+"""Publish a normalised crawler SQLite database to the deployed Postgres store.
 
 Usage, from the repository root:
 
     export FMF_DATABASE_URL='postgresql://...pooler.supabase.com:5432/postgres'
-    python -m backend.data.publish --source mock
-    python -m backend.data.publish --source sqlite --db-path funding_crawler.db
+    python -m backend.data.publish --db-path funding_crawler.db
 """
 
 from __future__ import annotations
 
 import argparse
-import hashlib
-import json
 import os
 import sqlite3
 import sys
@@ -27,7 +17,6 @@ from pathlib import Path
 import psycopg
 
 from backend.data.postgres_repository import init_schema, upsert_records
-from backend.data.repository import load_mock_opportunities
 from backend.normaliser.models import NormalisedRecord
 from backend.normaliser.pipeline import load_normalised
 
@@ -36,27 +25,6 @@ def records_from_sqlite(db_path: str | Path) -> list[NormalisedRecord]:
     """Every normalised record in a crawler database."""
     with sqlite3.connect(str(db_path)) as conn:
         return load_normalised(conn)
-
-
-def records_from_mock() -> list[NormalisedRecord]:
-    """The illustrative set, wrapped as normalised records.
-
-    Provenance is empty because no extractor produced these: they were
-    written by hand. The hash is over the opportunity itself rather than a
-    crawled page, so a re-publish of an unchanged mock file is a no-op.
-    """
-    records = []
-    for opportunity in load_mock_opportunities():
-        payload = json.dumps(opportunity.model_dump(mode="json"), sort_keys=True)
-        records.append(
-            NormalisedRecord(
-                opportunity=opportunity,
-                provenance={},
-                content_hash=hashlib.sha256(payload.encode("utf-8")).hexdigest(),
-                used_llm=False,
-            )
-        )
-    return records
 
 
 def publish(database_url: str, records: list[NormalisedRecord]) -> int:
@@ -70,11 +38,10 @@ def publish(database_url: str, records: list[NormalisedRecord]) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Publish opportunities to Postgres")
-    parser.add_argument("--source", choices=["mock", "sqlite"], default="mock")
     parser.add_argument(
         "--db-path",
         default="funding_crawler.db",
-        help="Crawler SQLite database, for --source sqlite.",
+        help="Normalised crawler SQLite database.",
     )
     parser.add_argument(
         "--database-url",
@@ -86,9 +53,9 @@ def main(argv: list[str] | None = None) -> int:
     if not args.database_url:
         parser.error("no database URL: pass --database-url or set FMF_DATABASE_URL")
 
-    records = records_from_mock() if args.source == "mock" else records_from_sqlite(args.db_path)
+    records = records_from_sqlite(args.db_path)
     written = publish(args.database_url, records)
-    print(f"published {written} opportunities from {args.source}")
+    print(f"published {written} opportunities from {args.db_path}")
     return 0
 
 

@@ -111,3 +111,34 @@ def test_funding_type_is_skipped_when_the_researcher_lists_none():
 def test_every_result_has_at_least_one_reason():
     for request in (SearchRequest(), SearchRequest(citizenships=["AU"])):
         assert score_eligibility(make_opportunity(citizenships_allowed=["AU"]), request).reasons
+
+
+def test_career_stage_reason_uses_a_human_label():
+    result = score_eligibility(
+        make_opportunity(career_stages_allowed=[CareerStage.POSTDOC_0_2]),
+        SearchRequest(career_stage=CareerStage.POSTDOC_0_2),
+    )
+    reason = " ".join(result.reasons)
+    assert "0-2 years post-PhD" in reason
+    assert "postdoc_0_2" not in reason
+
+
+def test_employer_type_reason_uses_a_human_label():
+    result = score_eligibility(
+        make_opportunity(employer_types_allowed=[EmployerType.RESEARCH_INSTITUTE]),
+        SearchRequest(employer_type=EmployerType.PHILANTHROPIC),
+    )
+    reason = " ".join(result.reasons)
+    assert "research institute" in reason
+    assert "philanthropic organisation" in reason
+    assert "research_institute" not in reason
+
+
+def test_funding_type_reason_uses_a_human_label():
+    result = score_eligibility(
+        make_opportunity(funding_types_offered=[FundingType.ALL]),
+        SearchRequest(funding_types=[FundingType.SALARY]),
+    )
+    reason = " ".join(result.reasons)
+    assert "all kinds" in reason
+    assert "salary" in reason

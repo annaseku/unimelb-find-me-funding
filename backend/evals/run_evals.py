@@ -2,7 +2,7 @@
 
 Usage, from the repository root:  python -m backend.evals.run_evals
 
-Compares the ranker's output for each mock profile against hand-written
+Compares the ranker's output for each eval profile against hand-written
 expectations in golden.json, then shows how the top 5 shifts under a few
 alternative weightings so the team can see what the open weighting decision
 actually changes. Exit code 1 if any threshold fails.
@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
 
-from backend.data.repository import load_mock_opportunities, load_mock_profiles
+from backend.evals.corpus import load_corpus, load_profiles
 from backend.ranking.ranker import rank
 from backend.ranking.weights import DEFAULT_WEIGHTS, Weights
 
@@ -82,9 +82,9 @@ def _load_golden() -> dict:
 
 def evaluate(today: date, weights: Weights = DEFAULT_WEIGHTS) -> EvalReport:
     golden = _load_golden()["profiles"]
-    opportunities = load_mock_opportunities()
+    opportunities = load_corpus()
     reports = []
-    for profile in load_mock_profiles():
+    for profile in load_profiles():
         expected = golden.get(profile.id)
         if expected is None:
             continue
@@ -148,8 +148,8 @@ def _print_weight_sensitivity(today: date) -> None:
         "\nTop 5 under alternative weightings "
         "(open decision, see docs/07-requirements/ranking-discussion-points.md)"
     )
-    opportunities = load_mock_opportunities()
-    for profile in load_mock_profiles():
+    opportunities = load_corpus()
+    for profile in load_profiles():
         print(f"\n{profile.id}")
         for name, weights in ALTERNATIVE_WEIGHTS.items():
             top = [

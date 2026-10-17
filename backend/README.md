@@ -5,8 +5,8 @@ Two packages live here. `crawler/` (Jummana) discovers and stores funding pages;
 | Component | Status |
 | --- | --- |
 | Crawler (discovery, fetch, extract, store) | Built, see `crawler/README` |
-| Ranking engine (four criterion scores, weighted overall) | Prototype built; deployed API ranks the records in Supabase Postgres |
-| FastAPI search endpoint for the frontend | Deployed on Render |
+| Ranking engine (four criterion scores, weighted overall) | Prototype built; ranks normalised crawler records from SQLite by default or Supabase Postgres in deployment; evals use a separate corpus |
+| FastAPI search endpoint for the frontend | Deployed on Render with Postgres; locally defaults to the crawler SQLite database |
 | Normalising crawler rows into structured opportunities | Prototype built, rules plus optional Gemini extractor, see Normaliser below |
 | LLM or embedding research-match scorer | Not started, seam is in `ranking/research_match.py` |
 
@@ -22,9 +22,9 @@ pip install -r backend/requirements-dev.txt
 
 ### Environment variables
 
-Copy the template once: `cp backend/.env.example backend/.env`. A fresh clone runs with that file empty, or absent entirely. The API, `pytest backend` and the evals all work with no key; the only code that uses one is the normaliser's optional extractor (see Normaliser below), and it runs rules-only without it.
+Copy the template once: `cp backend/.env.example backend/.env`. The file can be empty or absent for local SQLite development, tests and evals. The API needs a normalised SQLite database (see below) or a Postgres connection. These local workflows need no key; the only code that uses one is the normaliser's optional extractor (see Normaliser below), and it runs rules-only without it.
 
-`GEMINI_API_KEY` is the only name listed. It enables the normaliser's extractor today and is reserved for the LLM research-match scorer that has not been started. Generate your own key in Google AI Studio and put it in your own `backend/.env`; the `google-genai` SDK reads that variable straight from the environment, so `genai.Client()` needs no arguments. You do not need a key to work on the crawler, the ranker, the API or the frontend. Rules that apply to everyone:
+The template lists `GEMINI_API_KEY` and `FMF_DATABASE_URL`. `GEMINI_API_KEY` enables the normaliser's extractor today and is reserved for the LLM research-match scorer that has not been started. Generate your own key in Google AI Studio and put it in your own `backend/.env`; the `google-genai` SDK reads that variable straight from the environment, so `genai.Client()` needs no arguments. You do not need a key to work on the crawler, the ranker, the API or the frontend. Rules that apply to everyone:
 
 - Never commit a key. `.env` is gitignored, and if `git status` ever lists it, fix the ignore rule rather than committing it. A key committed once stays in the history even after you delete the line, so a leak means rotating the key, not just reverting the commit.
 - Never paste a key into Slack, a Jira comment or a Confluence page. If one has to be shared, share it through a password manager.
@@ -34,7 +34,7 @@ Copy the template once: `cp backend/.env.example backend/.env`. A fresh clone ru
 
 ## Running the API and tests
 
-From the repository root, with the venv active:
+From the repository root, with the venv active, first crawl and normalise a local database or seed an illustrative development fixture with `python -m backend.evals.seed_sqlite funding_crawler.db`. The evals corpus lives in `backend/evals/corpus.json`, with researcher profiles in `backend/evals/profiles.json`; tests seed temporary SQLite databases from it, and the product never selects it as a data source.
 
 ```bash
 uvicorn backend.api.main:app --reload      # interactive docs at http://localhost:8000/docs
@@ -61,9 +61,9 @@ FMF_DATA_SOURCE=sqlite FMF_DB_PATH=funding_crawler.db uvicorn backend.api.main:a
 
 | Variable | Effect |
 | --- | --- |
-| `FMF_DATA_SOURCE` | `mock` (default) serves `data/mock_opportunities.json`; `sqlite` serves the normalised table; `postgres` serves Supabase (see Supabase Postgres below) |
+| `FMF_DATA_SOURCE` | `sqlite` (default) serves the normalised crawler table; `postgres` serves Supabase for the deployed API (see Supabase Postgres below). Other values are rejected |
 | `FMF_DB_PATH` | SQLite file for `sqlite` mode; defaults to the crawler's `DB_PATH` |
-| `FMF_DATABASE_URL` | Postgres connection string for `postgres` mode. Required in that mode; the API raises rather than quietly falling back to mocks |
+| `FMF_DATABASE_URL` | Postgres connection string for `postgres` mode. Required in that mode; the API raises rather than quietly falling back to another data source |
 | `GEMINI_API_KEY` | Enables the extractor. Everything runs without it; the records are just sparser |
 | `FMF_LLM_MODEL` | Gemini model for the extractor, default `gemini-2.5-flash` |
 | `FMF_LLM` | Set to `off` to skip the extractor even when a key is present |
@@ -74,13 +74,14 @@ The extractor runs once per changed page: unchanged pages are skipped by content
 
 SQLite is a file on whoever ran the crawler. The deployed API cannot read it, because Render's free plan has no persistent disk, so the container filesystem resets on every deploy. `data/postgres_repository.py` serves the same `normalised_opportunities` table out of Supabase Postgres instead, behind the same repository interface, so the API code is unchanged.
 
-`data/publish.py` is what puts records there. It copies either a normalised crawler database (the real path) or the illustrative mock set (to seed an empty deployment), and creates the table on first run.
+`data/publish.py` is what puts records there. It copies a normalised crawler SQLite database and creates the Postgres table on first run. Only publish crawled records to the deployed store; the evals corpus is for evals and local test fixtures.
+
+To seed a local database for development without keys, run `python -m backend.evals.seed_sqlite funding_crawler.db` and use the default SQLite data source. This fixture is illustrative and must not be published to the deployed store.
 
 Put `FMF_DATABASE_URL` in `backend/.env` (copy the name from `.env.example`); `postgres_repository.py` loads that file on import, so there is nothing to export. Then, from the repository root:
 
 ```bash
-python3 -m backend.data.publish --source mock                                  # seed the 30 illustrative records
-python3 -m backend.data.publish --source sqlite --db-path funding_crawler.db
+python -m backend.data.publish --db-path funding_crawler.db
 FMF_DATA_SOURCE=postgres uvicorn backend.api.main:app --reload
 ```
 
@@ -120,4 +121,4 @@ Each opportunity gets four separate scores, each with a label and plain-English 
 
 `ranking/ranker.py` combines them with the weights in `ranking/weights.py` (default eligibility 0.4, match 0.3, funding 0.15, deadline 0.15; any request can override) and filters closed opportunities unless `include_closed` is set. The API pages over the ranked list with `limit` and `offset`.
 
-Locally the ranker scores the illustrative opportunities in `data/mock_opportunities.json` by default. With `FMF_DATA_SOURCE=sqlite` it scores whatever the normaliser has produced from the crawler's rows (see Normaliser above), and the deployed API uses `postgres`. Design records: `docs/09-architectural-design/adr/ADR-002-ranking-engine.md` and `docs/09-architectural-design/adr/ADR-003-normaliser.md`. Decisions still needing client confirmation: `docs/07-requirements/ranking-discussion-points.md`.
+Locally the ranker scores the normalised crawler records in SQLite by default (see Normaliser above), and the deployed API uses `postgres`. A missing local database raises a clear error without creating an empty file. The hand-written corpus is loaded explicitly for evals and seeded test fixtures only. Design records: `docs/09-architectural-design/adr/ADR-002-ranking-engine.md` and `docs/09-architectural-design/adr/ADR-003-normaliser.md`. Decisions still needing client confirmation: `docs/07-requirements/ranking-discussion-points.md`.

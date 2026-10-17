@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import logging
 import sqlite3
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from pathlib import Path
@@ -115,6 +116,16 @@ def _upsert(conn: sqlite3.Connection, record: NormalisedRecord) -> None:
     )
 
 
+def write_records(conn: sqlite3.Connection, records: Iterable[NormalisedRecord]) -> int:
+    """Create the normalised table and upsert every record; return the count."""
+    init_normalised_table(conn)
+    written = 0
+    for record in records:
+        _upsert(conn, record)
+        written += 1
+    return written
+
+
 def normalise_database(
     db_path: str | Path,
     today: date,
@@ -159,8 +170,7 @@ def normalise_database(
                     record.opportunity.status = derive_status(record.opportunity.deadline, today)
                     stats.llm_calls += 1
 
-            _upsert(conn, record)
-            stats.normalised += 1
+            stats.normalised += write_records(conn, [record])
 
         conn.commit()
 

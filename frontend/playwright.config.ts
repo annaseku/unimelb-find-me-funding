@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test'
 
-// End-to-end: the real frontend against the real API on the mock data set.
+// End-to-end: the real frontend against the real API on a seeded evals corpus database.
 // Locally, point PYTHON at a venv that has backend/requirements.txt installed.
 const python = process.env.PYTHON ?? 'python3'
 // Port 8001, not the usual 8000, so a dev API already running is never mistaken for this one.
@@ -18,11 +18,11 @@ export default defineConfig({
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: [
     {
-      command: `"${python}" -m uvicorn backend.api.main:app --host 127.0.0.1 --port 8001`,
+      command: `"${python}" -m backend.evals.seed_sqlite frontend/e2e/.fixture.db && "${python}" -m uvicorn backend.api.main:app --host 127.0.0.1 --port 8001`,
       cwd: '..',
       url: `${apiUrl}/api/health`,
-      // Unset means the mock set; never let a developer's shell point this at Postgres.
-      env: { FMF_DATA_SOURCE: '' },
+      // Use the seeded corpus database independently of a developer's shell settings.
+      env: { FMF_DATA_SOURCE: 'sqlite', FMF_DB_PATH: 'frontend/e2e/.fixture.db' },
       reuseExistingServer: false,
     },
     {

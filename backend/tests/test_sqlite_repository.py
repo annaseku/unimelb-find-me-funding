@@ -1,8 +1,10 @@
 """Tests for backend.data.sqlite_repository.SqliteRepository: serving
 normalised opportunities out of a crawler database through the same
-repository interface the mock-backed repository already implements."""
+repository interface used by the API."""
 
 from __future__ import annotations
+
+import pytest
 
 from backend.crawler.storage import init_db
 from backend.data.sqlite_repository import SqliteRepository
@@ -31,3 +33,13 @@ def test_missing_normalised_table_yields_an_empty_repository(tmp_path):
     init_db(str(db))  # only the crawler's own table exists; nothing normalised yet
     repo = SqliteRepository(db)
     assert repo.all() == []
+
+
+def test_missing_database_raises_without_creating_a_file(tmp_path):
+    db = tmp_path / "missing.db"
+    with pytest.raises(FileNotFoundError, match="no crawler database at") as error:
+        SqliteRepository(db)
+    assert str(db) in str(error.value)
+    assert "python -m backend.evals.seed_sqlite" in str(error.value)
+    assert "FMF_DATA_SOURCE=postgres" in str(error.value)
+    assert not db.exists()

@@ -1,7 +1,7 @@
 """Shared test fixtures.
 
 Every date-sensitive test uses TODAY instead of the real clock so the suite
-does not start failing as mock deadlines drift into the past.
+does not start failing as corpus deadlines drift into the past.
 """
 
 from datetime import date
@@ -9,6 +9,8 @@ from datetime import date
 import pytest
 
 from backend.crawler.storage import init_db, save_opportunity
+from backend.data.repository import get_repository
+from backend.evals.seed_sqlite import seed
 from backend.normaliser.pipeline import normalise_database
 from backend.normaliser.rules import load_fixture_rows
 
@@ -44,3 +46,21 @@ def normalised_sqlite_db(tmp_path):
         save_opportunity(row.url, _row_fields(row), row.source_query or "", db_path=str(db))
     normalise_database(db, TODAY)
     return db
+
+
+@pytest.fixture
+def corpus_db(tmp_path):
+    """The evals corpus stored through the normaliser's SQLite writer."""
+    db = tmp_path / "corpus.db"
+    seed(db)
+    return db
+
+
+@pytest.fixture
+def corpus_data_source(corpus_db, monkeypatch):
+    """Use a corpus SQLite fixture for one test, with an isolated repository cache."""
+    monkeypatch.setenv("FMF_DATA_SOURCE", "sqlite")
+    monkeypatch.setenv("FMF_DB_PATH", str(corpus_db))
+    get_repository.cache_clear()
+    yield corpus_db
+    get_repository.cache_clear()

@@ -33,8 +33,29 @@ class Check(Enum):
     UNKNOWN = "unknown"  # the funder restricts this, the researcher said nothing
 
 
+def _describe(value: str) -> str:
+    labels = {
+        "undergraduate": "undergraduate",
+        "graduate_student": "graduate student",
+        "postdoc_0_2": "0-2 years post-PhD",
+        "postdoc_2_5": "2-5 years post-PhD",
+        "postdoc_5_10": "5-10 years post-PhD",
+        "postdoc_10_plus": "10+ years post-PhD",
+        "university": "university",
+        "research_institute": "research institute",
+        "industry": "industry",
+        "philanthropic": "philanthropic organisation",
+        "salary": "salary",
+        "consumables": "consumables",
+        "equipment": "equipment",
+        "all": "all kinds",
+        "any": "any kind",
+    }
+    return labels.get(value, value)
+
+
 def _join(values) -> str:
-    return ", ".join(str(v) for v in values)
+    return ", ".join(_describe(v) for v in values)
 
 
 def _check_membership(label: str, allowed: list, supplied: list) -> tuple[Check, str]:

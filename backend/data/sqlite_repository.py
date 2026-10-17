@@ -1,7 +1,4 @@
-"""Serves normalised opportunities out of a crawler SQLite database, through
-the same repository interface the mock-backed repository already
-implements, so switching the API's data source is a one-line environment
-change (see `get_repository` in backend/data/repository.py)."""
+"""Serve normalised opportunities from a crawler SQLite database read-only."""
 
 from __future__ import annotations
 
@@ -24,7 +21,14 @@ class SqliteRepository(OpportunityRepository):
 
     @staticmethod
     def _load(db_path: str | Path) -> list[Opportunity]:
-        with sqlite3.connect(str(db_path)) as conn:
+        path = Path(db_path)
+        if not path.is_file():
+            raise FileNotFoundError(
+                f"no crawler database at {db_path}: run the crawler and normaliser, "
+                f"seed one with python -m backend.evals.seed_sqlite {db_path}, "
+                "or set FMF_DATA_SOURCE=postgres"
+            )
+        with sqlite3.connect(f"{path.resolve().as_uri()}?mode=ro", uri=True) as conn:
             conn.row_factory = sqlite3.Row
             try:
                 cursor = conn.execute(f"SELECT opportunity_json FROM {NORMALISED_TABLE}")

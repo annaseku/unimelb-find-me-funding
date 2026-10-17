@@ -1,5 +1,5 @@
 {
-  "_note": "Illustrative mock data for the Find Me Funding prototype. Scheme names are real; amounts, dates and eligibility rules are plausible but were NOT verified with the funders. Do not treat as advice.",
+  "_note": "Evals corpus and test fixture. Scheme names are real, but amounts, dates and rules were not verified with funders. Never served by the product.",
   "opportunities": [
     {
       "id": "arc-discovery-2027",

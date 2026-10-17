@@ -29,9 +29,9 @@ Every pull request runs all of these. Main is protected, so a PR cannot merge un
 
 ## End-to-end notes
 
-Playwright starts both servers itself: the API on port 8001 with the mock data set, and Vite on 127.0.0.1:5173 pointed at it. It never reuses a server that is already running, so if either port is taken the run stops with an error rather than testing someone else's code. Stop your own dev server on 5173 first.
+Playwright starts both servers itself: the API on port 8001 after seeding `frontend/e2e/.fixture.db` from the evals corpus, and Vite on 127.0.0.1:5173 pointed at it. It never reuses a server that is already running, so if either port is taken the run stops with an error rather than testing someone else's code. Stop your own dev server on 5173 first.
 
-The tests compare what the UI shows with what the API returns for the same request, so they check the frontend and the API contract, not the ranking itself; ranking quality is the evals' job. The show-more test needs more than 10 open mock opportunities. The API ranks against the real date, so as mock deadlines lapse the count drops: 20 are open on 5 October 2026 and 10 or fewer from 2 December 2026. From then the test fails with a message saying so until someone moves the deadlines in `backend/data/mock_opportunities.json` forward.
+The tests compare what the UI shows with what the API returns for the same request, so they check the frontend and the API contract, not the ranking itself; ranking quality is the evals' job. The show-more test needs more than 10 open corpus opportunities. The API ranks against the real date, so as corpus deadlines lapse the count drops: 20 are open on 5 October 2026 and 10 or fewer from 2 December 2026. From then the test fails with a message saying so until someone moves the deadlines in `backend/evals/corpus.json` forward.
 
 On failure in CI, the `playwright-report` artifact on the run has a trace of each failed test. Open it with `npx playwright show-report <unzipped folder>`.
 
