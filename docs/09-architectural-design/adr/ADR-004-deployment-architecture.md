@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | Decision ID | ADR-004 |
-| Decision | Host the FastAPI service on Render as a Docker web service built from `backend/Dockerfile`, keep structured opportunity data in Supabase Postgres, and keep the frontend on GitHub Pages. Schedule a weekly rotating crawl through GitHub Actions: five research areas cost 20 SerpApi searches per run, about 87 per month within the free 100, so weekly replaces daily to fit the free-tier budget. |
+| Decision | Host the FastAPI service on Render as a Docker web service built from `backend/Dockerfile`, keep structured opportunity data in Supabase Postgres, and keep the frontend on GitHub Pages. Schedule a weekly rotating crawl through GitHub Actions: ten research areas cost 40 SerpApi searches per run, about 175 per month within the free plan's 250 a month and 50 an hour (serpapi.com/pricing, 2026-10-18), so weekly replaces daily to fit the free-tier budget. |
 | Status | 🟢 Runtime and data store implemented (not yet ratified with the client); weekly crawl workflow built, first production run pending secrets |
 | Owner | Anna Sekulic |
 | Date | 2026-09-07, updated 2026-10-05, updated 2026-10-18 |

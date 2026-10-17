@@ -1,4 +1,5 @@
-# Five profiles a week: 20 SerpApi searches, about 87 a month, inside the free 100.
+# Ten research areas a week: 40 SerpApi searches a run, about 175 a month, inside the free plan's
+# 250 a month and its 50-per-hour throughput cap (serpapi.com/pricing, checked 2026-10-18).
 name: Crawl and publish
 
 on:
@@ -8,9 +9,13 @@ on:
   workflow_dispatch:
     inputs:
       all:
-        description: "Crawl every seed research area instead of this week's slice"
+        description: "Crawl every seed research area instead of this week's slice (92 searches: exceeds the free plan's 50-per-hour cap)"
         type: boolean
         default: false
+      week:
+        description: "Rotation slot to crawl instead of the current ISO week (0, 1, 2 cover every area on the free plan, one dispatch an hour apart)"
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -45,9 +50,12 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           FMF_DATABASE_URL: ${{ secrets.FMF_DATABASE_URL }}
           CRAWL_ALL: ${{ inputs.all }}
+          CRAWL_WEEK: ${{ inputs.week }}
         run: |
           if [ "$CRAWL_ALL" = "true" ]; then
             python -m backend.data.refresh --all
+          elif [ -n "$CRAWL_WEEK" ]; then
+            python -m backend.data.refresh --week "$CRAWL_WEEK"
           else
             python -m backend.data.refresh
           fi

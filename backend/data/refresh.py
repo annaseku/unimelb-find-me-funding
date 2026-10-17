@@ -75,7 +75,7 @@ def main(argv: list[str] | None = None) -> int:
         description="Crawl, normalise and publish funding opportunities from the repository root."
     )
     parser.add_argument("--all", action="store_true", help="Crawl every seed research area.")
-    parser.add_argument("--per-run", type=int, default=5, help="Profiles per run (default: 5).")
+    parser.add_argument("--per-run", type=int, default=10, help="Profiles per run (default: 10).")
     parser.add_argument("--week", type=int, default=date.today().isocalendar().week)
     parser.add_argument(
         "--db-path",

@@ -60,7 +60,7 @@ def test_rotation_handles_an_empty_seed_list():
     assert refresh.select_profiles([], 4, 5) == []
 
 
-def test_dry_run_prints_five_profiles_and_search_budget_without_credentials_or_crawler(
+def test_dry_run_prints_ten_profiles_and_search_budget_without_credentials_or_crawler(
     monkeypatch, capsys, blocked_pipeline
 ):
     monkeypatch.delenv("SERPAPI_API_KEY", raising=False)
@@ -74,7 +74,7 @@ def test_dry_run_prints_five_profiles_and_search_budget_without_credentials_or_c
     assert output.err == ""
     for profile in refresh.load_seed_profiles()[:5]:
         assert f"{profile.for_division}: {profile.field_of_research}" in output.out
-    assert "SerpApi searches: 20" in output.out
+    assert "SerpApi searches: 40" in output.out
     assert len(output.out.splitlines()) == 6
 
 
