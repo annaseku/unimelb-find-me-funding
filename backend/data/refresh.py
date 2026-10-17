@@ -89,6 +89,11 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--no-llm", action="store_true", help="Skip the Gemini extractor.")
     parser.add_argument(
+        "--skip-publish",
+        action="store_true",
+        help="Crawl and normalise only, leaving the result in the local SQLite database.",
+    )
+    parser.add_argument(
         "--dry-run", action="store_true", help="Print profiles and SerpApi search count only."
     )
     args = parser.parse_args(argv)
@@ -109,13 +114,13 @@ def main(argv: list[str] | None = None) -> int:
     if not os.environ.get("SERPAPI_API_KEY", "").strip():
         print("no SerpApi key: set SERPAPI_API_KEY before crawling", file=sys.stderr)
         return 2
-    if not args.database_url.strip():
+    if not args.skip_publish and not args.database_url.strip():
         print("no database URL: pass --database-url or set FMF_DATABASE_URL", file=sys.stderr)
         return 2
 
     crawl(selected)
     normalised = normalise(args.db_path, date.today(), use_llm=not args.no_llm)
-    published = publish_to_postgres(args.db_path, args.database_url)
+    published = 0 if args.skip_publish else publish_to_postgres(args.db_path, args.database_url)
     stats = RefreshStats(
         profiles=[p.field_of_research for p in selected],
         crawled=len(selected),
@@ -124,7 +129,10 @@ def main(argv: list[str] | None = None) -> int:
     )
     print(f"profiles crawled: {stats.crawled}")
     print(f"normalised: {normalised.normalised}")
-    print(f"published: {stats.published}")
+    if args.skip_publish:
+        print(f"not published: serve with FMF_DATA_SOURCE=sqlite FMF_DB_PATH={args.db_path}")
+    else:
+        print(f"published: {stats.published}")
     return 0
 
 

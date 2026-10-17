@@ -29,7 +29,7 @@ This record was first written as ADR-003 on 2026-09-07, when nothing was deploye
 | --- | --- | --- |
 | Where the API runs | Render web service `find-me-funding-api`, Singapore, free plan, `render.yaml` | Live since 2026-09-07 |
 | Where data lives | Supabase Postgres, project in ap-southeast-1, table `normalised_opportunities` | Live since PR #19 (2026-09-15) |
-| What runs the daily crawl | Decided: weekly GitHub Actions rotation in `.github/workflows/crawl.yml`, Sunday 20:00 UTC | Built; first production run pending secrets |
+| What runs the crawl | Decided: weekly GitHub Actions rotation in `.github/workflows/crawl.yml`, Sunday 20:00 UTC | Built; first production run pending secrets |
 | Where the frontend is served | GitHub Pages via `frontend-cd.yml` | Live |
 
 The API connects through Supabase's Supavisor session-mode pooler on port 5432. Supabase's direct endpoint is IPv6-only on the free plan and Render is IPv4-only, and transaction mode (port 6543) does not support the prepared statements psycopg uses. Render has no Australian region, so the API runs in Singapore, and the Supabase project is in Singapore too so the API and database sit in the same region.

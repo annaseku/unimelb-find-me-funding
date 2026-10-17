@@ -4,7 +4,7 @@ A web tool that finds research funding opportunities for University of Melbourne
 
 A researcher fills in a short form: field of research and type of activity (ANZSRC codes), citizenship, employer type, career stage, the kind of funding they need, and a few sentences about the project. The tool searches a continuously refreshed collection of funding pages gathered from across the web, not a fixed list of funders, and returns the top ten with more on request. Every result shows a link and a rating on four criteria: eligibility, match to the research, funding value, and time to deadline.
 
-Live frontend: https://annaseku.github.io/unimelb-find-me-funding/, calling the API at https://find-me-funding-api.onrender.com. The deployed database currently holds the 30 illustrative records, not crawled data.
+Live frontend: https://annaseku.github.io/unimelb-find-me-funding/, calling the API at https://find-me-funding-api.onrender.com. The deployed database holds whatever the scheduled crawl last published (`.github/workflows/crawl.yml`); until that workflow has run once with real credentials it still holds the 30-record evals corpus seeded during development.
 
 ## How it works
 
@@ -35,13 +35,13 @@ Default weights are eligibility 0.4, research match 0.3, funding value 0.15, dea
 
 | Component | Status | Owner |
 | --- | --- | --- |
-| Crawler: SerpApi discovery, robots.txt, fetch, extract, SQLite, scheduler loop | Built, run by hand | Jummana |
+| Crawler: SerpApi discovery, robots.txt, fetch, extract, SQLite, scheduler loop | Built | Jummana |
 | Normaliser: rules plus optional Gemini extractor, provenance per field | Prototype | Anna |
 | Ranking engine: four criterion scores, weighted overall, golden-set evals | Prototype | Anna |
 | FastAPI search endpoint | Deployed on Render, reading Supabase Postgres | Anna |
 | Frontend: search form and results page, UoM design system | Built, calling the deployed API | Paige, Andrew, Sophia |
 | LLM research-match scorer | Not started; seam in `backend/ranking/research_match.py` | |
-| Scheduled daily crawl, normalise and publish to Postgres | Not started; see ADR-004 | |
+| Scheduled crawl, normalise and publish to Postgres | Built: weekly GitHub Actions rotation over the 23 FoR divisions (`backend/data/refresh.py`); first production run needs the repository secrets in `docs/12-deployment/README.md` | Anna |
 | Deduplication across sources, researcher profiles | Not started | |
 
 ## Repository layout
@@ -51,9 +51,9 @@ backend/
   crawler/       discovery, fetch, extract, storage, scheduler (see backend/crawler/README)
   normaliser/    crawler rows -> Opportunity records; python -m backend.normaliser.run
   ranking/       models, four scorers, weights, ranker
-  data/          mock data, repository seam, SQLite and Postgres repositories, publish step
+  data/          repository seam, SQLite and Postgres repositories, publish step, scheduled refresh
   api/           FastAPI app: /api/health, /api/search, /api/opportunities/{id}
-  evals/         golden-set ranking evals; python -m backend.evals.run_evals
+  evals/         golden-set ranking evals and the 30-record corpus they are labelled against; python -m backend.evals.run_evals
   tests/         pytest, one file per module
   README.md      backend setup, environment variables, how the ranking works
 frontend/        React 19 + TypeScript + Vite, Vitest tests beside the code
@@ -90,13 +90,14 @@ npm run dev                                # http://localhost:5173
 npm test && npm run lint && npm run build  # what CI runs
 ```
 
-Running on real crawled data instead of the mock set:
+The API serves the crawler's SQLite database by default and raises on the first search if none exists. To work without SerpApi or Gemini keys, seed one from the evals corpus; to run on real crawled data:
 
 ```bash
+python -m backend.evals.seed_sqlite funding_crawler.db   # 30 illustrative records, no keys needed
+
 export SERPAPI_API_KEY=...                 # free key from serpapi.com
-python3 main.py                            # crawl once; writes funding_crawler.db in the current directory
-python -m backend.normaliser.run --db funding_crawler.db --no-llm
-FMF_DATA_SOURCE=sqlite FMF_DB_PATH=funding_crawler.db uvicorn backend.api.main:app --reload
+python -m backend.data.refresh --all --no-llm --skip-publish   # crawl every seed research area, then normalise
+uvicorn backend.api.main:app --reload      # serves funding_crawler.db
 ```
 
 Set `GEMINI_API_KEY` (free key from Google AI Studio) and drop `--no-llm` to let the extractor fill the fields the rules cannot read. Copy `backend/.env.example` to `backend/.env` for the full list of variables. Never commit a key; `.env` is gitignored.

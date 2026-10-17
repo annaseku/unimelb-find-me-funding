@@ -143,6 +143,26 @@ def test_main_runs_crawl_then_normalise_then_publish(monkeypatch, tmp_path, caps
     assert "published: 7" in capsys.readouterr().out
 
 
+def test_skip_publish_needs_no_database_url_and_never_publishes(monkeypatch, tmp_path, capsys):
+    monkeypatch.setenv("SERPAPI_API_KEY", "test-key")
+    monkeypatch.delenv("FMF_DATABASE_URL", raising=False)
+    calls = []
+    db = tmp_path / "crawler.db"
+    monkeypatch.setattr(refresh, "crawl", lambda profiles: calls.append("crawl"))
+    monkeypatch.setattr(
+        refresh,
+        "normalise",
+        lambda db_path, today, use_llm: calls.append("normalise") or PipelineStats(),
+    )
+    monkeypatch.setattr(
+        refresh, "publish_to_postgres", lambda *a: pytest.fail("publish must not run")
+    )
+
+    assert refresh.main(["--skip-publish", "--no-llm", "--db-path", str(db)]) == 0
+    assert calls == ["crawl", "normalise"]
+    assert f"FMF_DB_PATH={db}" in capsys.readouterr().out
+
+
 @pytest.mark.parametrize("key", [None, "", "   "])
 def test_missing_serpapi_key_returns_two_before_running_any_stage(
     monkeypatch, capsys, blocked_pipeline, key
