@@ -60,8 +60,8 @@ jobs:
           retention-days: 7
 
   e2e:
-    # The real UI against the real API on the mock data set (playwright.config.ts
-    # starts both). Not yet a required check: add it to the "Protect main" ruleset.
+    # The real UI against the real API on a seeded evals corpus database
+    # (playwright.config.ts starts both). Not yet a required check: add it to the "Protect main" ruleset.
     name: End-to-end (Playwright)
     runs-on: ubuntu-latest
     steps:

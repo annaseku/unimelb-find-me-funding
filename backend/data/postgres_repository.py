@@ -1,7 +1,7 @@
 """Serves normalised opportunities out of a Postgres database, through the
-same repository interface the mock- and SQLite-backed repositories already
-implement, so switching the API's data source stays a one-line environment
-change (see `get_repository` in backend/data/repository.py).
+same repository interface the SQLite-backed repository already implements,
+so switching the API's data source stays a one-line environment change
+(see `get_repository` in backend/data/repository.py).
 
 The table mirrors the crawler database's `normalised_opportunities` exactly,
 with JSONB in place of the TEXT JSON columns, so `backend/data/publish.py`

@@ -18,8 +18,8 @@ services:
       # Value is entered in the Render dashboard, never in the repo. Unused so far.
       - key: GEMINI_API_KEY
         sync: false
-      # Serve ranked results out of Supabase Postgres rather than the
-      # illustrative mock set (backend/data/repository.py).
+      # Serve ranked results out of Supabase Postgres rather than the local
+      # SQLite crawler database (backend/data/repository.py).
       - key: FMF_DATA_SOURCE
         value: postgres
       # Entered in the Render dashboard, never in the repo. This MUST be the
