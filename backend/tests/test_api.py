@@ -163,3 +163,15 @@ def sqlite_data_source(tmp_path, monkeypatch):
 def test_search_reads_from_the_sqlite_repository_when_selected(client, sqlite_data_source):
     body = client.post("/api/search", json={"include_closed": True, "limit": 100}).json()
     assert body["total"] == 5
+
+
+def test_status_reports_the_last_run_and_rule_only_summaries(
+    client, normalised_sqlite_db, monkeypatch
+):
+    # normalised_sqlite_db ran without an extractor, so every summary is rule-built.
+    monkeypatch.setenv("FMF_DB_PATH", str(normalised_sqlite_db))
+    get_repository.cache_clear()
+    body = client.get("/api/status").json()
+    assert body["last_run"]["llm_stop_reason"] == "not_configured"
+    assert body["opportunities"] > 0
+    assert body["rule_only_summaries"] == body["opportunities"]

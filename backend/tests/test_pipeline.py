@@ -18,7 +18,7 @@ from backend.crawler.storage import (
     save_opportunity,
 )
 from backend.normaliser.llm import ExtractedFields, FakeExtractor
-from backend.normaliser.pipeline import load_normalised, normalise_database
+from backend.normaliser.pipeline import load_latest_run, load_normalised, normalise_database
 from backend.normaliser.rules import load_fixture_rows
 from backend.tests.conftest import TODAY
 
@@ -188,27 +188,118 @@ def test_nul_bytes_from_a_binary_page_are_stripped_before_normalising(tmp_path):
     assert json.loads(row[0])["title"] == "Grant guidelines"
 
 
-class _QuotaExhausted(Exception):
-    code = 429
+class _GeminiError(Exception):
+    """Shaped like google.genai.errors.APIError: code, status, message, details."""
+
+    def __init__(self, code, status, message="", quota_ids=(), retry_delay=None):
+        details = [
+            {
+                "@type": "type.googleapis.com/google.rpc.QuotaFailure",
+                "violations": [{"quotaId": q} for q in quota_ids],
+            }
+        ]
+        if retry_delay:
+            details.append(
+                {"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": retry_delay}
+            )
+        self.code, self.status, self.message = code, status, message
+        self.details = {"error": {"code": code, "status": status, "details": details}}
+        super().__init__(f"{code} {status}. {message}")
 
 
-class _ExplodingExtractor:
-    def __init__(self):
+PER_MINUTE = "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+PER_DAY = "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+
+
+class _ScriptedExtractor:
+    """Raises each queued error in turn, then succeeds."""
+
+    def __init__(self, errors):
+        self.errors = list(errors)
         self.calls = 0
 
     def extract(self, title, url, text):
         self.calls += 1
-        raise _QuotaExhausted("429 RESOURCE_EXHAUSTED: quota exceeded")
+        if self.errors:
+            raise self.errors.pop(0)
+        return ExtractedFields(summary="Funds early-career research in marine biology.")
 
 
-def test_llm_quota_exhaustion_switches_the_rest_of_the_run_to_rules_only(crawler_db):
-    extractor = _ExplodingExtractor()
-    stats = normalise_database(crawler_db, TODAY, extractor=extractor)
+def test_a_per_minute_rate_limit_is_waited_out_and_the_row_still_gets_the_llm(crawler_db):
+    """Regression (crawl run 39112367229): the free tier's 5-a-minute cap used
+    to switch the whole run to rules-only after the fifth call."""
+    rate_limited = _GeminiError(429, "RESOURCE_EXHAUSTED", quota_ids=[PER_MINUTE], retry_delay="8s")
+    extractor = _ScriptedExtractor([rate_limited, rate_limited])
+    waits = []
+    stats = normalise_database(crawler_db, TODAY, extractor=extractor, sleep=waits.append)
+
+    assert waits == [9.0, 9.0]
+    assert stats.rate_limit_waits == 2
+    assert stats.llm_failures == 0
+    assert stats.llm_stop_reason is None
+    assert stats.llm_calls == stats.rows_read
+    assert all(r.used_llm for r in _load(crawler_db))
+
+
+def test_the_daily_quota_switches_the_rest_of_the_run_to_rules_only(crawler_db):
+    extractor = _ScriptedExtractor(
+        [_GeminiError(429, "RESOURCE_EXHAUSTED", "Quota exceeded", quota_ids=[PER_DAY])]
+    )
+    stats = normalise_database(crawler_db, TODAY, extractor=extractor, sleep=pytest.fail)
     assert extractor.calls == 1
     assert stats.llm_failures == 1
-    assert stats.llm_quota_exhausted is True
+    assert stats.llm_stop_reason == "daily_quota"
+    assert stats.llm_stop_detail == "429 RESOURCE_EXHAUSTED: Quota exceeded"
     assert stats.normalised == stats.rows_read
     assert all(not r.used_llm for r in _load(crawler_db))
+
+
+def test_a_429_without_quota_details_is_treated_as_the_daily_quota(crawler_db):
+    extractor = _ScriptedExtractor([_GeminiError(429, "RESOURCE_EXHAUSTED")])
+    stats = normalise_database(crawler_db, TODAY, extractor=extractor, sleep=pytest.fail)
+    assert stats.llm_stop_reason == "daily_quota"
+
+
+@pytest.mark.parametrize(
+    ("code", "status", "message"),
+    [
+        (400, "INVALID_ARGUMENT", "API key not valid. Please pass a valid API key."),
+        (403, "PERMISSION_DENIED", "Your project has been denied access."),
+        (400, "FAILED_PRECONDITION", "User location is not supported for the API use."),
+    ],
+)
+def test_a_key_or_plan_error_stops_llm_use_for_the_run(crawler_db, code, status, message):
+    extractor = _ScriptedExtractor([_GeminiError(code, status, message)])
+    stats = normalise_database(crawler_db, TODAY, extractor=extractor, sleep=pytest.fail)
+    assert extractor.calls == 1
+    assert stats.llm_stop_reason == "plan_error"
+    assert stats.llm_stop_detail.startswith(f"{code} {status}")
+
+
+def test_a_one_off_row_error_does_not_stop_the_run(crawler_db):
+    extractor = _ScriptedExtractor([_GeminiError(500, "INTERNAL")])
+    stats = normalise_database(crawler_db, TODAY, extractor=extractor, sleep=pytest.fail)
+    assert stats.llm_failures == 1
+    assert stats.llm_stop_reason is None
+    assert stats.llm_calls == stats.rows_read - 1
+
+
+def test_each_run_is_recorded_with_its_llm_outcome(crawler_db):
+    extractor = _ScriptedExtractor(
+        [_GeminiError(429, "RESOURCE_EXHAUSTED", "Quota exceeded", quota_ids=[PER_DAY])]
+    )
+    normalise_database(crawler_db, TODAY, extractor=extractor)
+    with sqlite3.connect(str(crawler_db)) as conn:
+        run = load_latest_run(conn)
+    assert run is not None
+    assert run.llm_stop_reason == "daily_quota"
+    assert run.llm_failures == 1
+
+
+def test_a_run_without_an_extractor_is_recorded_as_not_configured(crawler_db):
+    normalise_database(crawler_db, TODAY)
+    with sqlite3.connect(str(crawler_db)) as conn:
+        assert load_latest_run(conn).llm_stop_reason == "not_configured"
 
 
 def _load(db):

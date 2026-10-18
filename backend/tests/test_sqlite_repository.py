@@ -6,8 +6,11 @@ from __future__ import annotations
 
 import pytest
 
-from backend.crawler.storage import init_db
+from backend.crawler.storage import init_db, save_opportunity
 from backend.data.sqlite_repository import SqliteRepository
+from backend.normaliser.llm import ExtractedFields, FakeExtractor
+from backend.normaliser.pipeline import normalise_database
+from backend.tests.conftest import TODAY
 
 
 def test_repository_serves_every_normalised_opportunity(normalised_sqlite_db):
@@ -43,3 +46,25 @@ def test_missing_database_raises_without_creating_a_file(tmp_path):
     assert "python -m backend.evals.seed_sqlite" in str(error.value)
     assert "FMF_DATA_SOURCE=postgres" in str(error.value)
     assert not db.exists()
+
+
+def test_rule_only_summaries_counts_records_the_llm_did_not_summarise(normalised_sqlite_db):
+    repo = SqliteRepository(normalised_sqlite_db)
+    assert repo.rule_only_summaries == len(repo.all())
+    assert repo.last_run.llm_stop_reason == "not_configured"
+
+
+def test_an_llm_written_summary_is_not_counted_as_rule_only(tmp_path):
+    db = tmp_path / "crawler.db"
+    init_db(str(db))
+    for n in range(2):
+        save_opportunity(
+            f"https://example.org/grant-{n}",
+            {"title": f"Grant {n}", "raw_text": "Funds research."},
+            "test",
+            db_path=str(db),
+        )
+    normalise_database(db, TODAY, extractor=FakeExtractor(ExtractedFields(summary="AI summary.")))
+    repo = SqliteRepository(db)
+    assert repo.rule_only_summaries == 0
+    assert repo.last_run.llm_calls == 2

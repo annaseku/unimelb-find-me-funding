@@ -224,14 +224,15 @@ def test_publish_to_postgres_passes_sqlite_records_to_the_publisher(monkeypatch,
         calls.append(("read", db_path))
         return records
 
-    def publish(database_url, payload):
-        calls.append(("publish", database_url, payload))
+    def publish(database_url, payload, run):
+        calls.append(("publish", database_url, payload, run))
         return 3
 
+    monkeypatch.setattr(refresh, "latest_run_from_sqlite", lambda db_path: "run")
     monkeypatch.setattr(refresh, "records_from_sqlite", read_records)
     monkeypatch.setattr(refresh, "publish", publish)
     assert refresh.publish_to_postgres(db, "postgresql://test") == 3
-    assert calls == [("read", db), ("publish", "postgresql://test", records)]
+    assert calls == [("read", db), ("publish", "postgresql://test", records, "run")]
 
 
 def test_no_llm_normalises_real_crawled_rows(monkeypatch, normalised_sqlite_db, today):

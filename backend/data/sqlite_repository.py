@@ -7,7 +7,8 @@ import sqlite3
 from pathlib import Path
 
 from backend.data.repository import OpportunityRepository
-from backend.normaliser.pipeline import NORMALISED_TABLE
+from backend.normaliser.models import PipelineRun
+from backend.normaliser.pipeline import NORMALISED_TABLE, load_latest_run
 from backend.ranking.models import Opportunity
 
 
@@ -17,10 +18,11 @@ class SqliteRepository(OpportunityRepository):
     exist) yields an empty repository rather than raising."""
 
     def __init__(self, db_path: str | Path) -> None:
-        super().__init__(self._load(db_path))
+        opportunities, last_run, rule_only = self._load(db_path)
+        super().__init__(opportunities, last_run, rule_only)
 
     @staticmethod
-    def _load(db_path: str | Path) -> list[Opportunity]:
+    def _load(db_path: str | Path) -> tuple[list[Opportunity], PipelineRun | None, int]:
         path = Path(db_path)
         if not path.is_file():
             raise FileNotFoundError(
@@ -30,9 +32,17 @@ class SqliteRepository(OpportunityRepository):
             )
         with sqlite3.connect(f"{path.resolve().as_uri()}?mode=ro", uri=True) as conn:
             conn.row_factory = sqlite3.Row
+            last_run = load_latest_run(conn)
             try:
-                cursor = conn.execute(f"SELECT opportunity_json FROM {NORMALISED_TABLE}")
+                cursor = conn.execute(
+                    f"SELECT opportunity_json, provenance_json FROM {NORMALISED_TABLE}"
+                )
             except sqlite3.OperationalError:
                 # Table doesn't exist: nothing has been normalised yet.
-                return []
-            return [Opportunity(**json.loads(row["opportunity_json"])) for row in cursor.fetchall()]
+                return [], last_run, 0
+            rows = cursor.fetchall()
+            opportunities = [Opportunity(**json.loads(row["opportunity_json"])) for row in rows]
+            rule_only = sum(
+                json.loads(row["provenance_json"]).get("summary") != "llm" for row in rows
+            )
+            return opportunities, last_run, rule_only

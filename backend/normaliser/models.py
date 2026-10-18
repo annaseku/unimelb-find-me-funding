@@ -3,6 +3,7 @@ normalised record going out, and where each field came from."""
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -41,3 +42,20 @@ class NormalisedRecord(BaseModel):
     )
     content_hash: str = Field(description="SHA-256 of title plus raw text; skips unchanged pages.")
     used_llm: bool = False
+
+
+# Why a run stopped calling the LLM before its last row. "daily_quota" is the
+# provider's per-day limit; "plan_error" is a rejected key, billing or plan;
+# "not_configured" means the run had no extractor at all.
+LlmStopReason = Literal["daily_quota", "plan_error", "not_configured"]
+
+
+class PipelineRun(BaseModel):
+    """How one normaliser run went, so the frontend can say when AI fields are
+    missing and why."""
+
+    finished_at: datetime
+    llm_calls: int = 0
+    llm_failures: int = 0
+    llm_stop_reason: LlmStopReason | None = None
+    llm_stop_detail: str = ""

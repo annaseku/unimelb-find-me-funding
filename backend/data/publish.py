@@ -16,9 +16,9 @@ from pathlib import Path
 
 import psycopg
 
-from backend.data.postgres_repository import init_schema, upsert_records
-from backend.normaliser.models import NormalisedRecord
-from backend.normaliser.pipeline import load_normalised
+from backend.data.postgres_repository import init_schema, insert_run, upsert_records
+from backend.normaliser.models import NormalisedRecord, PipelineRun
+from backend.normaliser.pipeline import load_latest_run, load_normalised
 
 
 def records_from_sqlite(db_path: str | Path) -> list[NormalisedRecord]:
@@ -27,11 +27,21 @@ def records_from_sqlite(db_path: str | Path) -> list[NormalisedRecord]:
         return load_normalised(conn)
 
 
-def publish(database_url: str, records: list[NormalisedRecord]) -> int:
-    """Create the table if needed, then upsert every record. Returns the count."""
+def latest_run_from_sqlite(db_path: str | Path) -> PipelineRun | None:
+    with sqlite3.connect(str(db_path)) as conn:
+        return load_latest_run(conn)
+
+
+def publish(
+    database_url: str, records: list[NormalisedRecord], run: PipelineRun | None = None
+) -> int:
+    """Create the tables if needed, upsert every record and record the run
+    that produced them. Returns the record count."""
     with psycopg.connect(database_url) as conn:
         init_schema(conn)
         written = upsert_records(conn, records)
+        if run is not None:
+            insert_run(conn, run)
         conn.commit()
     return written
 
@@ -54,7 +64,7 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("no database URL: pass --database-url or set FMF_DATABASE_URL")
 
     records = records_from_sqlite(args.db_path)
-    written = publish(args.database_url, records)
+    written = publish(args.database_url, records, latest_run_from_sqlite(args.db_path))
     print(f"published {written} opportunities from {args.db_path}")
     return 0
 

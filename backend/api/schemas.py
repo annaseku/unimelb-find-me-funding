@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
+from backend.normaliser.models import PipelineRun
 from backend.ranking.models import RankedOpportunity
 
 
@@ -19,3 +20,11 @@ class SearchResponse(BaseModel):
     limit: int
     offset: int
     weights: dict[str, float] = Field(description="Weights used for this search, echoed.")
+
+
+class DataStatus(BaseModel):
+    last_run: PipelineRun | None = Field(description="The most recent crawl-and-normalise run.")
+    opportunities: int
+    rule_only_summaries: int = Field(
+        description="Opportunities whose summary was built by rules, not the LLM."
+    )
