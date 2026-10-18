@@ -185,6 +185,14 @@ def score_eligibility(opportunity: Opportunity, request: SearchRequest) -> Crite
         reasons.append(reason)
 
     state = _state_from_checks(checks)
+    if location is None and state == EligibilityState.ELIGIBLE:
+        # Passing the filters says nothing about where the funder accepts
+        # applicants from, so an unconfirmed location can never be a full yes.
+        state = EligibilityState.POTENTIALLY_ELIGIBLE
+        reasons.append(
+            f"Location: not stated, so we cannot confirm institutions in "
+            f"{_country_name(request.institution_country)} can apply."
+        )
     if not reasons:
         reasons.append("The funder states no restrictions we can check.")
     elif state == EligibilityState.UNKNOWN:
