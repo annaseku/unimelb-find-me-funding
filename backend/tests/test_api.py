@@ -162,4 +162,5 @@ def sqlite_data_source(tmp_path, monkeypatch):
 
 def test_search_reads_from_the_sqlite_repository_when_selected(client, sqlite_data_source):
     body = client.post("/api/search", json={"include_closed": True, "limit": 100}).json()
-    assert body["total"] == 5
+    # Four of the five fixture rows; the normaliser drops the news page.
+    assert body["total"] == 4

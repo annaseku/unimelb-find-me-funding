@@ -18,6 +18,7 @@ from backend.crawler.discoverURL import discover_candidate_urls
 from backend.crawler.robotCheck import is_allowed
 from backend.crawler.extract import extract_fields
 from backend.crawler.storage import init_db, save_opportunity, mark_fetch_failed
+from backend.normaliser.relevance import is_blocked_domain
 
 
 def fetch_page(url: str):
@@ -33,6 +34,12 @@ def fetch_page(url: str):
 
 def crawl_url(url: str, source_query: str) -> None:
     """Fetch, extract, and store a single URL -- if robots.txt allows it."""
+    # The normaliser would drop these anyway; skipping them here saves the
+    # request and the polite delay after it.
+    if is_blocked_domain(url):
+        print(f"[crawl] skipping (not a funding site): {url}")
+        return
+
     if not is_allowed(url):
         print(f"[crawl] skipping (robots.txt disallows): {url}")
         return

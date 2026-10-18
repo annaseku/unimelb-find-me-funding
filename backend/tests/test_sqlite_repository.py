@@ -12,7 +12,8 @@ from backend.data.sqlite_repository import SqliteRepository
 
 def test_repository_serves_every_normalised_opportunity(normalised_sqlite_db):
     repo = SqliteRepository(normalised_sqlite_db)
-    assert len(repo.all()) == 5
+    # Four of the five fixture rows; the normaliser drops the news page.
+    assert len(repo.all()) == 4
 
 
 def test_get_returns_a_normalised_opportunity_by_id(normalised_sqlite_db):

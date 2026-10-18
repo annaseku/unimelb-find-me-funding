@@ -68,6 +68,11 @@ rules, not a copy of the whole page.
 
 `summary` is two to three plain sentences describing what the scheme funds.
 
+`is_funding_opportunity` is true when the page describes one or more specific grants,
+fellowships, scholarships or awards that someone can apply for, or lists them. It is false for
+dictionary or encyclopedia entries, news, journal or publisher pages, job boards, videos,
+shops, software documentation and general information pages.
+
 Dates are ISO 8601 (YYYY-MM-DD)."""
 
 
@@ -75,6 +80,9 @@ class ExtractedFields(BaseModel):
     """Everything the model may contribute, one field per Opportunity field
     it is allowed to touch. Defaults are all "not stated"."""
 
+    # The model's verdict on the page as a whole; not an Opportunity field,
+    # so merge never copies it. Only an explicit False drops the page.
+    is_funding_opportunity: bool | None = None
     funder: str | None = None
     summary: str | None = None
     amount_aud: int | None = None

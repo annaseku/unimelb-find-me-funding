@@ -18,11 +18,22 @@ from backend.crawler.storage import (
     save_opportunity,
 )
 from backend.normaliser.llm import ExtractedFields, FakeExtractor
-from backend.normaliser.pipeline import load_normalised, normalise_database
-from backend.normaliser.rules import load_fixture_rows
+from backend.normaliser.pipeline import (
+    MODEL_REJECTION,
+    load_normalised,
+    load_rejected_urls,
+    normalise_database,
+    write_records,
+)
+from backend.normaliser.rules import load_fixture_rows, normalise_row
 from backend.tests.conftest import TODAY
 
 NEWS_URL = "https://www.example-news.org/2026/07/university-announces-new-lab"
+ARC_URL = (
+    "https://www.arc.gov.au/funding-research/funding-schemes/discovery-program/discovery-projects"
+)
+# Of the five fixture rows, the news page is not a funding opportunity.
+FUNDING_ROWS = 4
 
 
 def _row_fields(row) -> dict:
@@ -52,10 +63,11 @@ def crawler_db(tmp_path):
     return db
 
 
-def test_first_run_reads_and_normalises_every_row_with_no_skips(crawler_db):
+def test_first_run_normalises_every_funding_row_and_rejects_the_news_page(crawler_db):
     stats = normalise_database(crawler_db, TODAY)
     assert stats.rows_read == 5
-    assert stats.normalised == 5
+    assert stats.normalised == FUNDING_ROWS
+    assert stats.rejected == 1
     assert stats.skipped_unchanged == 0
 
 
@@ -64,23 +76,23 @@ def test_second_run_skips_every_unchanged_row(crawler_db):
     stats = normalise_database(crawler_db, TODAY)
     assert stats.rows_read == 5
     assert stats.normalised == 0
-    assert stats.skipped_unchanged == 5
+    assert stats.skipped_unchanged == FUNDING_ROWS
 
 
 def test_force_reruns_every_row_even_when_unchanged(crawler_db):
     normalise_database(crawler_db, TODAY)
     stats = normalise_database(crawler_db, TODAY, force=True)
-    assert stats.normalised == 5
+    assert stats.normalised == FUNDING_ROWS
     assert stats.skipped_unchanged == 0
 
 
-def test_load_normalised_returns_five_valid_records_with_unique_ids(crawler_db):
+def test_load_normalised_returns_valid_records_with_unique_ids(crawler_db):
     normalise_database(crawler_db, TODAY)
     with sqlite3.connect(str(crawler_db)) as conn:
         records = load_normalised(conn)
-    assert len(records) == 5
+    assert len(records) == FUNDING_ROWS
     ids = {record.opportunity.id for record in records}
-    assert len(ids) == 5
+    assert len(ids) == FUNDING_ROWS
 
 
 def test_fetch_failed_row_is_never_read(crawler_db):
@@ -88,7 +100,7 @@ def test_fetch_failed_row_is_never_read(crawler_db):
     assert stats.rows_read == 5
     with sqlite3.connect(str(crawler_db)) as conn:
         records = load_normalised(conn)
-    assert NEWS_URL in {record.opportunity.url for record in records}
+    assert ARC_URL in {record.opportunity.url for record in records}
     assert "https://www.example-failed.org/grants/gone" not in {
         record.opportunity.url for record in records
     }
@@ -100,9 +112,9 @@ def test_unchanged_row_is_reprocessed_once_an_extractor_becomes_available(crawle
     extractor = FakeExtractor(ExtractedFields(summary="A model-written summary."))
     stats = normalise_database(crawler_db, TODAY, extractor=extractor)
 
-    assert stats.normalised == 5
+    assert stats.normalised == FUNDING_ROWS
     assert stats.skipped_unchanged == 0
-    assert stats.llm_calls == 5
+    assert stats.llm_calls == FUNDING_ROWS
     with sqlite3.connect(str(crawler_db)) as conn:
         records = load_normalised(conn)
     assert all(record.used_llm for record in records)
@@ -115,11 +127,11 @@ def test_llm_failures_still_write_rule_only_records(crawler_db):
 
     stats = normalise_database(crawler_db, TODAY, extractor=RaisingExtractor())
 
-    assert stats.llm_failures == 5
-    assert stats.normalised == 5
+    assert stats.llm_failures == FUNDING_ROWS
+    assert stats.normalised == FUNDING_ROWS
     with sqlite3.connect(str(crawler_db)) as conn:
         records = load_normalised(conn)
-    assert len(records) == 5
+    assert len(records) == FUNDING_ROWS
     assert all(not record.used_llm for record in records)
 
 
@@ -136,18 +148,15 @@ def test_crawled_table_is_untouched_by_the_pipeline(crawler_db):
 
 
 def test_model_supplied_past_deadline_closes_a_record_with_no_rule_deadline(tmp_path):
-    # The news page fixture row has no deadline at all, so the rules leave
-    # it status ACTIVE. A model-supplied deadline in the past must close it:
+    # With its deadline fields cleared, the rules leave the ARC row status
+    # ACTIVE. A model-supplied deadline in the past must close it:
     # normalise_database re-derives status after merge for exactly this case.
-    news_row = next(r for r in load_fixture_rows() if r.url == NEWS_URL)
-    assert news_row.deadline_raw is None
-    assert news_row.deadline_parsed is None
+    arc_row = next(r for r in load_fixture_rows() if r.url == ARC_URL)
+    fields = _row_fields(arc_row) | {"deadline_raw": None, "deadline_parsed": None}
 
     db = tmp_path / "single.db"
     init_db(str(db))
-    save_opportunity(
-        news_row.url, _row_fields(news_row), news_row.source_query or "", db_path=str(db)
-    )
+    save_opportunity(arc_row.url, fields, arc_row.source_query or "", db_path=str(db))
 
     past_deadline = date(2026, 1, 1)
     extractor = FakeExtractor(ExtractedFields(deadline=past_deadline))
@@ -171,7 +180,8 @@ def test_nul_bytes_from_a_binary_page_are_stripped_before_normalising(tmp_path):
         "https://example.org/binary.pdf",
         {
             "title": "Grant\x00 guidelines",
-            "raw_text": "%PDF-1.4\x00\x00 Applications close 1 March 2027. Up to $50,000.",
+            "raw_text": "%PDF-1.4\x00\x00 Applications close 1 March 2027. Up to $50,000. "
+            + "Eligibility: researchers employed at an Australian university. " * 4,
             "deadline_raw": None,
             "deadline_parsed": None,
             "funding_amount_raw": "$50,000",
@@ -207,10 +217,68 @@ def test_llm_quota_exhaustion_switches_the_rest_of_the_run_to_rules_only(crawler
     assert extractor.calls == 1
     assert stats.llm_failures == 1
     assert stats.llm_quota_exhausted is True
-    assert stats.normalised == stats.rows_read
+    assert stats.normalised + stats.rejected == stats.rows_read
     assert all(not r.used_llm for r in _load(crawler_db))
 
 
 def _load(db):
     with sqlite3.connect(str(db)) as conn:
         return load_normalised(conn)
+
+
+def _rejected(db) -> dict[str, str]:
+    with sqlite3.connect(str(db)) as conn:
+        return dict(conn.execute("SELECT url, reason FROM rejected_pages").fetchall())
+
+
+def test_rejected_pages_are_recorded_with_a_reason_and_never_normalised(crawler_db):
+    normalise_database(crawler_db, TODAY)
+    assert list(_rejected(crawler_db)) == [NEWS_URL]
+    assert NEWS_URL not in {r.opportunity.url for r in _load(crawler_db)}
+    with sqlite3.connect(str(crawler_db)) as conn:
+        assert load_rejected_urls(conn) == [NEWS_URL]
+
+
+def test_a_page_normalised_before_the_filter_existed_is_removed(crawler_db):
+    news_row = next(r for r in load_fixture_rows() if r.url == NEWS_URL)
+    with sqlite3.connect(str(crawler_db)) as conn:
+        write_records(conn, [normalise_row(news_row, TODAY)])
+    assert NEWS_URL in {r.opportunity.url for r in _load(crawler_db)}
+
+    normalise_database(crawler_db, TODAY)
+
+    assert NEWS_URL not in {r.opportunity.url for r in _load(crawler_db)}
+
+
+def test_the_model_can_reject_a_page_the_rules_accept(crawler_db):
+    extractor = FakeExtractor(ExtractedFields(is_funding_opportunity=False))
+    stats = normalise_database(crawler_db, TODAY, extractor=extractor)
+
+    # The news page never reaches the model: the rules reject it first.
+    assert len(extractor.calls) == FUNDING_ROWS
+    assert stats.normalised == 0
+    assert stats.rejected == 5
+    assert _load(crawler_db) == []
+    assert set(_rejected(crawler_db).values()) >= {MODEL_REJECTION}
+
+
+def test_an_unchanged_page_the_model_rejected_is_not_sent_to_it_again(crawler_db):
+    normalise_database(
+        crawler_db, TODAY, extractor=FakeExtractor(ExtractedFields(is_funding_opportunity=False))
+    )
+    extractor = FakeExtractor(ExtractedFields(is_funding_opportunity=True))
+    stats = normalise_database(crawler_db, TODAY, extractor=extractor)
+
+    assert extractor.calls == []
+    assert stats.rejected == 5
+
+    # force re-judges them, and an accepted page leaves rejected_pages.
+    stats = normalise_database(crawler_db, TODAY, extractor=extractor, force=True)
+    assert stats.normalised == FUNDING_ROWS
+    assert list(_rejected(crawler_db)) == [NEWS_URL]
+
+
+def test_an_unset_model_verdict_keeps_the_page(crawler_db):
+    stats = normalise_database(crawler_db, TODAY, extractor=FakeExtractor(ExtractedFields()))
+    assert stats.normalised == FUNDING_ROWS
+    assert stats.rejected == 1

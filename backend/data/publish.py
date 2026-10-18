@@ -12,13 +12,26 @@ import argparse
 import os
 import sqlite3
 import sys
+from collections.abc import Iterable
+from dataclasses import dataclass
 from pathlib import Path
 
 import psycopg
 
-from backend.data.postgres_repository import init_schema, upsert_records
+from backend.data.postgres_repository import (
+    delete_urls,
+    init_schema,
+    prune_non_funding,
+    upsert_records,
+)
 from backend.normaliser.models import NormalisedRecord
-from backend.normaliser.pipeline import load_normalised
+from backend.normaliser.pipeline import load_normalised, load_rejected_urls
+
+
+@dataclass
+class PublishStats:
+    published: int
+    removed: int
 
 
 def records_from_sqlite(db_path: str | Path) -> list[NormalisedRecord]:
@@ -27,13 +40,24 @@ def records_from_sqlite(db_path: str | Path) -> list[NormalisedRecord]:
         return load_normalised(conn)
 
 
-def publish(database_url: str, records: list[NormalisedRecord]) -> int:
-    """Create the table if needed, then upsert every record. Returns the count."""
+def rejected_urls_from_sqlite(db_path: str | Path) -> list[str]:
+    """Every URL the normaliser dropped as not a funding opportunity."""
+    with sqlite3.connect(str(db_path)) as conn:
+        return load_rejected_urls(conn)
+
+
+def publish(
+    database_url: str, records: list[NormalisedRecord], rejected_urls: Iterable[str] = ()
+) -> PublishStats:
+    """Create the table if needed, upsert every record, then remove the
+    rejected URLs and anything else stored that fails the relevance rule,
+    all in one transaction."""
     with psycopg.connect(database_url) as conn:
         init_schema(conn)
         written = upsert_records(conn, records)
+        removed = delete_urls(conn, rejected_urls) + prune_non_funding(conn)
         conn.commit()
-    return written
+    return PublishStats(published=written, removed=removed)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -54,8 +78,9 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("no database URL: pass --database-url or set FMF_DATABASE_URL")
 
     records = records_from_sqlite(args.db_path)
-    written = publish(args.database_url, records)
-    print(f"published {written} opportunities from {args.db_path}")
+    stats = publish(args.database_url, records, rejected_urls_from_sqlite(args.db_path))
+    print(f"published {stats.published} opportunities from {args.db_path}")
+    print(f"removed {stats.removed} that are not funding opportunities")
     return 0
 
 

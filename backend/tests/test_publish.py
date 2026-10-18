@@ -9,7 +9,7 @@ from __future__ import annotations
 import pytest
 
 from backend.data import publish as publish_module
-from backend.data.publish import main, records_from_sqlite
+from backend.data.publish import PublishStats, main, records_from_sqlite
 from backend.evals.corpus import corpus_records
 
 
@@ -19,9 +19,9 @@ def published(monkeypatch):
     tested without a database."""
     calls = []
 
-    def fake_publish(database_url, records):
-        calls.append((database_url, records))
-        return len(records)
+    def fake_publish(database_url, records, rejected_urls=()):
+        calls.append((database_url, records, list(rejected_urls)))
+        return PublishStats(published=len(records), removed=0)
 
     monkeypatch.setattr(publish_module, "publish", fake_publish)
     return calls
@@ -51,7 +51,7 @@ def test_main_reads_the_url_from_the_environment(monkeypatch, published, capsys,
     monkeypatch.setenv("FMF_DATABASE_URL", "postgresql://env-url")
     assert main(["--db-path", str(corpus_db)]) == 0
 
-    url, records = published[0]
+    url, records, _ = published[0]
     assert url == "postgresql://env-url"
     assert len(records) == len(corpus_records())
     assert f"published {len(records)} opportunities from {corpus_db}" in capsys.readouterr().out
@@ -67,10 +67,11 @@ def test_main_publishes_a_crawler_database(published, normalised_sqlite_db):
         ]
     )
 
-    url, records = published[0]
+    url, records, rejected_urls = published[0]
     assert url == "postgresql://flag-url"
     expected = {r.opportunity.id for r in records_from_sqlite(normalised_sqlite_db)}
     assert {r.opportunity.id for r in records} == expected
+    assert rejected_urls == ["https://www.example-news.org/2026/07/university-announces-new-lab"]
 
 
 def test_main_uses_the_default_crawler_database(monkeypatch, published, capsys, tmp_path):
@@ -80,7 +81,10 @@ def test_main_uses_the_default_crawler_database(monkeypatch, published, capsys, 
     seed("funding_crawler.db")
     assert main(["--database-url", "postgresql://flag-url"]) == 0
     assert len(published[0][1]) == 30
-    assert capsys.readouterr().out == "published 30 opportunities from funding_crawler.db\n"
+    assert capsys.readouterr().out == (
+        "published 30 opportunities from funding_crawler.db\n"
+        "removed 0 that are not funding opportunities\n"
+    )
 
 
 def test_main_rejects_the_removed_source_argument(published, capsys):

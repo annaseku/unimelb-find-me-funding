@@ -28,6 +28,7 @@ from psycopg.types.json import Jsonb
 from backend.data.repository import OpportunityRepository
 from backend.normaliser.models import NormalisedRecord
 from backend.normaliser.pipeline import NORMALISED_TABLE
+from backend.normaliser.relevance import page_reject_reason
 from backend.ranking.models import Opportunity
 
 # Importing this module loads backend/.env, so FMF_DATABASE_URL can live in a
@@ -95,6 +96,23 @@ def upsert_records(conn: psycopg.Connection, records: Iterable[NormalisedRecord]
         rows,
     )
     return len(rows)
+
+
+def delete_urls(conn: psycopg.Connection, urls: Iterable[str]) -> int:
+    """Remove the records for these URLs. Returns how many were there."""
+    urls = list(urls)
+    if not urls:
+        return 0
+    cursor = conn.execute(f"DELETE FROM {NORMALISED_TABLE} WHERE url = ANY(%s)", (urls,))
+    return cursor.rowcount
+
+
+def prune_non_funding(conn: psycopg.Connection) -> int:
+    """Remove stored records whose URL and title fail the relevance rule, so
+    pages published before the rule existed, or before it last changed, do
+    not linger until their research area is crawled again. Returns the count."""
+    cursor = conn.execute(f"SELECT url, opportunity_json->>'title' FROM {NORMALISED_TABLE}")
+    return delete_urls(conn, [url for url, title in cursor if page_reject_reason(url, title)])
 
 
 class PostgresRepository(OpportunityRepository):

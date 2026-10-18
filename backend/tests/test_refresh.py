@@ -10,6 +10,7 @@ from types import ModuleType
 import pytest
 
 from backend.data import refresh
+from backend.data.publish import PublishStats
 from backend.normaliser.pipeline import PipelineStats, load_normalised
 
 
@@ -113,7 +114,7 @@ def test_main_runs_crawl_then_normalise_then_publish(monkeypatch, tmp_path, caps
     monkeypatch.setenv("FMF_DATABASE_URL", "postgresql://env-url")
     calls = []
     db = tmp_path / "crawler.db"
-    stats = PipelineStats(rows_read=8, normalised=7)
+    stats = PipelineStats(rows_read=8, normalised=7, rejected=1)
     monkeypatch.setattr(refresh, "crawl", lambda profiles: calls.append(("crawl", profiles)))
 
     def normalise(db_path, today, use_llm):
@@ -122,7 +123,7 @@ def test_main_runs_crawl_then_normalise_then_publish(monkeypatch, tmp_path, caps
 
     def publish(db_path, database_url):
         calls.append(("publish", db_path, database_url))
-        return 7
+        return PublishStats(published=7, removed=2)
 
     monkeypatch.setattr(refresh, "normalise", normalise)
     monkeypatch.setattr(refresh, "publish_to_postgres", publish)
@@ -140,7 +141,10 @@ def test_main_runs_crawl_then_normalise_then_publish(monkeypatch, tmp_path, caps
         ("normalise", str(db), date.today(), False),
         ("publish", str(db), "postgresql://env-url" if all_profiles else "postgresql://flag-url"),
     ]
-    assert "published: 7" in capsys.readouterr().out
+    output = capsys.readouterr().out
+    assert "rejected as not funding: 1" in output
+    assert "published: 7" in output
+    assert "removed from Postgres: 2" in output
 
 
 def test_skip_publish_needs_no_database_url_and_never_publishes(monkeypatch, tmp_path, capsys):
@@ -220,18 +224,30 @@ def test_publish_to_postgres_passes_sqlite_records_to_the_publisher(monkeypatch,
     records = []
     db = tmp_path / "crawler.db"
 
+    rejected = ["https://example.org/not-funding"]
+    result = PublishStats(published=3, removed=1)
+
     def read_records(db_path):
         calls.append(("read", db_path))
         return records
 
-    def publish(database_url, payload):
-        calls.append(("publish", database_url, payload))
-        return 3
+    def read_rejected(db_path):
+        calls.append(("rejected", db_path))
+        return rejected
+
+    def publish(database_url, payload, rejected_urls):
+        calls.append(("publish", database_url, payload, rejected_urls))
+        return result
 
     monkeypatch.setattr(refresh, "records_from_sqlite", read_records)
+    monkeypatch.setattr(refresh, "rejected_urls_from_sqlite", read_rejected)
     monkeypatch.setattr(refresh, "publish", publish)
-    assert refresh.publish_to_postgres(db, "postgresql://test") == 3
-    assert calls == [("read", db), ("publish", "postgresql://test", records)]
+    assert refresh.publish_to_postgres(db, "postgresql://test") is result
+    assert calls == [
+        ("read", db),
+        ("rejected", db),
+        ("publish", "postgresql://test", records, rejected),
+    ]
 
 
 def test_no_llm_normalises_real_crawled_rows(monkeypatch, normalised_sqlite_db, today):

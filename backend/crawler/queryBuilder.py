@@ -4,7 +4,7 @@ so discovery reflects the researcher's actual profile rather than just
 a topic keyword.
 """
 
-from backend.crawler.config import FUNDING_TERMS
+from backend.crawler.config import EXCLUDED_SITES, FUNDING_TERMS
 
 # Mapping from career stage labels (as used in the frontend inputs) to
 # extra query terms that might surface stage-specific funding (e.g. an
@@ -83,4 +83,5 @@ def generate_seed_queries(
             seen.add(q)
             deduped.append(q)
 
-    return deduped[:max_queries]
+    exclusions = " ".join(f"-site:{site}" for site in EXCLUDED_SITES)
+    return [f"{q} {exclusions}" for q in deduped[:max_queries]]

@@ -25,7 +25,7 @@ from backend.data.postgres_repository import (
     init_schema,
     upsert_records,
 )
-from backend.data.publish import publish, records_from_sqlite
+from backend.data.publish import PublishStats, publish, records_from_sqlite
 from backend.data.repository import get_repository
 from backend.evals.corpus import corpus_records
 from backend.normaliser.pipeline import NORMALISED_TABLE
@@ -62,7 +62,7 @@ def test_unmigrated_database_yields_an_empty_repository(database_url):
 
 def test_publish_writes_every_corpus_opportunity(database_url):
     expected = len(corpus_records())
-    assert publish(database_url, corpus_records()) == expected
+    assert publish(database_url, corpus_records()) == PublishStats(published=expected, removed=0)
     assert len(PostgresRepository(database_url).all()) == expected
 
 
@@ -144,3 +144,39 @@ def test_publish_accepts_text_that_still_carries_a_nul_byte(database_url):
     stored = PostgresRepository(database_url).get(record.opportunity.id)
     assert stored is not None
     assert stored.summary == "Binary page residue"
+
+
+def _with_url(record, url, title=None):
+    record = record.model_copy(deep=True)
+    record.opportunity.url = url
+    record.opportunity.id = url
+    if title is not None:
+        record.opportunity.title = title
+    return record
+
+
+def test_publish_removes_the_urls_the_normaliser_rejected(seeded):
+    rejected = corpus_records()[0].opportunity
+    stats = publish(seeded, [], rejected_urls=[rejected.url, "https://never-published.org/"])
+    assert stats == PublishStats(published=0, removed=1)
+    assert PostgresRepository(seeded).get(rejected.id) is None
+    assert len(PostgresRepository(seeded).all()) == len(corpus_records()) - 1
+
+
+def test_publish_prunes_stored_pages_from_blocked_sites_and_bot_checks(database_url):
+    # Rows published before the relevance rule existed, and not in this run.
+    template = corpus_records()[0]
+    stale = [
+        _with_url(template, "https://en.wikipedia.org/wiki/Funding"),
+        _with_url(template, "https://www.lms.ac.uk/grants/other-sources", "One moment, please..."),
+    ]
+    with psycopg.connect(database_url) as conn:
+        init_schema(conn)
+        upsert_records(conn, stale)
+        conn.commit()
+
+    stats = publish(database_url, corpus_records())
+
+    assert stats == PublishStats(published=len(corpus_records()), removed=2)
+    served = {o.url for o in PostgresRepository(database_url).all()}
+    assert served == {r.opportunity.url for r in corpus_records()}

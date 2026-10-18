@@ -20,12 +20,25 @@ REQUEST_DELAY_SECONDS = 1.5   # pause between outbound requests to any one host
 MAX_RESULTS_PER_QUERY = 10
 
 # Generic terms appended to every research-area query so discovery isn't
-# tied to a fixed list of funding sites.
+# tied to a fixed list of funding sites. One asks for Australian schemes, since
+# unqualified searches return mostly US and UK pages; "funding opportunity" and
+# "scholarship funding" were dropped after the first real crawls returned
+# dictionary entries for "opportunity" and US undergraduate scholarship lists.
 FUNDING_TERMS = [
     "research grant",
-    "funding opportunity",
     "research fellowship",
-    "scholarship funding",
+    "funding opportunities apply",
+    "research funding Australia",
+]
+
+# Excluded in the search itself, so they don't use up the results per query.
+# The normaliser blocks a longer list (backend/normaliser/relevance.py);
+# these are the ones the first crawls returned most often.
+EXCLUDED_SITES = [
+    "wikipedia.org",
+    "youtube.com",
+    "merriam-webster.com",
+    "dictionary.cambridge.org",
 ]
 
 # --- Scheduling ---------------------------------------------------------------

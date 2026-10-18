@@ -51,6 +51,7 @@ def main() -> None:
     print(f"rows read: {stats.rows_read}")
     print(f"normalised: {stats.normalised}")
     print(f"skipped unchanged: {stats.skipped_unchanged}")
+    print(f"rejected as not funding: {stats.rejected}")
     print(f"llm calls: {stats.llm_calls}")
     print(f"llm failures: {stats.llm_failures}")
     print(f"API data source: FMF_DATA_SOURCE=sqlite FMF_DB_PATH={args.db}")

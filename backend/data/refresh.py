@@ -19,7 +19,12 @@ from pydantic import BaseModel
 
 from backend.crawler.config import DB_PATH
 from backend.crawler.queryBuilder import generate_seed_queries
-from backend.data.publish import publish, records_from_sqlite
+from backend.data.publish import (
+    PublishStats,
+    publish,
+    records_from_sqlite,
+    rejected_urls_from_sqlite,
+)
 from backend.normaliser.llm import extractor_from_env
 from backend.normaliser.pipeline import PipelineStats, normalise_database
 
@@ -36,7 +41,7 @@ class RefreshStats:
     profiles: list[str]
     crawled: int
     normalised: PipelineStats | None
-    published: int
+    published: PublishStats | None
 
 
 def load_seed_profiles(path: Path = SEED_FILE) -> list[SeedProfile]:
@@ -66,8 +71,8 @@ def normalise(db_path: str | Path, today: date, use_llm: bool) -> PipelineStats:
     return normalise_database(db_path, today, extractor=extractor)
 
 
-def publish_to_postgres(db_path: str | Path, database_url: str) -> int:
-    return publish(database_url, records_from_sqlite(db_path))
+def publish_to_postgres(db_path: str | Path, database_url: str) -> PublishStats:
+    return publish(database_url, records_from_sqlite(db_path), rejected_urls_from_sqlite(db_path))
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -120,7 +125,7 @@ def main(argv: list[str] | None = None) -> int:
 
     crawl(selected)
     normalised = normalise(args.db_path, date.today(), use_llm=not args.no_llm)
-    published = 0 if args.skip_publish else publish_to_postgres(args.db_path, args.database_url)
+    published = None if args.skip_publish else publish_to_postgres(args.db_path, args.database_url)
     stats = RefreshStats(
         profiles=[p.field_of_research for p in selected],
         crawled=len(selected),
@@ -129,10 +134,12 @@ def main(argv: list[str] | None = None) -> int:
     )
     print(f"profiles crawled: {stats.crawled}")
     print(f"normalised: {normalised.normalised}")
-    if args.skip_publish:
+    print(f"rejected as not funding: {normalised.rejected}")
+    if published is None:
         print(f"not published: serve with FMF_DATA_SOURCE=sqlite FMF_DB_PATH={args.db_path}")
     else:
-        print(f"published: {stats.published}")
+        print(f"published: {published.published}")
+        print(f"removed from Postgres: {published.removed}")
     return 0
 
 

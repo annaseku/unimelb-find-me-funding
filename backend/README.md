@@ -53,6 +53,8 @@ curl -s -X POST localhost:8000/api/search -H 'content-type: application/json' \
 
 `normaliser/` turns the crawler's raw rows (page text, a parsed deadline, a raw dollar string, an eligibility snippet) into the structured `Opportunity` records the ranker scores. Deterministic rules run first and stamp every field with where it came from; if `GEMINI_API_KEY` is set, a Gemini extractor fills the prose-derived fields (citizenship, career stage, research codes, funder name, summary) and never overrides a rule-parsed date or amount. Results land in a `normalised_opportunities` table in the same SQLite file; the crawler's own table is never written.
 
+Before any of that, `normaliser/relevance.py` drops pages that are not funding opportunities: blocked sites (Wikipedia, dictionaries, YouTube, journals, developer docs), bot-check screens, pages with almost no text, and pages without application details (apply, deadline, eligibility, an amount). When Gemini runs it also gives a verdict, and a page it says is not a funding opportunity is dropped too. Dropped pages go to a `rejected_pages` table with the reason, which is the first place to look when a real scheme is missing.
+
 ```bash
 python -m backend.normaliser.run --db funding_crawler.db            # rules, plus the model if a key is set
 python -m backend.normaliser.run --db funding_crawler.db --no-llm   # rules only
@@ -74,7 +76,7 @@ The extractor runs once per changed page: unchanged pages are skipped by content
 
 SQLite is a file on whoever ran the crawler. The deployed API cannot read it, because Render's free plan has no persistent disk, so the container filesystem resets on every deploy. `data/postgres_repository.py` serves the same `normalised_opportunities` table out of Supabase Postgres instead, behind the same repository interface, so the API code is unchanged.
 
-`data/publish.py` is what puts records there. It copies a normalised crawler SQLite database and creates the Postgres table on first run. Only publish crawled records to the deployed store; the evals corpus is for evals and local test fixtures.
+`data/publish.py` is what puts records there. It copies a normalised crawler SQLite database and creates the Postgres table on first run. It also deletes the URLs in that database's `rejected_pages`, and any stored record from a blocked site or a bot-check page, so junk published before a rule existed does not linger. Only publish crawled records to the deployed store; the evals corpus is for evals and local test fixtures.
 
 To seed a local database for development without keys, run `python -m backend.evals.seed_sqlite funding_crawler.db` and use the default SQLite data source. This fixture is illustrative and must not be published to the deployed store.
 
