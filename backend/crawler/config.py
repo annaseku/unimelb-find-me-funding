@@ -10,10 +10,18 @@ load_dotenv()  # loads variables from a .env file in the project root, if presen
 DB_PATH = "funding_crawler.db"
 
 # --- Networking --------------------------------------------------------------
+# The "Mozilla/5.0 (compatible; ...)" form is the convention well-behaved
+# crawlers use (Googlebot does the same) and still names us. ARC and NHMRC
+# stalled requests carrying the bare crawler name until they timed out.
 HEADERS = {
-    "User-Agent": "FindMeFundingCrawler/0.2 (university project; contact: frank.a@unimelb.edu.au)"
+    "User-Agent": (
+        "Mozilla/5.0 (compatible; FindMeFundingCrawler/0.3; university project; "
+        "+mailto:frank.a@unimelb.edu.au)"
+    ),
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "en-AU,en;q=0.9",
 }
-REQUEST_TIMEOUT = 10          # seconds, per HTTP request
+REQUEST_TIMEOUT = 30          # seconds, per HTTP request; some gov.au sites are slow
 REQUEST_DELAY_SECONDS = 1.5   # pause between outbound requests to any one host
 
 # --- Discovery ---------------------------------------------------------------
