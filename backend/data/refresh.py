@@ -126,7 +126,7 @@ def main(argv: list[str] | None = None) -> int:
         default=os.environ.get("FMF_DATABASE_URL", ""),
         help="Defaults to FMF_DATABASE_URL.",
     )
-    parser.add_argument("--no-llm", action="store_true", help="Skip the Gemini extractor.")
+    parser.add_argument("--no-llm", action="store_true", help="Skip the LLM extractor.")
     parser.add_argument(
         "--skip-publish",
         action="store_true",

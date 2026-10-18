@@ -45,7 +45,7 @@ class NormalisedRecord(BaseModel):
 
 
 # Why a run stopped calling the LLM before its last row. "daily_quota" is the
-# provider's per-day limit; "plan_error" is a rejected key, billing or plan;
+# provider rate-limiting past every retry; "plan_error" is a rejected key or no credits;
 # "not_configured" means the run had no extractor at all.
 LlmStopReason = Literal["daily_quota", "plan_error", "not_configured"]
 

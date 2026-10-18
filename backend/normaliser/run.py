@@ -33,7 +33,7 @@ def main() -> None:
     parser.add_argument(
         "--no-llm",
         action="store_true",
-        help="Skip the LLM extractor even if GEMINI_API_KEY is set.",
+        help="Skip the LLM extractor even if OPENROUTER_API_KEY is set.",
     )
     parser.add_argument(
         "--force",

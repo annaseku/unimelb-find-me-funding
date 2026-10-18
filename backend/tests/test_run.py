@@ -37,7 +37,7 @@ def crawler_db(tmp_path):
 
 @pytest.fixture
 def no_llm_factory(monkeypatch):
-    """Fail the test if run.py builds an LLM extractor: no test may reach Gemini."""
+    """Fail the test if run.py builds an LLM extractor: no test may reach the LLM provider."""
     calls = []
     monkeypatch.setattr(run_module, "extractor_from_env", lambda: calls.append(1))
     return calls

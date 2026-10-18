@@ -1,4 +1,4 @@
-"""The extractor protocol, the Gemini implementation, and the merge policy
+"""The extractor protocol, the OpenRouter implementation, and the merge policy
 that lets the model fill prose fields without ever overriding a value the
 rules already parsed. No test touches the network."""
 
@@ -14,7 +14,7 @@ from backend.normaliser.llm import (
     RULE_PRIORITY_FIELDS,
     ExtractedFields,
     FakeExtractor,
-    GeminiExtractor,
+    OpenRouterExtractor,
     extractor_from_env,
     merge,
 )
@@ -53,26 +53,30 @@ def make_record(**overrides) -> NormalisedRecord:
     )
 
 
-class _StubResponse:
-    def __init__(self, text: str):
-        self.text = text
+class _Obj:
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
 
 
-class StubModels:
-    """Stands in for genai.Client().models: records kwargs, returns JSON text."""
+class StubCompletions:
+    """Stands in for OpenAI().chat.completions: records kwargs, returns content."""
 
-    def __init__(self, json_text: str):
+    def __init__(self, content: str):
         self.calls: list[dict] = []
-        self._json_text = json_text
+        self._content = content
 
-    def generate_content(self, **kwargs):
+    def create(self, **kwargs):
         self.calls.append(kwargs)
-        return _StubResponse(self._json_text)
+        return _Obj(choices=[_Obj(message=_Obj(content=self._content))])
 
 
 class StubClient:
-    def __init__(self, json_text: str):
-        self.models = StubModels(json_text)
+    def __init__(self, content: str):
+        self.chat = _Obj(completions=StubCompletions(content))
+
+    @property
+    def calls(self) -> list[dict]:
+        return self.chat.completions.calls
 
 
 def test_fake_extractor_records_every_call():
@@ -179,42 +183,55 @@ def test_prose_and_rule_priority_field_sets_do_not_overlap():
     assert "funder" in PROSE_FIELDS
 
 
-def test_gemini_extractor_calls_the_client_with_expected_kwargs():
+def test_openrouter_extractor_calls_the_client_with_expected_kwargs():
     client = StubClient('{"summary": "A summary.", "for_codes": ["3103"]}')
-    extractor = GeminiExtractor(client=client, model="gemini-test-model")
+    extractor = OpenRouterExtractor(client=client, model="vendor/test-model")
 
     long_text = "word " * 10_000  # far longer than MAX_TEXT_CHARS
     result = extractor.extract("A Title", "https://example.org/page", long_text)
 
     assert result == ExtractedFields(summary="A summary.", for_codes=["3103"])
-    assert len(client.models.calls) == 1
-    kwargs = client.models.calls[0]
-    assert kwargs["model"] == "gemini-test-model"
-    config = kwargs["config"]
-    assert config.response_mime_type == "application/json"
-    assert config.response_json_schema == ExtractedFields.model_json_schema()
-    assert config.system_instruction
+    assert len(client.calls) == 1
+    kwargs = client.calls[0]
+    assert kwargs["model"] == "vendor/test-model"
+    assert kwargs["temperature"] == 0
+    response_format = kwargs["response_format"]
+    assert response_format["type"] == "json_schema"
+    assert response_format["json_schema"]["schema"] == ExtractedFields.model_json_schema()
+    # Only providers that honour the schema may serve the request.
+    assert kwargs["extra_body"] == {"provider": {"require_parameters": True}}
 
-    contents = kwargs["contents"]
-    assert "A Title" in contents
-    assert "https://example.org/page" in contents
+    system, user = kwargs["messages"]
+    assert system["role"] == "system" and system["content"]
+    assert "A Title" in user["content"]
+    assert "https://example.org/page" in user["content"]
     # the raw text was truncated before being sent
-    assert len(contents) < len(long_text)
+    assert len(user["content"]) < len(long_text)
 
 
-def test_gemini_extractor_defaults_model_from_env(monkeypatch):
-    monkeypatch.setenv("FMF_LLM_MODEL", "gemini-from-env")
+def test_openrouter_extractor_accepts_json_wrapped_in_a_code_fence():
+    client = StubClient('```json\n{"summary": "Fenced."}\n```')
+    extractor = OpenRouterExtractor(client=client, model="vendor/test-model")
+    assert extractor.extract("T", "https://example.org", "text").summary == "Fenced."
+
+
+def test_openrouter_extractor_defaults_to_an_open_weight_model(monkeypatch):
+    monkeypatch.delenv("FMF_LLM_MODEL", raising=False)
     client = StubClient("{}")
-    extractor = GeminiExtractor(client=client)
-
-    extractor.extract("Title", "https://example.org", "text")
-
-    assert client.models.calls[0]["model"] == "gemini-from-env"
+    OpenRouterExtractor(client=client).extract("Title", "https://example.org", "text")
+    assert client.calls[0]["model"] == llm_module.DEFAULT_MODEL
 
 
-def test_gemini_extractor_rejects_json_that_does_not_match_the_schema():
+def test_openrouter_extractor_takes_the_model_from_env(monkeypatch):
+    monkeypatch.setenv("FMF_LLM_MODEL", "vendor/from-env")
+    client = StubClient("{}")
+    OpenRouterExtractor(client=client).extract("Title", "https://example.org", "text")
+    assert client.calls[0]["model"] == "vendor/from-env"
+
+
+def test_openrouter_extractor_rejects_json_that_does_not_match_the_schema():
     client = StubClient('{"amount_aud": "lots"}')
-    extractor = GeminiExtractor(client=client, model="gemini-test-model")
+    extractor = OpenRouterExtractor(client=client, model="vendor/test-model")
 
     with pytest.raises(ValueError):
         extractor.extract("Title", "https://example.org", "text")
@@ -224,26 +241,32 @@ def test_extractor_from_env_with_no_key_is_none():
     assert extractor_from_env({}) is None
 
 
-def test_extractor_from_env_with_key_returns_a_gemini_extractor(monkeypatch):
-    # genai.Client() reads the key from the process environment at construction.
-    monkeypatch.setenv("GEMINI_API_KEY", "x")
-    extractor = extractor_from_env({"GEMINI_API_KEY": "x"})
-    assert isinstance(extractor, GeminiExtractor)
+def test_extractor_from_env_with_key_returns_an_openrouter_extractor():
+    extractor = extractor_from_env({"OPENROUTER_API_KEY": "x"})
+    assert isinstance(extractor, OpenRouterExtractor)
+
+
+def test_a_leftover_gemini_key_no_longer_enables_the_extractor():
+    assert extractor_from_env({"GEMINI_API_KEY": "x"}) is None
 
 
 def test_extractor_from_env_off_switch_is_none():
-    assert extractor_from_env({"GEMINI_API_KEY": "x", "FMF_LLM": "off"}) is None
+    assert extractor_from_env({"OPENROUTER_API_KEY": "x", "FMF_LLM": "off"}) is None
 
 
 @pytest.mark.parametrize("key", ["", None])
 def test_extractor_from_env_empty_key_is_none(key):
-    env = {} if key is None else {"GEMINI_API_KEY": key}
+    env = {} if key is None else {"OPENROUTER_API_KEY": key}
     assert extractor_from_env(env) is None
 
 
-def test_gemini_client_is_built_with_a_request_timeout(monkeypatch):
-    # Without one, a stalled request hangs the whole crawl until the job limit.
+def test_client_targets_openrouter_with_the_key_and_a_request_timeout(monkeypatch):
+    # Without a timeout, a stalled request hangs the whole crawl until the job limit.
     built = {}
-    monkeypatch.setattr(llm_module.genai, "Client", lambda **kwargs: built.update(kwargs))
-    GeminiExtractor()
-    assert built["http_options"].timeout == llm_module.REQUEST_TIMEOUT_MS
+    monkeypatch.setattr(llm_module, "OpenAI", lambda **kwargs: built.update(kwargs))
+    OpenRouterExtractor(api_key="test-key")
+    assert built == {
+        "base_url": "https://openrouter.ai/api/v1",
+        "api_key": "test-key",
+        "timeout": llm_module.REQUEST_TIMEOUT_S,
+    }

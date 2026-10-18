@@ -3,8 +3,10 @@ record. Rules always win on dates and amounts; the model only fills the
 prose-derived fields the rules cannot reach (funder name, summary,
 eligibility paraphrase, and the classification lists).
 
-The model is Gemini, the team's choice for its free tier. The `Extractor`
-protocol keeps the pipeline indifferent to which provider sits behind it."""
+The model is reached through OpenRouter (OpenAI-compatible, pay-as-you-go),
+defaulting to a small open-weight model; Gemini's free tier throttled every
+crawl (KAN-67, KAN-69). The `Extractor` protocol keeps the pipeline
+indifferent to which provider sits behind it."""
 
 from __future__ import annotations
 
@@ -13,20 +15,20 @@ from collections.abc import Mapping
 from datetime import date
 from typing import Any, Protocol
 
-from google import genai
-from google.genai import types
+from openai import OpenAI
 from pydantic import BaseModel
 
 from backend.normaliser.models import NormalisedRecord
 from backend.ranking.models import CareerStage, EmployerType, FundingType
 
-# Stable Flash model; override with FMF_LLM_MODEL. Chosen for the free tier,
-# not for peak quality; a Pro model is a one-variable change.
-DEFAULT_MODEL = "gemini-2.5-flash"
+OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
+# Apache-2.0 open-weight, non-reasoning, supports structured outputs, and costs
+# about US$0.10 a weekly crawl. Override with FMF_LLM_MODEL (any OpenRouter id).
+DEFAULT_MODEL = "qwen/qwen3-30b-a3b-instruct-2507"
 MAX_TEXT_CHARS = 20_000
-# The SDK has no timeout by default: one stalled request hung a crawl run for
-# 4.5 hours (2026-10-18). A timeout raises, and the pipeline goes rules-only for that row.
-REQUEST_TIMEOUT_MS = 60_000
+# One stalled request once hung a crawl run for 4.5 hours (2026-10-18). A
+# timeout raises, and the pipeline goes rules-only for that row.
+REQUEST_TIMEOUT_S = 60.0
 
 # Fields the model may set or override, provided it returns a non-empty
 # value. Anything not listed here (amount and deadline) is rule-priority.
@@ -99,36 +101,58 @@ class Extractor(Protocol):
     def extract(self, title: str, url: str, text: str) -> ExtractedFields: ...
 
 
-class GeminiExtractor:
-    """Calls the Gemini API and asks for JSON that matches ExtractedFields.
-    The client is built lazily so importing this module never needs a key;
-    `genai.Client()` reads GEMINI_API_KEY from the environment itself."""
+def _strip_code_fence(text: str) -> str:
+    """Some models wrap JSON in a ```json fence even when asked for JSON."""
+    text = text.strip()
+    if text.startswith("```"):
+        text = text.split("\n", 1)[1] if "\n" in text else ""
+        text = text.rsplit("```", 1)[0]
+    return text
 
-    def __init__(self, client: Any | None = None, model: str | None = None) -> None:
+
+class OpenRouterExtractor:
+    """Calls a model through OpenRouter and asks for JSON that matches
+    ExtractedFields. The client is built lazily so importing this module never
+    needs a key."""
+
+    def __init__(
+        self, client: Any | None = None, model: str | None = None, api_key: str | None = None
+    ) -> None:
         self._client = (
             client
             if client is not None
-            else genai.Client(http_options=types.HttpOptions(timeout=REQUEST_TIMEOUT_MS))
+            else OpenAI(
+                base_url=OPENROUTER_BASE_URL,
+                api_key=api_key or os.environ.get("OPENROUTER_API_KEY"),
+                timeout=REQUEST_TIMEOUT_S,
+            )
         )
-        self._model = model or os.environ.get("FMF_LLM_MODEL", DEFAULT_MODEL)
+        self._model = model or os.environ.get("FMF_LLM_MODEL") or DEFAULT_MODEL
 
     def extract(self, title: str, url: str, text: str) -> ExtractedFields:
         truncated = (text or "")[:MAX_TEXT_CHARS]
         contents = f"Title: {title}\nURL: {url}\n\n{truncated}"
-        response = self._client.models.generate_content(
+        response = self._client.chat.completions.create(
             model=self._model,
-            contents=contents,
-            config=types.GenerateContentConfig(
-                system_instruction=SYSTEM_PROMPT,
-                response_mime_type="application/json",
-                # The full JSON schema, so optional fields and enums round-trip
-                # exactly; we validate the text ourselves rather than rely on
-                # the SDK's parsed attribute.
-                response_json_schema=ExtractedFields.model_json_schema(),
-                temperature=0,
-            ),
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": contents},
+            ],
+            # The full JSON schema, so optional fields and enums round-trip
+            # exactly; we validate the text ourselves rather than trust it.
+            response_format={
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "extracted_fields",
+                    "schema": ExtractedFields.model_json_schema(),
+                },
+            },
+            temperature=0,
+            # Route only to providers that honour response_format for this model.
+            extra_body={"provider": {"require_parameters": True}},
         )
-        return ExtractedFields.model_validate_json(response.text)
+        content = response.choices[0].message.content or ""
+        return ExtractedFields.model_validate_json(_strip_code_fence(content))
 
 
 class FakeExtractor:
@@ -181,12 +205,13 @@ def merge(record: NormalisedRecord, extracted: ExtractedFields) -> NormalisedRec
 
 
 def extractor_from_env(env: Mapping[str, str] | None = None) -> Extractor | None:
-    """None when there is no GEMINI_API_KEY, or FMF_LLM is explicitly turned
-    off; otherwise a real GeminiExtractor."""
+    """None when there is no OPENROUTER_API_KEY, or FMF_LLM is explicitly
+    turned off; otherwise a real OpenRouterExtractor."""
 
     source = env if env is not None else os.environ
-    if not source.get("GEMINI_API_KEY"):
+    key = source.get("OPENROUTER_API_KEY")
+    if not key:
         return None
     if source.get("FMF_LLM", "").lower() == "off":
         return None
-    return GeminiExtractor()
+    return OpenRouterExtractor(api_key=key, model=source.get("FMF_LLM_MODEL") or None)
