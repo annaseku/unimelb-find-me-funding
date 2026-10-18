@@ -171,6 +171,13 @@ MIN_LOWERCASE_SHARE = 0.5
 _SENTENCE_OPENERS = frozenset(
     "The A An Our This These We Its Their Each All In For Applications Funding".split()
 )
+# Site-wide notices that read as prose but say nothing about the opportunity.
+_BOILERPLATE_RE = re.compile(
+    r"\.gov|official website|government websites|https://|browser does not support"
+    r"|sensitive information|site is secure|cookies|javascript|copyright|privacy policy"
+    r"|verifying|please wait|subscribe",
+    re.IGNORECASE,
+)
 
 
 def _is_menu_token(token: str) -> bool:
@@ -193,7 +200,8 @@ def _prose_start(text: str) -> int | None:
             start -= 1
         words = [t.group() for t in tokens[start:]]
         lowercase = sum(1 for w in words if w[0].islower())
-        if len(words) >= MIN_PROSE_WORDS and lowercase / len(words) >= MIN_LOWERCASE_SHARE:
+        is_prose = len(words) >= MIN_PROSE_WORDS and lowercase / len(words) >= MIN_LOWERCASE_SHARE
+        if is_prose and not _BOILERPLATE_RE.search(" ".join(words)):
             return tokens[start].start()
         sentence_start = end
     return None

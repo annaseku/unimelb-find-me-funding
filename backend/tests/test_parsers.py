@@ -203,3 +203,12 @@ def test_summarise_skips_leading_menu_text():
 def test_summarise_keeps_text_that_starts_with_prose():
     raw_text = "Our grants support field-initiated research on young people."
     assert summarise(raw_text, None) == raw_text
+
+
+def test_summarise_skips_government_banner_sentences():
+    raw_text = (
+        "An official website of the United States government. "
+        "Federal government websites often end in .gov or .mil. "
+        "This program funds agricultural research at land-grant universities."
+    )
+    assert summarise(raw_text, None).startswith("This program funds agricultural research")
