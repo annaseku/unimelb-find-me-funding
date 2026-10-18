@@ -51,7 +51,7 @@ def normalise_row(row: CrawledRow, today: date) -> NormalisedRecord:
     funder = funder_from_url(url)
     title = row.title or funder
 
-    summary = summarise(row.raw_text, row.title)
+    summary = summarise(row.raw_text, row.title, description=row.description)
     keywords = keywords_from(row.title)
 
     amount_aud, amount_note = parse_amount_aud(row.funding_amount_raw)

@@ -12,7 +12,7 @@ from backend.ranking.models import (
     OpportunityStatus,
     SearchRequest,
 )
-from backend.ranking.ranker import rank, score_opportunity
+from backend.ranking.ranker import AUSTRALIAN_BOOST, is_australian, rank, score_opportunity
 from backend.ranking.weights import DEFAULT_WEIGHTS, Weights
 from backend.tests.conftest import TODAY
 
@@ -136,3 +136,47 @@ def test_best_first():
     ]
     results = rank(opportunities, SearchRequest(for_codes=["4611"]), DEFAULT_WEIGHTS, TODAY)
     assert [r.opportunity.id for r in results] == ["strong", "weak"]
+
+
+@pytest.mark.parametrize(
+    "overrides",
+    [
+        {"url": "https://www.arc.gov.au/funding"},
+        {"countries": ["AU"]},
+        {"citizenships_allowed": ["AU", "NZ"]},
+        {"title": "Australian Postgraduate Award"},
+        {"funder": "Australian Research Council"},
+        {"eligibility_text": "Applicants must work in Australia."},
+    ],
+)
+def test_australian_signals(overrides):
+    assert is_australian(make_opportunity(**overrides))
+
+
+def test_an_international_scheme_is_not_australian():
+    assert not is_australian(make_opportunity(url="https://www.nsf.gov/funding"))
+    # "Austral" alone (Austral Islands, australopithecus) is not Australia.
+    assert not is_australian(make_opportunity(title="Austral ecology grant"))
+
+
+def test_an_australian_scheme_outranks_a_slightly_better_international_one():
+    international = make_opportunity(id="us", amount_aud=150_000)
+    australian = make_opportunity(id="au", url="https://www.arc.gov.au/funding")
+    request = SearchRequest(for_codes=["4611"])
+    gap = (
+        score_opportunity(international, request, DEFAULT_WEIGHTS, TODAY).overall
+        - score_opportunity(australian, request, DEFAULT_WEIGHTS, TODAY).overall
+    )
+    assert 0 <= gap < AUSTRALIAN_BOOST
+    ranked = rank([international, australian], request, DEFAULT_WEIGHTS, TODAY)
+    assert [r.opportunity.id for r in ranked] == ["au", "us"]
+
+
+def test_the_boost_never_lifts_an_ineligible_australian_scheme_above_an_eligible_one():
+    australian = make_opportunity(
+        id="au", url="https://www.arc.gov.au/funding", citizenships_allowed=["AU"]
+    )
+    international = make_opportunity(id="us")
+    request = SearchRequest(citizenships=["GB"])
+    ranked = rank([australian, international], request, DEFAULT_WEIGHTS, TODAY)
+    assert [r.opportunity.id for r in ranked] == ["us", "au"]

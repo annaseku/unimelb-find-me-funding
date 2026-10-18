@@ -180,3 +180,15 @@ def test_publish_prunes_stored_pages_from_blocked_sites_and_bot_checks(database_
     assert stats == PublishStats(published=len(corpus_records()), removed=2)
     served = {o.url for o in PostgresRepository(database_url).all()}
     assert served == {r.opportunity.url for r in corpus_records()}
+
+
+def test_published_urls_lists_every_stored_page(seeded):
+    from backend.data.postgres_repository import published_urls
+
+    assert published_urls(seeded) == sorted(r.opportunity.url for r in corpus_records())
+
+
+def test_published_urls_of_an_unmigrated_database_is_empty(database_url):
+    from backend.data.postgres_repository import published_urls
+
+    assert published_urls(database_url) == []

@@ -16,6 +16,10 @@ on:
         description: "Rotation slot to crawl instead of the current ISO week (0, 1, 2 cover every area on the free plan, one dispatch an hour apart)"
         type: string
         default: ""
+      refetch:
+        description: "Re-download every published page and the seed list instead of searching (spends no SerpApi searches)"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -39,9 +43,14 @@ jobs:
         env:
           SERPAPI_API_KEY: ${{ secrets.SERPAPI_API_KEY }}
           FMF_DATABASE_URL: ${{ secrets.FMF_DATABASE_URL }}
+          REFETCH: ${{ inputs.refetch }}
         run: |
-          if [ -z "$SERPAPI_API_KEY" ] || [ -z "$FMF_DATABASE_URL" ]; then
-            echo "Set repository secrets SERPAPI_API_KEY and FMF_DATABASE_URL before running the crawl." >&2
+          if [ -z "$FMF_DATABASE_URL" ]; then
+            echo "Set repository secret FMF_DATABASE_URL before running the crawl." >&2
+            exit 1
+          fi
+          if [ "$REFETCH" != "true" ] && [ -z "$SERPAPI_API_KEY" ]; then
+            echo "Set repository secret SERPAPI_API_KEY before running the crawl." >&2
             exit 1
           fi
       - name: Crawl, normalise and publish
@@ -51,8 +60,11 @@ jobs:
           FMF_DATABASE_URL: ${{ secrets.FMF_DATABASE_URL }}
           CRAWL_ALL: ${{ inputs.all }}
           CRAWL_WEEK: ${{ inputs.week }}
+          REFETCH: ${{ inputs.refetch }}
         run: |
-          if [ "$CRAWL_ALL" = "true" ]; then
+          if [ "$REFETCH" = "true" ]; then
+            python -m backend.data.refresh --refetch
+          elif [ "$CRAWL_ALL" = "true" ]; then
             python -m backend.data.refresh --all
           elif [ -n "$CRAWL_WEEK" ]; then
             python -m backend.data.refresh --week "$CRAWL_WEEK"

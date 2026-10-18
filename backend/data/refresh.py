@@ -1,6 +1,9 @@
 """Crawl a rotating research-area slice, normalise it and publish to Postgres.
 
 Run from the repository root: python -m backend.data.refresh [--all] [--dry-run].
+Every run also fetches the pages in seed_urls.json directly. --refetch skips
+searching altogether and re-downloads every published page plus the seed
+list, which needs no SerpApi key and spends no searches.
 The crawler always writes config.DB_PATH relative to the current directory;
 --db-path selects the database to normalise and publish, not the crawler output.
 """
@@ -29,6 +32,7 @@ from backend.normaliser.llm import extractor_from_env
 from backend.normaliser.pipeline import PipelineStats, normalise_database
 
 SEED_FILE = Path(__file__).with_name("seed_profiles.json")
+SEED_URLS_FILE = Path(__file__).with_name("seed_urls.json")
 
 
 class SeedProfile(BaseModel):
@@ -58,12 +62,36 @@ def select_profiles(profiles: list[SeedProfile], week: int, per_run: int) -> lis
     return [profiles[(start + offset) % len(profiles)] for offset in range(per_run)]
 
 
+def load_seed_urls(path: Path = SEED_URLS_FILE) -> list[str]:
+    return json.loads(path.read_text(encoding="utf-8"))["urls"]
+
+
+def fetch_pages(urls: list[str], source: str) -> None:
+    """Fetch, extract and store each page directly, with no search."""
+    from backend.crawler.crawler import crawl_url, init_db
+
+    init_db()
+    for url in dict.fromkeys(urls):
+        crawl_url(url, source)
+
+
 def crawl(profiles: list[SeedProfile]) -> None:
     # Discovery reads its API key on import; keep it out of dry-runs and tests.
     from backend.crawler.crawler import run_crawl
 
     for profile in profiles:
         run_crawl(field_of_research=profile.field_of_research)
+    fetch_pages(load_seed_urls(), "seed list")
+
+
+def refetch(database_url: str) -> int:
+    """Re-download every published page and the seed list. Returns the number
+    of distinct pages, so a run can report what it covered."""
+    from backend.data.postgres_repository import published_urls
+
+    urls = list(dict.fromkeys(published_urls(database_url) + load_seed_urls()))
+    fetch_pages(urls, "refetch")
+    return len(urls)
 
 
 def normalise(db_path: str | Path, today: date, use_llm: bool) -> PipelineStats:
@@ -101,6 +129,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--dry-run", action="store_true", help="Print profiles and SerpApi search count only."
     )
+    parser.add_argument(
+        "--refetch",
+        action="store_true",
+        help="Re-download every published page and the seed list instead of searching.",
+    )
     args = parser.parse_args(argv)
     if args.per_run <= 0:
         parser.error("--per-run must be positive")
@@ -116,14 +149,18 @@ def main(argv: list[str] | None = None) -> int:
         print(f"SerpApi searches: {searches}")
         return 0
 
-    if not os.environ.get("SERPAPI_API_KEY", "").strip():
+    if not args.refetch and not os.environ.get("SERPAPI_API_KEY", "").strip():
         print("no SerpApi key: set SERPAPI_API_KEY before crawling", file=sys.stderr)
         return 2
-    if not args.skip_publish and not args.database_url.strip():
+    if (args.refetch or not args.skip_publish) and not args.database_url.strip():
         print("no database URL: pass --database-url or set FMF_DATABASE_URL", file=sys.stderr)
         return 2
 
-    crawl(selected)
+    if args.refetch:
+        selected = []
+        print(f"pages refetched: {refetch(args.database_url)}")
+    else:
+        crawl(selected)
     normalised = normalise(args.db_path, date.today(), use_llm=not args.no_llm)
     published = None if args.skip_publish else publish_to_postgres(args.db_path, args.database_url)
     stats = RefreshStats(

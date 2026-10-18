@@ -13,9 +13,9 @@ def test_a_research_area_alone_costs_one_search_per_funding_term():
     assert all(q.startswith("Earth Sciences ") for q in queries)
 
 
-def test_one_query_asks_for_australian_schemes():
+def test_most_queries_ask_for_australian_schemes():
     queries = generate_seed_queries(field_of_research="Earth Sciences")
-    assert any("Australia" in q for q in queries)
+    assert sum("Australia" in q for q in queries) == 3
 
 
 def test_every_query_excludes_the_sites_that_never_hold_funding():

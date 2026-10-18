@@ -3,6 +3,8 @@ funding type and ANZSRC FoR division, plus the funding-type negation rule."""
 
 from __future__ import annotations
 
+import pytest
+
 from backend.normaliser.lexicon import (
     find_career_stages,
     find_citizenships,
@@ -302,3 +304,43 @@ def test_for_division_empty_and_none_input():
 def test_coordinated_citizenship_phrase_gives_both_codes():
     text = "Applicants must be Australian or New Zealand citizens."
     assert find_citizenships(text) == ["AU", "NZ"]
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("Open to citizens or permanent residents of the United States.", ["US"]),
+        ("Applicants must be U.S. nationals.", ["US"]),
+        ("Applicants must be American citizens.", ["US"]),
+        ("Applicants must hold Australian citizenship or permanent residency.", ["AU"]),
+        ("Open to permanent residents of Australia.", ["AU"]),
+        ("Open to citizens of New Zealand.", ["NZ"]),
+        ("Open to citizens of Canada.", ["CA"]),
+    ],
+)
+def test_common_citizenship_phrasings_are_recognised(text, expected):
+    assert find_citizenships(text) == expected
+
+
+def test_eu_nationals_expand_to_every_member_state():
+    codes = find_citizenships("Eligibility: EU nationals only.")
+    assert len(codes) == 27
+    assert {"DE", "FR", "IE"} <= set(codes)
+    assert "GB" not in codes
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "This fellowship is not open to US citizens.",
+        "Open to all applicants except US citizens.",
+        "Australian citizenship is not required.",
+    ],
+)
+def test_a_negated_citizenship_phrase_is_not_a_restriction(text):
+    assert find_citizenships(text) == []
+
+
+def test_a_negation_in_the_next_sentence_does_not_cancel_the_restriction():
+    text = "Applicants must be Australian citizens. No late applications will be accepted."
+    assert find_citizenships(text) == ["AU"]

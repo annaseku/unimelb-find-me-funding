@@ -166,7 +166,20 @@ def funder_from_url(url: str) -> str:
 _SENTENCE_END_RE = re.compile(r"[.?!]\s")
 
 
-def summarise(raw_text: str | None, title: str | None, max_chars: int = 400) -> str:
+# A meta description shorter than this is usually just the site's name.
+MIN_DESCRIPTION_CHARS = 60
+
+
+def summarise(
+    raw_text: str | None,
+    title: str | None,
+    max_chars: int = 400,
+    description: str | None = None,
+) -> str:
+    """The page's own meta description when it has a real one, otherwise the
+    opening of the page text, cut at a sentence end within max_chars."""
+    if description and len(description.strip()) >= MIN_DESCRIPTION_CHARS:
+        raw_text = description
     if not raw_text:
         return ""
 

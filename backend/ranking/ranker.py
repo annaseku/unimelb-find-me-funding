@@ -5,11 +5,17 @@ configurable weights, and all four travel with the result so the UI can
 show why something ranked where it did. Decision 9: closed opportunities are
 soft-deleted, so they are filtered here at read time rather than removed
 from the data. Paging is the API's job; this module returns the full list.
+
+Australian opportunities rank above international ones within each
+eligibility tier: the tool serves University of Melbourne researchers, and
+the client asked for results tailored to Australian funding.
 """
 
 from __future__ import annotations
 
+import re
 from datetime import date
+from urllib.parse import urlparse
 
 from backend.ranking.deadline import score_deadline
 from backend.ranking.eligibility import score_eligibility
@@ -52,6 +58,24 @@ def score_opportunity(
     )
 
 
+AUSTRALIAN_BOOST = 0.1
+
+_AUSTRALIA_RE = re.compile(r"\bAustralian?s?\b", re.IGNORECASE)
+
+
+def is_australian(opportunity: Opportunity) -> bool:
+    """An Australian funder or a scheme for Australia-based researchers: an
+    .au address, AU in the location or citizenship rules, or Australia named
+    in the title, funder or eligibility text."""
+    host = (urlparse(opportunity.url).hostname or "").lower()
+    if host.endswith(".au"):
+        return True
+    if "AU" in opportunity.countries or "AU" in opportunity.citizenships_allowed:
+        return True
+    text = f"{opportunity.title} {opportunity.funder} {opportunity.eligibility_text}"
+    return bool(_AUSTRALIA_RE.search(text))
+
+
 def rank(
     opportunities: list[Opportunity], request: SearchRequest, weights: Weights, today: date
 ) -> list[RankedOpportunity]:
@@ -67,12 +91,13 @@ def rank(
 
     # Likely-ineligible results always sit below everything else: the client
     # called a great match you cannot apply for "pointless". Within each tier,
-    # highest overall first, equal overalls prefer the more eligible one, then
-    # a stable id order so two runs always agree.
+    # Australian opportunities come first, then highest overall, equal
+    # overalls prefer the more eligible one, then a stable id order so two
+    # runs always agree.
     ranked.sort(
         key=lambda r: (
             r.eligibility.label == EligibilityState.LIKELY_INELIGIBLE,
-            -r.overall,
+            -(r.overall + (AUSTRALIAN_BOOST if is_australian(r.opportunity) else 0.0)),
             -r.eligibility.score,
             r.opportunity.id,
         )

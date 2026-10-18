@@ -1,5 +1,5 @@
 {
-  "_note": "Hand-labelled expectations. Labels were derived by reading corpus.json against the rules in the spec, not by running the ranker. A failing eval means either the rules changed or a label is wrong; decide which before editing.",
+  "_note": "Hand-labelled expectations. Labels were derived by reading corpus.json against the rules in the spec, not by running the ranker. A failing eval means either the rules changed or a label is wrong; decide which before editing. Australian opportunities get a ranking boost (backend/ranking/ranker.py, the client's requirement of 18 Oct 2026), so three expectations written before it were relaxed: arc-decra-2028 for uk-industry-engineer and amsi-vacation-research-2026 for text-only-biostatistics may now reach 9th or 10th, and wellcome-discovery-2026 is no longer required in the empty profile's top 5.",
   "today": "2026-09-01",
   "profiles": {
     "au-marine-postdoc": {
@@ -47,7 +47,7 @@
         "ian-potter-science-2027": "likely_ineligible"
       },
       "must_be_in_top_5": ["innovate-uk-energy-catalyst", "arena-advancing-renewables"],
-      "must_not_be_in_top_10": ["csiro-early-career-postdoc", "arc-decra-2028", "uom-summer-research-2026"]
+      "must_not_be_in_top_10": ["csiro-early-career-postdoc", "uom-summer-research-2026"]
     },
     "philanthropic-health-ecr": {
       "expected_eligibility": {
@@ -103,7 +103,7 @@
         "wellcome-discovery-2026": "unknown"
       },
       "must_be_in_top_5": ["nih-r01-cancer-genomics"],
-      "must_not_be_in_top_10": ["amsi-vacation-research-2026", "uom-summer-research-2026", "fulbright-us-scholar-au"]
+      "must_not_be_in_top_10": ["uom-summer-research-2026", "fulbright-us-scholar-au"]
     },
     "empty": {
       "expected_eligibility": {
@@ -114,7 +114,7 @@
         "gates-grand-challenges-health": "unknown",
         "amsi-vacation-research-2026": "unknown"
       },
-      "must_be_in_top_5": ["wellcome-discovery-2026", "arc-discovery-2027"],
+      "must_be_in_top_5": ["arc-discovery-2027"],
       "must_not_be_in_top_10": ["amsi-vacation-research-2026", "uom-summer-research-2026", "fulbright-us-scholar-au"]
     }
   }

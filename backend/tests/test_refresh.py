@@ -94,18 +94,74 @@ def test_dry_run_all_reports_all_23_profiles_and_92_searches(capsys, blocked_pip
     assert "SerpApi searches: 92" in output
 
 
-def test_crawl_calls_the_lazy_crawler_once_per_research_area(monkeypatch):
+@pytest.fixture
+def fake_crawler(monkeypatch):
+    """Stand-in for backend.crawler.crawler that records every call."""
     calls = []
-    fake_crawler = ModuleType("backend.crawler.crawler")
-    fake_crawler.run_crawl = lambda **kwargs: calls.append(kwargs)
-    monkeypatch.setitem(sys.modules, "backend.crawler.crawler", fake_crawler)
+    module = ModuleType("backend.crawler.crawler")
+    module.run_crawl = lambda **kwargs: calls.append(("search", kwargs["field_of_research"]))
+    module.crawl_url = lambda url, source: calls.append(("fetch", url, source))
+    module.init_db = lambda: None
+    monkeypatch.setitem(sys.modules, "backend.crawler.crawler", module)
+    return calls
+
+
+def test_crawl_searches_each_research_area_then_fetches_the_seed_pages(fake_crawler):
     profiles = refresh.load_seed_profiles()[:2]
 
     assert refresh.crawl(profiles) is None
-    assert calls == [
-        {"field_of_research": "Agricultural, Veterinary and Food Sciences"},
-        {"field_of_research": "Biological Sciences"},
-    ]
+    seeds = refresh.load_seed_urls()
+    assert fake_crawler == [
+        ("search", "Agricultural, Veterinary and Food Sciences"),
+        ("search", "Biological Sciences"),
+    ] + [("fetch", url, "seed list") for url in seeds]
+
+
+def test_seed_urls_are_unique_australian_https_pages():
+    urls = refresh.load_seed_urls()
+    assert urls and len(set(urls)) == len(urls)
+    assert all(url.startswith("https://") and ".gov.au/" in url for url in urls)
+
+
+def test_refetch_downloads_published_pages_and_seeds_once_each(monkeypatch, fake_crawler):
+    from backend.data import postgres_repository
+
+    seeds = refresh.load_seed_urls()
+    published = ["https://example.org/grants/one", seeds[0]]
+    monkeypatch.setattr(postgres_repository, "published_urls", lambda url: published)
+
+    assert refresh.refetch("postgresql://test") == len(seeds) + 1
+    fetched = [call[1] for call in fake_crawler]
+    assert fetched == ["https://example.org/grants/one", *seeds]
+    assert {call[2] for call in fake_crawler} == {"refetch"}
+
+
+def test_refetch_needs_no_serpapi_key_and_never_searches(monkeypatch, tmp_path, capsys):
+    monkeypatch.delenv("SERPAPI_API_KEY", raising=False)
+    calls = []
+    db = tmp_path / "crawler.db"
+    monkeypatch.setattr(refresh, "crawl", lambda profiles: pytest.fail("refetch must not search"))
+    monkeypatch.setattr(refresh, "refetch", lambda url: calls.append(("refetch", url)) or 3)
+    monkeypatch.setattr(
+        refresh, "normalise", lambda *a, **k: calls.append("normalise") or PipelineStats()
+    )
+    monkeypatch.setattr(
+        refresh, "publish_to_postgres", lambda *a: calls.append("publish") or PublishStats(0, 0)
+    )
+
+    args = ["--refetch", "--no-llm", "--db-path", str(db), "--database-url", "postgresql://x"]
+    assert refresh.main(args) == 0
+    assert calls == [("refetch", "postgresql://x"), "normalise", "publish"]
+    assert "pages refetched: 3" in capsys.readouterr().out
+
+
+def test_refetch_needs_a_database_url_even_when_not_publishing(
+    monkeypatch, capsys, blocked_pipeline
+):
+    monkeypatch.delenv("FMF_DATABASE_URL", raising=False)
+    monkeypatch.setattr(refresh, "refetch", fail_if_called)
+    assert refresh.main(["--refetch", "--skip-publish"]) == 2
+    assert "FMF_DATABASE_URL" in capsys.readouterr().err
 
 
 @pytest.mark.parametrize("all_profiles", [False, True])

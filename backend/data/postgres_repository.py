@@ -98,6 +98,16 @@ def upsert_records(conn: psycopg.Connection, records: Iterable[NormalisedRecord]
     return len(rows)
 
 
+def published_urls(database_url: str) -> list[str]:
+    """Every stored URL; empty for a database that has never been published to."""
+    with psycopg.connect(database_url) as conn:
+        try:
+            cursor = conn.execute(f"SELECT url FROM {NORMALISED_TABLE} ORDER BY url")
+        except errors.UndefinedTable:
+            return []
+        return [row[0] for row in cursor]
+
+
 def delete_urls(conn: psycopg.Connection, urls: Iterable[str]) -> int:
     """Remove the records for these URLs. Returns how many were there."""
     urls = list(urls)

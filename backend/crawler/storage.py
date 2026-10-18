@@ -24,10 +24,15 @@ def init_db(db_path: str = DB_PATH) -> None:
                 source_query TEXT,
                 first_seen_at TEXT,
                 fetched_at TEXT,
-                fetch_failed INTEGER DEFAULT 0
+                fetch_failed INTEGER DEFAULT 0,
+                description TEXT
             )
             """
         )
+        # Databases created before the description column existed.
+        columns = {row[1] for row in conn.execute("PRAGMA table_info(opportunities)")}
+        if "description" not in columns:
+            conn.execute("ALTER TABLE opportunities ADD COLUMN description TEXT")
 
 
 def save_opportunity(url: str, fields: dict, source_query: str, db_path: str = DB_PATH) -> None:
@@ -46,11 +51,12 @@ def save_opportunity(url: str, fields: dict, source_query: str, db_path: str = D
             INSERT INTO opportunities (
                 url, title, raw_text, deadline_raw, deadline_parsed,
                 funding_amount_raw, eligibility_snippet, source_query,
-                first_seen_at, fetched_at, fetch_failed
+                first_seen_at, fetched_at, fetch_failed, description
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)
             ON CONFLICT(url) DO UPDATE SET
                 title = excluded.title,
+                description = excluded.description,
                 raw_text = excluded.raw_text,
                 deadline_raw = excluded.deadline_raw,
                 deadline_parsed = excluded.deadline_parsed,
@@ -64,7 +70,7 @@ def save_opportunity(url: str, fields: dict, source_query: str, db_path: str = D
                 url, fields.get("title"), fields.get("raw_text"),
                 fields.get("deadline_raw"), fields.get("deadline_parsed"),
                 fields.get("funding_amount_raw"), fields.get("eligibility_snippet"),
-                source_query, now, now,
+                source_query, now, now, fields.get("description"),
             ),
         )
 

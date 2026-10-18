@@ -49,20 +49,71 @@ _CITIZENSHIP_PATTERNS: list[tuple[re.Pattern[str], str]] = [
     (
         _compile(
             [
-                "australian citizens?",
+                "australian citizen(?:s|ship)?",
                 "citizens? of australia",
-                "australian permanent residents?",
+                "australian permanent residen(?:ts?|cy)",
+                "permanent residents? of australia",
                 # Shared-subject phrasing: "Australian or New Zealand citizens".
                 "australian (?:or|and) new zealand citizens?",
             ]
         ),
         "AU",
     ),
-    (_compile(["new zealand citizens?"]), "NZ"),
-    (_compile(["us citizens?", "u\\.s\\. citizens?", "united states citizens?"]), "US"),
-    (_compile(["uk nationals?", "british citizens?", "uk citizens?"]), "GB"),
-    (_compile(["canadian citizens?"]), "CA"),
+    (
+        _compile(
+            [
+                "new zealand citizen(?:s|ship)?",
+                "citizens? of new zealand",
+                "australian (?:or|and) new zealand citizens?",
+            ]
+        ),
+        "NZ",
+    ),
+    (
+        _compile(
+            [
+                "us citizen(?:s|ship)?",
+                "u\\.s\\. citizen(?:s|ship)?",
+                "united states citizen(?:s|ship)?",
+                "citizens? (?:or permanent residents? )?of the united states",
+                "u\\.?s\\.? nationals?",
+                "u\\.?s\\.? permanent residents?",
+                "american citizens?",
+            ]
+        ),
+        "US",
+    ),
+    (
+        _compile(
+            [
+                "uk nationals?",
+                "british citizens?",
+                "uk citizens?",
+                "citizens? of the united kingdom",
+            ]
+        ),
+        "GB",
+    ),
+    (_compile(["canadian citizens?", "citizens? of canada"]), "CA"),
 ]
+
+# EU-wide eligibility, expanded to the member states because the ranker
+# compares ISO 3166-1 alpha-2 country codes.
+_EU_PATTERN = _compile(["eu nationals?", "eu citizens?", "citizens? of (?:an? )?eu member states?"])
+EU_MEMBER_STATES = (
+    "AT BE BG CY CZ DE DK EE ES FI FR GR HR HU IE IT LT LU LV MT NL PL PT RO SE SI SK"
+).split()
+
+# A citizenship phrase in a negated clause is not a restriction to that
+# country: "not open to US citizens", "Australian citizenship is not
+# required". Checked a few words either side of the phrase only, so a
+# "no" in the next sentence ("No late applications") does not cancel it.
+_CITIZENSHIP_NEGATION_BEFORE = re.compile(
+    r"\b(?:not|non|excluding|except|other than)\b[\w\s,.-]{0,25}$", re.IGNORECASE
+)
+_CITIZENSHIP_NEGATION_AFTER = re.compile(
+    r"^[\w\s,]{0,25}\b(?:is|are) not (?:required|necessary|needed)\b", re.IGNORECASE
+)
 
 # Phrases such as "any nationality", "all nationalities", "no citizenship
 # requirements" and "no citizenship or residency requirements" set nothing
@@ -71,13 +122,27 @@ _CITIZENSHIP_PATTERNS: list[tuple[re.Pattern[str], str]] = [
 # as "unrestricted".
 
 
+def _citizenship_negated(text: str, match: re.Match[str]) -> bool:
+    before = text[max(0, match.start() - 40) : match.start()]
+    after = text[match.end() : match.end() + 40]
+    return bool(
+        _CITIZENSHIP_NEGATION_BEFORE.search(before) or _CITIZENSHIP_NEGATION_AFTER.search(after)
+    )
+
+
+def _mentions(pattern: re.Pattern[str], text: str) -> bool:
+    return any(not _citizenship_negated(text, m) for m in pattern.finditer(text))
+
+
 def find_citizenships(text: str | None) -> list[str]:
     """ISO 3166-1 alpha-2 codes mentioned as required citizenship, sorted and
     unique. Empty list means unrestricted (either nothing was said, or the
     text explicitly states there is no restriction)."""
     if not text:
         return []
-    codes = {code for pattern, code in _CITIZENSHIP_PATTERNS if pattern.search(text)}
+    codes = {code for pattern, code in _CITIZENSHIP_PATTERNS if _mentions(pattern, text)}
+    if _mentions(_EU_PATTERN, text):
+        codes.update(EU_MEMBER_STATES)
     return sorted(codes)
 
 

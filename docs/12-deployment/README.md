@@ -54,6 +54,8 @@ To run the same pipeline by hand, export `SERPAPI_API_KEY`, `FMF_DATABASE_URL` a
 python -m backend.data.refresh --all
 ```
 
+Every run also fetches the Australian scheme pages listed in `backend/data/seed_urls.json` directly, which costs no searches. `--refetch` (the workflow's `refetch` input) skips searching altogether: it re-downloads every page already published plus the seed list, re-normalises and republishes them. Use it after a change to extraction or the relevance filter, since it needs no SerpApi key and spends none of the monthly searches.
+
 Omit `--all` for this week's ten-profile slice, add `--no-llm` to skip Gemini, add `--skip-publish` to keep the result in the local SQLite database instead of Postgres, or use `--dry-run` to print the profiles and search count without credentials or pipeline calls. The crawler writes `backend.crawler.config.DB_PATH` (`funding_crawler.db`) relative to the current directory; `--db-path` changes only the database normalised and published, so keep its default for the normal crawl path.
 
 ## Before a demo

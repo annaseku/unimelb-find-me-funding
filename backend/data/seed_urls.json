@@ -1,0 +1,18 @@
+{
+  "_note": "Australian funding scheme pages fetched directly on every crawl, without a search, so the major national schemes are always present. The two Creative Australia and National Library pages came back from a real crawl; the ARC and NHMRC addresses follow those funders' published URL patterns and were not fetched when this list was written (check the crawl log for [fetch] failed lines). A page that fails to fetch is skipped, and the relevance filter still applies to every page. Add schemes here as the team finds them.",
+  "urls": [
+    "https://www.arc.gov.au/funding-research/funding-schemes/discovery-program/discovery-projects",
+    "https://www.arc.gov.au/funding-research/funding-schemes/discovery-program/discovery-early-career-researcher-award-decra",
+    "https://www.arc.gov.au/funding-research/funding-schemes/discovery-program/future-fellowships",
+    "https://www.arc.gov.au/funding-research/funding-schemes/discovery-program/australian-laureate-fellowships",
+    "https://www.arc.gov.au/funding-research/funding-schemes/discovery-program/discovery-indigenous",
+    "https://www.arc.gov.au/funding-research/funding-schemes/linkage-program/linkage-projects",
+    "https://www.arc.gov.au/funding-research/funding-schemes/linkage-program/linkage-infrastructure-equipment-and-facilities",
+    "https://www.nhmrc.gov.au/funding/find-funding/ideas-grants",
+    "https://www.nhmrc.gov.au/funding/find-funding/investigator-grants",
+    "https://www.nhmrc.gov.au/funding/find-funding/synergy-grants",
+    "https://www.nhmrc.gov.au/funding/find-funding/clinical-trials-and-cohort-studies-grants",
+    "https://creative.gov.au/investments-opportunities/fellowships",
+    "https://www.library.gov.au/research/fellowships-and-scholarships/creative-arts-fellowship"
+  ]
+}

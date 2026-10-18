@@ -40,18 +40,73 @@ _AMOUNT_RE = re.compile(
 # How much surrounding context to keep around an "eligib..." mention.
 _ELIGIBILITY_CONTEXT_CHARS = 300
 
+# Page furniture, not content: menus, headers, footers, cookie banners. Left
+# in, the start of the page text is a menu, and the result card's overview
+# (the first sentences of the text) reads "Home About Funding News Contact".
+_FURNITURE_TAGS = [
+    "script", "style", "noscript", "template", "svg", "iframe",
+    # Not <form>: ASP.NET pages wrap the whole body in one.
+    "nav", "header", "footer", "aside", "button", "select",
+]
+_FURNITURE_ROLES = {"navigation", "banner", "contentinfo", "search", "menu", "menubar"}
+_FURNITURE_CLASS_RE = re.compile(
+    r"(^|[-_ ])(nav|navbar|menu|breadcrumbs?|cookies?|skip|site-header|site-footer|"
+    r"footer|sidebar|social|share)([-_ ]|$)",
+    re.IGNORECASE,
+)
+
+# A <main> or <article> shorter than this is probably a teaser, not the page.
+_MIN_MAIN_TEXT_CHARS = 200
+
+
+def _is_furniture(tag) -> bool:
+    if tag.attrs is None:
+        return False
+    if (tag.get("role") or "").lower() in _FURNITURE_ROLES:
+        return True
+    names = " ".join(tag.get("class") or []) + " " + (tag.get("id") or "")
+    return bool(_FURNITURE_CLASS_RE.search(names))
+
+
+def _collapse(text: str) -> str:
+    return " ".join(text.split())
+
+
+def extract_description(soup) -> str:
+    """The page's own summary from <meta name="description"> or Open Graph,
+    which funders usually write as a one-line overview of the scheme."""
+    for attrs in ({"name": "description"}, {"property": "og:description"}):
+        meta = soup.find("meta", attrs=attrs)
+        if meta and meta.get("content"):
+            return _collapse(meta["content"])
+    return ""
+
 
 def extract_title_and_text(html: str):
-    """Extract page title and cleaned, whitespace-collapsed body text."""
+    """Extract page title and cleaned, whitespace-collapsed body text, with
+    menus, headers and footers removed and the main content preferred."""
     soup = BeautifulSoup(html, "html.parser")
+    title, text, _ = _extract(soup)
+    return title, text
 
+
+def _extract(soup):
     title = soup.title.string.strip() if soup.title and soup.title.string else ""
+    description = extract_description(soup)
 
-    for tag in soup(["script", "style", "noscript"]):
+    for tag in soup(_FURNITURE_TAGS):
+        tag.decompose()
+    for tag in soup.find_all(_is_furniture):
         tag.decompose()
 
-    text = " ".join(soup.get_text(separator=" ").split())
-    return title, text
+    body = soup.body or soup
+    for candidate in (soup.find("main"), soup.find(attrs={"role": "main"}), soup.find("article")):
+        if candidate and len(candidate.get_text(" ", strip=True)) >= _MIN_MAIN_TEXT_CHARS:
+            body = candidate
+            break
+
+    text = _collapse(body.get_text(separator=" "))
+    return title, text, description
 
 
 def extract_deadline(text: str):
@@ -111,11 +166,12 @@ def extract_eligibility_snippet(text: str):
 
 def extract_fields(html: str) -> dict:
     """Run all extraction steps and return a single dict of results."""
-    title, text = extract_title_and_text(html)
+    title, text, description = _extract(BeautifulSoup(html, "html.parser"))
     deadline_raw, deadline_parsed = extract_deadline(text)
 
     return {
         "title": title,
+        "description": description,
         "raw_text": text,
         "deadline_raw": deadline_raw,
         "deadline_parsed": deadline_parsed,

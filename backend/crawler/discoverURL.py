@@ -35,10 +35,15 @@ def search_google(query: str, max_results: int = MAX_RESULTS_PER_QUERY) -> list:
         )
 
     client = serpapi.Client(api_key=SERPAPI_API_KEY)
+    # Search as google.com.au from Australia: unlocalised searches came back
+    # almost entirely American.
     results = client.search(
         q=query,
         engine="google",
         num=max_results,
+        google_domain="google.com.au",
+        gl="au",
+        hl="en",
     )
 
     organic_results = results.get("organic_results", [])

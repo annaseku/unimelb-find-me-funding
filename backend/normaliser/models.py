@@ -20,6 +20,9 @@ class CrawledRow(BaseModel):
 
     url: str
     title: str | None = None
+    # The page's meta description, when it has one; rows crawled before the
+    # column existed have none.
+    description: str | None = None
     raw_text: str | None = None
     deadline_raw: str | None = None
     deadline_parsed: str | None = None

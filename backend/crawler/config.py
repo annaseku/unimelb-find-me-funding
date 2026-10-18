@@ -20,15 +20,17 @@ REQUEST_DELAY_SECONDS = 1.5   # pause between outbound requests to any one host
 MAX_RESULTS_PER_QUERY = 10
 
 # Generic terms appended to every research-area query so discovery isn't
-# tied to a fixed list of funding sites. One asks for Australian schemes, since
-# unqualified searches return mostly US and UK pages; "funding opportunity" and
-# "scholarship funding" were dropped after the first real crawls returned
-# dictionary entries for "opportunity" and US undergraduate scholarship lists.
+# tied to a fixed list of funding sites. Three ask for Australian schemes,
+# since the client wants results tailored to Australian funding and
+# unqualified searches return mostly US pages; one stays unqualified so major
+# international schemes still turn up. "funding opportunity" and "scholarship
+# funding" were dropped after the first real crawls returned dictionary
+# entries for "opportunity" and US undergraduate scholarship lists.
 FUNDING_TERMS = [
+    "research grant Australia",
+    "research fellowship Australia",
+    "funding opportunities for Australian researchers",
     "research grant",
-    "research fellowship",
-    "funding opportunities apply",
-    "research funding Australia",
 ]
 
 # Excluded in the search itself, so they don't use up the results per query.

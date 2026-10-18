@@ -161,6 +161,17 @@ def test_summarise_none_gives_empty_string():
     assert summarise(None, "Some Title") == ""
 
 
+def test_summarise_prefers_the_page_meta_description():
+    description = "Ideas Grants fund innovative and creative research projects of any size."
+    raw_text = "Home About Funding News Contact Ideas Grants fund research."
+    assert summarise(raw_text, None, description=description) == description
+
+
+def test_summarise_ignores_a_description_that_is_only_a_site_name():
+    raw_text = "The Foundation offers travel awards to students."
+    assert summarise(raw_text, None, description="NHMRC") == raw_text
+
+
 # --- keywords_from -------------------------------------------------------
 
 
