@@ -164,6 +164,47 @@ def funder_from_url(url: str) -> str:
 
 
 _SENTENCE_END_RE = re.compile(r"[.?!]\s")
+_TOKEN_RE = re.compile(r"\S+")
+MIN_PROSE_WORDS = 6
+MIN_LOWERCASE_SHARE = 0.5
+# Capitalised words that open a sentence rather than label a menu item.
+_SENTENCE_OPENERS = frozenset(
+    "The A An Our This These We Its Their Each All In For Applications Funding".split()
+)
+# Site-wide notices that read as prose but say nothing about the opportunity.
+_BOILERPLATE_RE = re.compile(
+    r"\.gov|official website|government websites|https://|browser does not support"
+    r"|sensitive information|site is secure|cookies|javascript|copyright|privacy policy"
+    r"|verifying|please wait|subscribe",
+    re.IGNORECASE,
+)
+
+
+def _is_menu_token(token: str) -> bool:
+    return not token[0].islower()
+
+
+def _prose_start(text: str) -> int | None:
+    """Offset of the first sentence that reads as prose. Menus and breadcrumbs
+    are runs of capitalised labels with no full stop, so any run of three or
+    more such tokens is skipped; the last of them starts the sentence."""
+    sentence_start = 0
+    ends = [m.end() for m in _SENTENCE_END_RE.finditer(text)] + [len(text)]
+    for end in ends:
+        tokens = list(_TOKEN_RE.finditer(text, sentence_start, end))
+        start = 0
+        for i in range(2, len(tokens)):
+            if all(_is_menu_token(t.group()) for t in tokens[i - 2 : i + 1]):
+                start = i
+        if start and tokens[start - 1].group() in _SENTENCE_OPENERS:
+            start -= 1
+        words = [t.group() for t in tokens[start:]]
+        lowercase = sum(1 for w in words if w[0].islower())
+        is_prose = len(words) >= MIN_PROSE_WORDS and lowercase / len(words) >= MIN_LOWERCASE_SHARE
+        if is_prose and not _BOILERPLATE_RE.search(" ".join(words)):
+            return tokens[start].start()
+        sentence_start = end
+    return None
 
 
 def summarise(raw_text: str | None, title: str | None, max_chars: int = 400) -> str:
@@ -179,6 +220,9 @@ def summarise(raw_text: str | None, title: str | None, max_chars: int = 400) -> 
     text = re.sub(r"\s+", " ", text).strip()
     if not text:
         return ""
+    start = _prose_start(text)
+    if start:
+        text = text[start:]
 
     if len(text) <= max_chars:
         return text

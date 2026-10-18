@@ -52,6 +52,9 @@ def generate_seed_queries(
 
     queries = []
 
+    # Every query is scoped to Australia, where the researchers' institution is.
+    base = f"{base} Australia".strip()
+
     # Core: research area x generic funding terms
     for term in FUNDING_TERMS:
         queries.append(f"{base} {term}")
@@ -72,7 +75,7 @@ def generate_seed_queries(
         # Keep this short -- long queries tend to return worse search
         # results than a handful of well-chosen terms.
         snippet = " ".join(free_text_description.strip().split()[:12])
-        queries.append(f"{snippet} research funding")
+        queries.append(f"{snippet} research funding Australia")
 
     # De-duplicate while preserving order, then cap the list length so a
     # single search doesn't trigger an unbounded number of outbound requests.

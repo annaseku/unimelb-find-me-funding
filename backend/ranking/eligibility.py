@@ -9,7 +9,9 @@ the opportunity for a future LLM pass on the ambiguous cases.
 
 from __future__ import annotations
 
+import re
 from enum import Enum
+from urllib.parse import urlparse
 
 from backend.ranking.models import (
     CriterionResult,
@@ -24,6 +26,27 @@ ELIGIBILITY_SCORES: dict[EligibilityState, float] = {
     EligibilityState.POTENTIALLY_ELIGIBLE: 0.7,
     EligibilityState.UNKNOWN: 0.5,
     EligibilityState.LIKELY_INELIGIBLE: 0.1,
+}
+
+
+_MENTIONS_AUSTRALIA = re.compile(r"\baustralia(n|ns)?\b", re.IGNORECASE)
+
+# Domain endings that place a funder in a country. Generic endings (.org,
+# .com) say nothing about location and are left unchecked.
+_DOMAIN_COUNTRIES: dict[str, str] = {
+    ".au": "AU",
+    ".gov": "US",
+    ".mil": "US",
+    ".edu": "US",
+    ".us": "US",
+    ".uk": "GB",
+    ".ca": "CA",
+    ".nz": "NZ",
+    ".ie": "IE",
+    ".ae": "AE",
+    ".sg": "SG",
+    ".in": "IN",
+    ".za": "ZA",
 }
 
 
@@ -85,9 +108,50 @@ def _check_funding_type(offered: list[FundingType], wanted: list[FundingType]) -
     return Check.FAIL, f"Funding type: offers {_join(offered)} but you asked for {_join(wanted)}."
 
 
+def _check_location(opportunity: Opportunity, country: str) -> tuple[Check, str] | None:
+    """Where the applicant's institution must be. Stated countries are a hard
+    rule. Otherwise the funder's domain stands in: a local funder passes, an
+    overseas one is unknown, since some (NIH, for one) do fund foreign
+    institutions."""
+    if opportunity.countries:
+        if country in opportunity.countries:
+            return Check.PASS, f"Location: open to institutions in {_country_name(country)}."
+        return (
+            Check.FAIL,
+            f"Location: limited to institutions in {', '.join(opportunity.countries)}; "
+            f"yours is in {_country_name(country)}.",
+        )
+    host = urlparse(opportunity.url).netloc.lower()
+    funder_country = next(
+        (code for ending, code in _DOMAIN_COUNTRIES.items() if host.endswith(ending)), None
+    )
+    if funder_country == country:
+        return Check.PASS, f"Location: funder based in {_country_name(country)}, like you."
+    prose = f"{opportunity.title} {opportunity.summary} {opportunity.eligibility_text}"
+    if country == "AU" and _MENTIONS_AUSTRALIA.search(prose):
+        return Check.PASS, "Location: the opportunity mentions Australia."
+    if funder_country is not None:
+        return (
+            Check.UNKNOWN,
+            f"Location: funder based in {_country_name(funder_country)}; check whether "
+            f"institutions in {_country_name(country)} can apply.",
+        )
+    return None
+
+
+def _country_name(code: str) -> str:
+    names = {"AU": "Australia", "US": "the United States", "GB": "the United Kingdom"}
+    return names.get(code, code)
+
+
 def score_eligibility(opportunity: Opportunity, request: SearchRequest) -> CriterionResult:
     checks: list[Check] = []
     reasons: list[str] = []
+
+    location = _check_location(opportunity, request.institution_country)
+    if location is not None:
+        checks.append(location[0])
+        reasons.append(location[1])
 
     if opportunity.citizenships_allowed:
         outcome, reason = _check_membership(

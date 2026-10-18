@@ -39,6 +39,10 @@ def search_google(query: str, max_results: int = MAX_RESULTS_PER_QUERY) -> list:
         q=query,
         engine="google",
         num=max_results,
+        # Find Me Funding serves University of Melbourne researchers; without
+        # these Google defaults to US results (grants.gov, NIH, NSF).
+        gl="au",
+        google_domain="google.com.au",
     )
 
     organic_results = results.get("organic_results", [])
