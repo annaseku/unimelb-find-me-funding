@@ -9,6 +9,7 @@ from datetime import date
 import pytest
 
 from backend.normaliser.llm import (
+    DEFAULT_MODEL,
     PROSE_FIELDS,
     RULE_PRIORITY_FIELDS,
     ExtractedFields,
@@ -209,6 +210,14 @@ def test_gemini_extractor_defaults_model_from_env(monkeypatch):
     extractor.extract("Title", "https://example.org", "text")
 
     assert client.models.calls[0]["model"] == "gemini-from-env"
+
+
+def test_an_empty_model_variable_falls_back_to_the_default(monkeypatch):
+    # The crawl workflow passes an unset repository variable as "".
+    monkeypatch.setenv("FMF_LLM_MODEL", "")
+    client = StubClient("{}")
+    GeminiExtractor(client=client).extract("Title", "https://example.org", "text")
+    assert client.models.calls[0]["model"] == DEFAULT_MODEL
 
 
 def test_gemini_extractor_rejects_json_that_does_not_match_the_schema():

@@ -57,6 +57,8 @@ jobs:
         env:
           SERPAPI_API_KEY: ${{ secrets.SERPAPI_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          # Optional repository variable; unset means the default in backend/normaliser/llm.py.
+          FMF_LLM_MODEL: ${{ vars.FMF_LLM_MODEL }}
           FMF_DATABASE_URL: ${{ secrets.FMF_DATABASE_URL }}
           CRAWL_ALL: ${{ inputs.all }}
           CRAWL_WEEK: ${{ inputs.week }}

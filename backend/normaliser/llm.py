@@ -111,7 +111,9 @@ class GeminiExtractor:
 
     def __init__(self, client: Any | None = None, model: str | None = None) -> None:
         self._client = client if client is not None else genai.Client()
-        self._model = model or os.environ.get("FMF_LLM_MODEL", DEFAULT_MODEL)
+        # `or`, not a .get default: the crawl workflow passes an unset
+        # repository variable through as an empty string.
+        self._model = model or os.environ.get("FMF_LLM_MODEL") or DEFAULT_MODEL
 
     def extract(self, title: str, url: str, text: str) -> ExtractedFields:
         truncated = (text or "")[:MAX_TEXT_CHARS]
