@@ -24,6 +24,9 @@ from backend.ranking.models import CareerStage, EmployerType, FundingType
 # not for peak quality; a Pro model is a one-variable change.
 DEFAULT_MODEL = "gemini-2.5-flash"
 MAX_TEXT_CHARS = 20_000
+# The SDK has no timeout by default: one stalled request hung a crawl run for
+# 4.5 hours (2026-10-18). A timeout raises, and the pipeline goes rules-only for that row.
+REQUEST_TIMEOUT_MS = 60_000
 
 # Fields the model may set or override, provided it returns a non-empty
 # value. Anything not listed here (amount and deadline) is rule-priority.
@@ -102,7 +105,11 @@ class GeminiExtractor:
     `genai.Client()` reads GEMINI_API_KEY from the environment itself."""
 
     def __init__(self, client: Any | None = None, model: str | None = None) -> None:
-        self._client = client if client is not None else genai.Client()
+        self._client = (
+            client
+            if client is not None
+            else genai.Client(http_options=types.HttpOptions(timeout=REQUEST_TIMEOUT_MS))
+        )
         self._model = model or os.environ.get("FMF_LLM_MODEL", DEFAULT_MODEL)
 
     def extract(self, title: str, url: str, text: str) -> ExtractedFields:

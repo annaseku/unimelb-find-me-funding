@@ -8,6 +8,7 @@ from datetime import date
 
 import pytest
 
+from backend.normaliser import llm as llm_module
 from backend.normaliser.llm import (
     PROSE_FIELDS,
     RULE_PRIORITY_FIELDS,
@@ -238,3 +239,11 @@ def test_extractor_from_env_off_switch_is_none():
 def test_extractor_from_env_empty_key_is_none(key):
     env = {} if key is None else {"GEMINI_API_KEY": key}
     assert extractor_from_env(env) is None
+
+
+def test_gemini_client_is_built_with_a_request_timeout(monkeypatch):
+    # Without one, a stalled request hangs the whole crawl until the job limit.
+    built = {}
+    monkeypatch.setattr(llm_module.genai, "Client", lambda **kwargs: built.update(kwargs))
+    GeminiExtractor()
+    assert built["http_options"].timeout == llm_module.REQUEST_TIMEOUT_MS
