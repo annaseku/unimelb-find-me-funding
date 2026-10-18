@@ -5,6 +5,8 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import Results from './Results';
 import { page, ranked } from '../../test/fundingFixture';
 import { defaultFilterValues } from '../../data/filterOptions';
+// DataNotice makes its own status request; it has its own tests.
+vi.mock('../../components/DataNotice/DataNotice', () => ({ default: () => null }));
 const fetchMock = vi.fn();
 const response = (body = page) => ({ ok: true, json: async () => body });
 beforeEach(() => { fetchMock.mockReset(); vi.stubGlobal('fetch', fetchMock); });

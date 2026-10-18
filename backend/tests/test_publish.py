@@ -19,7 +19,7 @@ def published(monkeypatch):
     tested without a database."""
     calls = []
 
-    def fake_publish(database_url, records):
+    def fake_publish(database_url, records, run=None):
         calls.append((database_url, records))
         return len(records)
 

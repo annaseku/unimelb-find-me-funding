@@ -16,6 +16,7 @@ any throwaway instance, for example:
 from __future__ import annotations
 
 import os
+from datetime import UTC, datetime, timedelta
 
 import psycopg
 import pytest
@@ -28,7 +29,8 @@ from backend.data.postgres_repository import (
 from backend.data.publish import publish, records_from_sqlite
 from backend.data.repository import get_repository
 from backend.evals.corpus import corpus_records
-from backend.normaliser.pipeline import NORMALISED_TABLE
+from backend.normaliser.models import PipelineRun
+from backend.normaliser.pipeline import NORMALISED_TABLE, RUNS_TABLE
 
 DATABASE_URL = os.environ.get("FMF_TEST_DATABASE_URL")
 
@@ -44,6 +46,7 @@ def database_url():
     each test starts from a known state rather than a previous test's rows."""
     with psycopg.connect(DATABASE_URL) as conn:
         conn.execute(f"DROP TABLE IF EXISTS {NORMALISED_TABLE}")
+        conn.execute(f"DROP TABLE IF EXISTS {RUNS_TABLE}")
         conn.commit()
     return DATABASE_URL
 
@@ -144,3 +147,27 @@ def test_publish_accepts_text_that_still_carries_a_nul_byte(database_url):
     stored = PostgresRepository(database_url).get(record.opportunity.id)
     assert stored is not None
     assert stored.summary == "Binary page residue"
+
+
+def test_unpublished_database_has_no_last_run(database_url):
+    repo = PostgresRepository(database_url)
+    assert repo.last_run is None
+    assert repo.rule_only_summaries == 0
+
+
+def test_publish_records_the_run_and_the_latest_one_is_served(database_url):
+    earlier = datetime(2026, 10, 18, 8, 0, tzinfo=UTC)
+    publish(database_url, corpus_records(), PipelineRun(finished_at=earlier, llm_calls=3))
+    publish(
+        database_url,
+        corpus_records(),
+        PipelineRun(
+            finished_at=earlier + timedelta(hours=1),
+            llm_stop_reason="daily_quota",
+            llm_stop_detail="429 RESOURCE_EXHAUSTED",
+        ),
+    )
+    repo = PostgresRepository(database_url)
+    assert repo.last_run.llm_stop_reason == "daily_quota"
+    # The corpus records carry no "llm" summary provenance.
+    assert repo.rule_only_summaries == len(repo.all())

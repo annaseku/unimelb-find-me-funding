@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Dropdown from '../../components/Dropdown/Dropdown';
 import Result from '../../components/Result/Result';
+import DataNotice from '../../components/DataNotice/DataNotice';
 import { fetchResults } from '../../services/fundingService';
 import { defaultFilterValues, filterOptions, type FilterKey, type FilterValues } from '../../data/filterOptions';
 import { criteria, type CriterionKey, type SearchResponse } from '../../types/funding';
@@ -112,6 +113,7 @@ export default function Results() {
     {loading && <p role="status">Searching for funding. The service may be waking up; the first search can take about a minute.</p>}
     {error && <div role="alert"><p>{error}</p><button type="button" onClick={() => startSearch(submitted, response ? loaded : 0)}>Try again</button></div>}
     {response && <>
+      <DataNotice />
       <p className={styles.numResults}>{response.total} Results Found</p>
       {response.total === 0 && <p>No funding opportunities found. Try changing your filters.</p>}
       <details><summary>How results are ranked</summary><ul>

@@ -5,14 +5,24 @@ from __future__ import annotations
 import os
 from functools import lru_cache
 
+from backend.normaliser.models import PipelineRun
 from backend.ranking.models import Opportunity
 
 DATA_SOURCES = ("sqlite", "postgres")
 
 
 class OpportunityRepository:
-    def __init__(self, opportunities: list[Opportunity]) -> None:
+    def __init__(
+        self,
+        opportunities: list[Opportunity],
+        last_run: PipelineRun | None = None,
+        rule_only_summaries: int = 0,
+    ) -> None:
         self._by_id = {o.id: o for o in opportunities}
+        self.last_run = last_run
+        # Records whose summary did not come from the LLM, so the frontend
+        # can say how many cards show the shorter rule-built summary.
+        self.rule_only_summaries = rule_only_summaries
 
     def all(self) -> list[Opportunity]:
         return list(self._by_id.values())

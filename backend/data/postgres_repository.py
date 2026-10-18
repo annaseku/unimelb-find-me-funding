@@ -26,8 +26,8 @@ from psycopg import errors
 from psycopg.types.json import Jsonb
 
 from backend.data.repository import OpportunityRepository
-from backend.normaliser.models import NormalisedRecord
-from backend.normaliser.pipeline import NORMALISED_TABLE
+from backend.normaliser.models import NormalisedRecord, PipelineRun
+from backend.normaliser.pipeline import NORMALISED_TABLE, RUNS_TABLE
 from backend.ranking.models import Opportunity
 
 # Importing this module loads backend/.env, so FMF_DATABASE_URL can live in a
@@ -39,7 +39,15 @@ load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 
 def init_schema(conn: psycopg.Connection) -> None:
-    """Create `normalised_opportunities` if it doesn't already exist."""
+    """Create `normalised_opportunities` and `pipeline_runs` if they don't already exist."""
+    conn.execute(
+        f"""
+        CREATE TABLE IF NOT EXISTS {RUNS_TABLE} (
+            finished_at TIMESTAMPTZ NOT NULL,
+            run_json JSONB NOT NULL
+        )
+        """
+    )
     conn.execute(
         f"""
         CREATE TABLE IF NOT EXISTS {NORMALISED_TABLE} (
@@ -97,6 +105,13 @@ def upsert_records(conn: psycopg.Connection, records: Iterable[NormalisedRecord]
     return len(rows)
 
 
+def insert_run(conn: psycopg.Connection, run: PipelineRun) -> None:
+    conn.execute(
+        f"INSERT INTO {RUNS_TABLE} (finished_at, run_json) VALUES (%s, %s)",
+        (run.finished_at, Jsonb(run.model_dump(mode="json"))),
+    )
+
+
 class PostgresRepository(OpportunityRepository):
     """Loads every row from `normalised_opportunities` once, at construction
     time, exactly as SqliteRepository does. A database that has not been
@@ -104,14 +119,27 @@ class PostgresRepository(OpportunityRepository):
     than raising, so a fresh deployment serves zero results instead of 500s."""
 
     def __init__(self, database_url: str) -> None:
-        super().__init__(self._load(database_url))
+        opportunities, last_run, rule_only = self._load(database_url)
+        super().__init__(opportunities, last_run, rule_only)
 
     @staticmethod
-    def _load(database_url: str) -> list[Opportunity]:
+    def _load(database_url: str) -> tuple[list[Opportunity], PipelineRun | None, int]:
         with psycopg.connect(database_url) as conn:
             try:
-                cursor = conn.execute(f"SELECT opportunity_json FROM {NORMALISED_TABLE}")
+                row = conn.execute(
+                    f"SELECT run_json FROM {RUNS_TABLE} ORDER BY finished_at DESC LIMIT 1"
+                ).fetchone()
+                last_run = PipelineRun.model_validate(row[0]) if row else None
             except errors.UndefinedTable:
-                return []
+                conn.rollback()
+                last_run = None
+            try:
+                cursor = conn.execute(
+                    f"SELECT opportunity_json, provenance_json->>'summary' FROM {NORMALISED_TABLE}"
+                )
+            except errors.UndefinedTable:
+                return [], last_run, 0
+            rows = cursor.fetchall()
             # JSONB comes back already decoded, so there is no json.loads here.
-            return [Opportunity(**row[0]) for row in cursor.fetchall()]
+            opportunities = [Opportunity(**row[0]) for row in rows]
+            return opportunities, last_run, sum(row[1] != "llm" for row in rows)

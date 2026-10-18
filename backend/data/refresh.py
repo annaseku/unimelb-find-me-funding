@@ -19,7 +19,7 @@ from pydantic import BaseModel
 
 from backend.crawler.config import DB_PATH
 from backend.crawler.queryBuilder import generate_seed_queries
-from backend.data.publish import publish, records_from_sqlite
+from backend.data.publish import latest_run_from_sqlite, publish, records_from_sqlite
 from backend.normaliser.llm import extractor_from_env
 from backend.normaliser.pipeline import PipelineStats, normalise_database
 
@@ -67,7 +67,7 @@ def normalise(db_path: str | Path, today: date, use_llm: bool) -> PipelineStats:
 
 
 def publish_to_postgres(db_path: str | Path, database_url: str) -> int:
-    return publish(database_url, records_from_sqlite(db_path))
+    return publish(database_url, records_from_sqlite(db_path), latest_run_from_sqlite(db_path))
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -129,6 +129,11 @@ def main(argv: list[str] | None = None) -> int:
     )
     print(f"profiles crawled: {stats.crawled}")
     print(f"normalised: {normalised.normalised}")
+    print(
+        f"llm calls: {normalised.llm_calls}, failures: {normalised.llm_failures}, "
+        f"rate-limit waits: {normalised.rate_limit_waits}, "
+        f"stopped: {normalised.llm_stop_reason or 'no'}"
+    )
     if args.skip_publish:
         print(f"not published: serve with FMF_DATA_SOURCE=sqlite FMF_DB_PATH={args.db_path}")
     else:

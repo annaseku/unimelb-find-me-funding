@@ -10,14 +10,17 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import sqlite3
-from collections.abc import Iterable
+import time
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from pathlib import Path
+from typing import Literal
 
-from backend.normaliser.llm import Extractor, merge
-from backend.normaliser.models import CrawledRow, NormalisedRecord
+from backend.normaliser.llm import ExtractedFields, Extractor, merge
+from backend.normaliser.models import CrawledRow, LlmStopReason, NormalisedRecord, PipelineRun
 from backend.normaliser.parsers import derive_status
 from backend.normaliser.rules import content_hash, normalise_row
 from backend.ranking.models import Opportunity
@@ -25,6 +28,17 @@ from backend.ranking.models import Opportunity
 logger = logging.getLogger(__name__)
 
 NORMALISED_TABLE = "normalised_opportunities"
+RUNS_TABLE = "pipeline_runs"
+
+# Per-minute rate limits are waited out, not treated as the end of the run.
+MAX_RATE_LIMIT_RETRIES = 5
+DEFAULT_RATE_LIMIT_WAIT_S = 60.0
+MAX_RATE_LIMIT_WAIT_S = 120.0
+
+# Gemini statuses meaning the key, billing or plan itself is the problem.
+PLAN_ERROR_STATUSES = frozenset({"PERMISSION_DENIED", "UNAUTHENTICATED", "FAILED_PRECONDITION"})
+
+LlmErrorKind = Literal["rate_limit", "daily_quota", "plan_error", "row_error"]
 
 
 @dataclass
@@ -34,7 +48,9 @@ class PipelineStats:
     skipped_unchanged: int = 0
     llm_calls: int = 0
     llm_failures: int = 0
-    llm_quota_exhausted: bool = False
+    rate_limit_waits: int = 0
+    llm_stop_reason: LlmStopReason | None = None
+    llm_stop_detail: str = ""
 
 
 def init_normalised_table(conn: sqlite3.Connection) -> None:
@@ -70,10 +86,76 @@ def read_crawled_rows(conn: sqlite3.Connection) -> list[CrawledRow]:
     ]
 
 
-def quota_exhausted(exc: BaseException) -> bool:
-    """A provider saying the day's free quota is gone: retrying every remaining
-    row would only burn time, so the run continues rules-only."""
-    return getattr(exc, "code", None) == 429 or "RESOURCE_EXHAUSTED" in str(exc)
+def _error_details(exc: BaseException) -> list[dict]:
+    """The `error.details` list of a Gemini APIError, or [] for anything else."""
+    body = getattr(exc, "details", None)
+    error = body.get("error") if isinstance(body, dict) else None
+    details = error.get("details") if isinstance(error, dict) else None
+    return [d for d in details if isinstance(d, dict)] if isinstance(details, list) else []
+
+
+def _retry_delay(details: list[dict]) -> float:
+    for detail in details:
+        match = re.fullmatch(r"([\d.]+)s", str(detail.get("retryDelay", "")))
+        if match:
+            return min(float(match.group(1)) + 1, MAX_RATE_LIMIT_WAIT_S)
+    return DEFAULT_RATE_LIMIT_WAIT_S
+
+
+def classify_llm_error(exc: BaseException) -> tuple[LlmErrorKind, float]:
+    """What a failed LLM call means for the rest of the run, plus how long to
+    wait before retrying when it is only a per-minute rate limit.
+
+    The free tier's per-minute cap (5 requests a minute on gemini-2.5-flash)
+    returns the same 429 RESOURCE_EXHAUSTED as the daily cap; only the
+    QuotaFailure quotaId tells them apart. A 429 that names no per-minute
+    quota is treated as the daily one."""
+    code = getattr(exc, "code", None)
+    status = str(getattr(exc, "status", "") or "")
+    details = _error_details(exc)
+    if code == 429 or "RESOURCE_EXHAUSTED" in str(exc):
+        quota_ids = [
+            str(v.get("quotaId", ""))
+            for d in details
+            for v in d.get("violations", [])
+            if isinstance(v, dict)
+        ]
+        if quota_ids and all("PerMinute" in q for q in quota_ids):
+            return "rate_limit", _retry_delay(details)
+        return "daily_quota", 0
+    if code in (401, 403) or status in PLAN_ERROR_STATUSES:
+        return "plan_error", 0
+    if code == 400 and "API key" in str(exc):
+        return "plan_error", 0
+    return "row_error", 0
+
+
+def _short_error(exc: BaseException) -> str:
+    """Code, status and message only; safe to show on screen (no key, no page text)."""
+    parts = [str(getattr(exc, "code", "") or ""), str(getattr(exc, "status", "") or "")]
+    message = str(getattr(exc, "message", "") or "").split("\n")[0][:200]
+    return " ".join(p for p in parts if p) + (f": {message}" if message else "")
+
+
+def _extract_with_retries(
+    extractor: Extractor,
+    row: CrawledRow,
+    stats: PipelineStats,
+    sleep: Callable[[float], None],
+) -> ExtractedFields:
+    """One extractor call, waiting out per-minute rate limits. Any other
+    error (or a rate limit that outlasts the retries) propagates."""
+    for attempt in range(MAX_RATE_LIMIT_RETRIES + 1):
+        try:
+            return extractor.extract(row.title or "", row.url, row.raw_text or "")
+        except Exception as exc:
+            kind, wait = classify_llm_error(exc)
+            if kind != "rate_limit" or attempt == MAX_RATE_LIMIT_RETRIES:
+                raise
+            stats.rate_limit_waits += 1
+            logger.info("LLM per-minute limit hit; waiting %.0fs", wait)
+            sleep(wait)
+    raise AssertionError("unreachable")
 
 
 def load_normalised(conn: sqlite3.Connection) -> list[NormalisedRecord]:
@@ -132,6 +214,32 @@ def _upsert(conn: sqlite3.Connection, record: NormalisedRecord) -> None:
     )
 
 
+def write_run(conn: sqlite3.Connection, run: PipelineRun) -> None:
+    conn.execute(
+        f"""
+        CREATE TABLE IF NOT EXISTS {RUNS_TABLE} (
+            finished_at TEXT NOT NULL,
+            run_json TEXT NOT NULL
+        )
+        """
+    )
+    conn.execute(
+        f"INSERT INTO {RUNS_TABLE} (finished_at, run_json) VALUES (?, ?)",
+        (run.finished_at.isoformat(), run.model_dump_json()),
+    )
+
+
+def load_latest_run(conn: sqlite3.Connection) -> PipelineRun | None:
+    """The most recent run recorded in this database, or None before the first."""
+    try:
+        row = conn.execute(
+            f"SELECT run_json FROM {RUNS_TABLE} ORDER BY finished_at DESC LIMIT 1"
+        ).fetchone()
+    except sqlite3.OperationalError:
+        return None
+    return PipelineRun.model_validate_json(row[0]) if row else None
+
+
 def write_records(conn: sqlite3.Connection, records: Iterable[NormalisedRecord]) -> int:
     """Create the normalised table and upsert every record; return the count."""
     init_normalised_table(conn)
@@ -147,10 +255,13 @@ def normalise_database(
     today: date,
     extractor: Extractor | None = None,
     force: bool = False,
+    sleep: Callable[[float], None] = time.sleep,
 ) -> PipelineStats:
     """Read every crawled row out of `db_path`, normalise it, and upsert the
     result into `normalised_opportunities` in the same file."""
     stats = PipelineStats()
+    if extractor is None:
+        stats.llm_stop_reason = "not_configured"
 
     with sqlite3.connect(str(db_path)) as conn:
         init_normalised_table(conn)
@@ -174,13 +285,15 @@ def normalise_database(
 
             if extractor is not None:
                 try:
-                    extracted = extractor.extract(row.title or "", row.url, row.raw_text or "")
+                    extracted = _extract_with_retries(extractor, row, stats, sleep)
                 except Exception as exc:
                     logger.warning("LLM extraction failed for %s", row.url, exc_info=True)
                     stats.llm_failures += 1
-                    if quota_exhausted(exc):
-                        logger.warning("LLM quota exhausted; the rest of this run is rules-only")
-                        stats.llm_quota_exhausted = True
+                    kind, _ = classify_llm_error(exc)
+                    if kind in ("daily_quota", "plan_error"):
+                        logger.warning("LLM stopped (%s); the rest of this run is rules-only", kind)
+                        stats.llm_stop_reason = kind
+                        stats.llm_stop_detail = _short_error(exc)
                         extractor = None
                 else:
                     record = merge(record, extracted)
@@ -192,6 +305,16 @@ def normalise_database(
 
             stats.normalised += write_records(conn, [record])
 
+        write_run(
+            conn,
+            PipelineRun(
+                finished_at=datetime.now(UTC),
+                llm_calls=stats.llm_calls,
+                llm_failures=stats.llm_failures,
+                llm_stop_reason=stats.llm_stop_reason,
+                llm_stop_detail=stats.llm_stop_detail,
+            ),
+        )
         conn.commit()
 
     return stats

@@ -16,7 +16,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend import ranking
-from backend.api.schemas import HealthResponse, SearchResponse
+from backend.api.schemas import DataStatus, HealthResponse, SearchResponse
 from backend.data.repository import get_repository
 from backend.ranking.models import Opportunity, SearchRequest
 from backend.ranking.ranker import rank
@@ -40,6 +40,18 @@ app.add_middleware(
 @app.get("/api/health", response_model=HealthResponse)
 def health() -> HealthResponse:
     return HealthResponse(status="ok", version=ranking.__version__)
+
+
+@app.get("/api/status", response_model=DataStatus)
+def status() -> DataStatus:
+    """How the data behind the results was produced, so the frontend can warn
+    when the LLM hit a plan limit and summaries are rule-built."""
+    repository = get_repository()
+    return DataStatus(
+        last_run=repository.last_run,
+        opportunities=len(repository.all()),
+        rule_only_summaries=repository.rule_only_summaries,
+    )
 
 
 @app.post("/api/search", response_model=SearchResponse)
