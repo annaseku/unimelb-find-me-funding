@@ -1,4 +1,9 @@
-.title {
+.hero {
+    box-sizing: border-box;
+}
+
+.hero .title {
+    color: #ffffff;
     font-weight: 500; 
     font-size: 56px;
 }
@@ -15,13 +20,17 @@
     height: 50px;
 }
 
-.searchLabel {
+.hero .searchLabel {
+    color: #ffffff;
     margin-top: 10px !important;
     margin-left: 5px !important;
     margin-bottom: 0 !important;
 }
 
 .searchbar{
+    min-width: 0;
+    background-color: #ffffff;
+    color: #000f46;
     width: 100% !important;
     height: 50px;
     padding: 0 20px;
@@ -34,6 +43,7 @@
 }
 
 .searchButton {
+    background-color: #0057b8;
     height: 50px;
     padding: 0 20px;
     border: none;
@@ -44,15 +54,31 @@
 }
 
 .homeContainer{
-    min-height: 100vh;
     width: min(1400px, calc(100% - 40px));
     max-width: none;
 
     display: flex;
     flex-direction: column;
 
-    margin: 200px auto 40px;
+    margin: 0 auto;
 
+}
+
+.dropdownContainer > div > span {
+    color: #ffffff;
+}
+
+.dropdownContainer {
+    color: #000f46;
+}
+
+.hero :is(button, input, summary):focus-visible {
+    outline: 3px solid #8bd5ff !important;
+    outline-offset: 3px !important;
+}
+
+.searchButton:hover {
+    background-color: #00408a;
 }
 
 .dropdownContainer {
@@ -70,6 +96,15 @@
 }
 
 @media (max-width: 560px) {
+    .hero .title {
+        font-size: 40px;
+    }
+
+    .searchbar {
+        font-size: 16px;
+        padding: 0 12px;
+    }
+
     .dropdownContainer {
         grid-template-columns: 1fr;
     }
