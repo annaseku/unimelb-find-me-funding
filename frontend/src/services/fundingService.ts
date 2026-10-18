@@ -1,14 +1,25 @@
-import { /*filterOptions,*/ type FilterValues } from '../data/filterOptions';
+import { filterOptions, type FilterKey, type FilterValues } from '../data/filterOptions';
 import type { CareerStage, EmployerType, FundingType, SearchRequest, SearchResponse } from '../types/funding';
 
 const baseUrl = (import.meta.env.VITE_API_BASE_URL?.trim() || 'https://find-me-funding-api.onrender.com').replace(/\/+$/, '');
 const list = (value: string) => value ? [value] : [];
+// Every value a filter may hold; a selection outside it (a stale deep link, a removed option) is rejected before it reaches the API.
+const knownValues: Record<FilterKey, Set<string>> = {
+  fieldOfResearch: new Set(filterOptions.fieldOfResearch.flatMap((division) => [division.value, ...division.groups.map((group) => group.value)])),
+  typeOfActivity: new Set(filterOptions.typeOfActivity.map((option) => option.value)),
+  citizenship: new Set(filterOptions.citizenship.map((option) => option.value)),
+  employerType: new Set(filterOptions.employerType.map((option) => option.value)),
+  careerStage: new Set(filterOptions.careerStage.map((option) => option.value)),
+  fundingType: new Set(filterOptions.fundingType.map((option) => option.value)),
+};
 export function buildSearchRequest(search: string, filters: FilterValues, offset = 0): SearchRequest {
-  // for (const key of Object.keys(filterOptions) as (keyof FilterValues)[]) {
-  //   if (filters[key] && !filterOptions[key].some((option) => option.value === filters[key])) {
-  //     throw new Error('A selected filter is no longer available. Please clear it and choose again.');
-  //   }
-  // }
+  for (const key of Object.keys(knownValues) as FilterKey[]) {
+    const selected = filters[key];
+    const values = Array.isArray(selected) ? selected : list(selected);
+    if (values.some((value) => !knownValues[key].has(value))) {
+      throw new Error('A selected filter is no longer available. Please clear it and choose again.');
+    }
+  }
   return {
     research_description: search.trim(),
     for_codes: list(filters.fieldOfResearch), toa_codes: list(filters.typeOfActivity),

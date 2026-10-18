@@ -13,6 +13,11 @@ from backend.ranking.ranker import rank
 from backend.ranking.weights import DEFAULT_WEIGHTS
 
 
+@pytest.fixture(autouse=True)
+def use_corpus_data_source(corpus_data_source):
+    """Seed the API tests independently of a developer's local database."""
+
+
 @pytest.fixture
 def client() -> TestClient:
     return TestClient(app)
@@ -135,7 +140,7 @@ def _crawled_row_fields(row) -> dict:
 @pytest.fixture
 def sqlite_data_source(tmp_path, monkeypatch):
     """Points get_repository at a normalised temp database for the duration
-    of one test, then clears the cache again so the mock-backed tests above
+    of one test, then clears the cache again so the corpus-backed tests above
     keep passing regardless of test order."""
     from backend.crawler.storage import init_db, save_opportunity
     from backend.normaliser.pipeline import normalise_database

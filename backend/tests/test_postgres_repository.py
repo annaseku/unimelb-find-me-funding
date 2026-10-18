@@ -1,6 +1,6 @@
 """Tests for backend.data.postgres_repository and backend.data.publish:
 serving normalised opportunities out of Postgres through the same repository
-interface the mock- and SQLite-backed repositories implement.
+interface the SQLite repository implements.
 
 These run against a real Postgres, never a fake, because the claim under test
 is about what Postgres does with what we send (JSONB round-tripping, ON
@@ -25,8 +25,9 @@ from backend.data.postgres_repository import (
     init_schema,
     upsert_records,
 )
-from backend.data.publish import publish, records_from_mock, records_from_sqlite
+from backend.data.publish import publish, records_from_sqlite
 from backend.data.repository import get_repository
+from backend.evals.corpus import corpus_records
 from backend.normaliser.pipeline import NORMALISED_TABLE
 
 DATABASE_URL = os.environ.get("FMF_TEST_DATABASE_URL")
@@ -49,7 +50,7 @@ def database_url():
 
 @pytest.fixture
 def seeded(database_url):
-    publish(database_url, records_from_mock())
+    publish(database_url, corpus_records())
     return database_url
 
 
@@ -59,26 +60,26 @@ def test_unmigrated_database_yields_an_empty_repository(database_url):
     assert PostgresRepository(database_url).all() == []
 
 
-def test_publish_writes_every_mock_opportunity(database_url):
-    expected = len(records_from_mock())
-    assert publish(database_url, records_from_mock()) == expected
+def test_publish_writes_every_corpus_opportunity(database_url):
+    expected = len(corpus_records())
+    assert publish(database_url, corpus_records()) == expected
     assert len(PostgresRepository(database_url).all()) == expected
 
 
 def test_repository_round_trips_an_opportunity_through_jsonb(seeded):
-    source = {o.id: o for o in (r.opportunity for r in records_from_mock())}
+    source = {o.id: o for o in (r.opportunity for r in corpus_records())}
     for served in PostgresRepository(seeded).all():
         assert served == source[served.id], f"{served.id} changed in transit"
 
 
 def test_publishing_twice_upserts_rather_than_duplicating(seeded):
-    expected = len(records_from_mock())
-    publish(seeded, records_from_mock())
+    expected = len(corpus_records())
+    publish(seeded, corpus_records())
     assert len(PostgresRepository(seeded).all()) == expected
 
 
 def test_publishing_a_changed_opportunity_overwrites_the_stored_row(seeded):
-    records = records_from_mock()
+    records = corpus_records()
     records[0].opportunity.title = "Renamed Scheme"
     publish(seeded, records)
 
@@ -118,13 +119,13 @@ def test_get_repository_serves_postgres_when_the_env_selects_it(seeded, monkeypa
     try:
         repo = get_repository()
         assert isinstance(repo, PostgresRepository)
-        assert len(repo.all()) == len(records_from_mock())
+        assert len(repo.all()) == len(corpus_records())
     finally:
         get_repository.cache_clear()
 
 
-def test_postgres_without_a_url_fails_loudly_rather_than_serving_mocks(monkeypatch):
-    # Silently falling back to the mock set would make a misconfigured
+def test_postgres_without_a_url_fails_loudly_rather_than_falling_back(monkeypatch):
+    # Silently falling back to another data source would make a misconfigured
     # deployment look healthy while serving illustrative data as real.
     monkeypatch.setenv("FMF_DATA_SOURCE", "postgres")
     monkeypatch.delenv("FMF_DATABASE_URL", raising=False)

@@ -1,0 +1,67 @@
+# Ten research areas a week: 40 SerpApi searches a run, about 175 a month, inside the free plan's
+# 250 a month and its 50-per-hour throughput cap (serpapi.com/pricing, checked 2026-10-18).
+name: Crawl and publish
+
+on:
+  schedule:
+    # Sunday 20:00 UTC is Monday morning in Melbourne.
+    - cron: "0 20 * * 0"
+  workflow_dispatch:
+    inputs:
+      all:
+        description: "Crawl every seed research area instead of this week's slice (92 searches: exceeds the free plan's 50-per-hour cap)"
+        type: boolean
+        default: false
+      week:
+        description: "Rotation slot to crawl instead of the current ISO week (0, 1, 2 cover every area on the free plan, one dispatch an hour apart)"
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: crawl
+  cancel-in-progress: false
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements*.txt
+      - run: pip install -r backend/requirements.txt
+      - name: Check required secrets
+        env:
+          SERPAPI_API_KEY: ${{ secrets.SERPAPI_API_KEY }}
+          FMF_DATABASE_URL: ${{ secrets.FMF_DATABASE_URL }}
+        run: |
+          if [ -z "$SERPAPI_API_KEY" ] || [ -z "$FMF_DATABASE_URL" ]; then
+            echo "Set repository secrets SERPAPI_API_KEY and FMF_DATABASE_URL before running the crawl." >&2
+            exit 1
+          fi
+      - name: Crawl, normalise and publish
+        env:
+          SERPAPI_API_KEY: ${{ secrets.SERPAPI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          FMF_DATABASE_URL: ${{ secrets.FMF_DATABASE_URL }}
+          CRAWL_ALL: ${{ inputs.all }}
+          CRAWL_WEEK: ${{ inputs.week }}
+        run: |
+          if [ "$CRAWL_ALL" = "true" ]; then
+            python -m backend.data.refresh --all
+          elif [ -n "$CRAWL_WEEK" ]; then
+            python -m backend.data.refresh --week "$CRAWL_WEEK"
+          else
+            python -m backend.data.refresh
+          fi
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: funding-crawler-database
+          path: funding_crawler.db
+          retention-days: 7

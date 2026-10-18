@@ -1,5 +1,5 @@
 {
-  "_note": "Hand-labelled expectations. Labels were derived by reading mock_opportunities.json against the rules in the spec, not by running the ranker. A failing eval means either the rules changed or a label is wrong; decide which before editing.",
+  "_note": "Hand-labelled expectations. Labels were derived by reading corpus.json against the rules in the spec, not by running the ranker. A failing eval means either the rules changed or a label is wrong; decide which before editing.",
   "today": "2026-09-01",
   "profiles": {
     "au-marine-postdoc": {

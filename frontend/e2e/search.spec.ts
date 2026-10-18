@@ -39,7 +39,7 @@ test('a search from the home page shows the API ranking in order', async ({ page
   expect(sent).toMatchObject({ research_description: 'marine ecology', citizenships: ['AU'], offset: 0, limit: 10 })
 
   const expected = await (await request.post(`${API}/api/search`, { data: sent })).json() as SearchResponse
-  expect(expected.total, 'the mock data set should have open opportunities').toBeGreaterThan(0)
+  expect(expected.total, 'the corpus in backend/evals/corpus.json should have open opportunities').toBeGreaterThan(0)
 
   await expect(page.getByText(`${expected.total} Results Found`)).toBeVisible()
   expect(await shownTitles(page)).toEqual(expected.results.map((result) => result.opportunity.title))
@@ -62,7 +62,7 @@ test('show more appends the next page of results', async ({ page, request }) => 
   const firstPage = await (await request.post(`${API}/api/search`, { data: sent })).json() as SearchResponse
   expect(
     firstPage.total,
-    'fewer than 11 open mock opportunities: mock deadlines have lapsed, refresh backend/data/mock_opportunities.json',
+    'fewer than 11 open corpus opportunities: corpus deadlines have lapsed, refresh backend/evals/corpus.json',
   ).toBeGreaterThan(10)
   await expect(page.getByRole('article')).toHaveCount(10)
 

@@ -1,33 +1,13 @@
-"""Loads the mock opportunity set and exposes it behind a small repository.
-
-This is the seam decision 7 describes between the structured funding store
-and the search layer: the API only ever calls `all()` and `get()`, so a
-crawler-backed repository replaces this one class and nothing else changes.
-
-The mock values are illustrative. Scheme names are real so the demo reads
-naturally, but amounts, dates and rules were not verified with the funders.
-"""
+"""Select the SQLite or Postgres funding store behind the API's repository interface."""
 
 from __future__ import annotations
 
-import json
 import os
 from functools import lru_cache
-from pathlib import Path
 
-from pydantic import BaseModel
+from backend.ranking.models import Opportunity
 
-from backend.ranking.models import Opportunity, SearchRequest
-
-_DATA_DIR = Path(__file__).parent
-OPPORTUNITIES_FILE = _DATA_DIR / "mock_opportunities.json"
-PROFILES_FILE = _DATA_DIR / "mock_profiles.json"
-
-
-class MockProfile(BaseModel):
-    id: str
-    label: str
-    request: SearchRequest
+DATA_SOURCES = ("sqlite", "postgres")
 
 
 class OpportunityRepository:
@@ -41,34 +21,19 @@ class OpportunityRepository:
         return self._by_id.get(opportunity_id)
 
 
-def load_mock_opportunities(path: Path = OPPORTUNITIES_FILE) -> list[Opportunity]:
-    with path.open(encoding="utf-8") as f:
-        payload = json.load(f)
-    # The file carries a top-level note explaining it is illustrative.
-    return [Opportunity(**record) for record in payload["opportunities"]]
-
-
-def load_mock_profiles(path: Path = PROFILES_FILE) -> list[MockProfile]:
-    with path.open(encoding="utf-8") as f:
-        payload = json.load(f)
-    return [MockProfile(**record) for record in payload["profiles"]]
-
-
 @lru_cache(maxsize=1)
 def get_repository() -> OpportunityRepository:
     """Loaded once per process; the API depends on this.
 
-    FMF_DATA_SOURCE=postgres reads FMF_DATABASE_URL (this is what the Render
-    deployment uses); FMF_DATA_SOURCE=sqlite reads FMF_DB_PATH (default the
-    crawler's DB_PATH); anything else (including unset) keeps the
-    illustrative mock set. Reading os.environ inside the function, rather
-    than at import time, is what lets tests switch data sources with
+    Unset or sqlite reads FMF_DB_PATH (default the crawler's DB_PATH);
+    postgres reads FMF_DATABASE_URL. Read os.environ inside the function,
+    rather than at import time, so tests can switch sources with
     monkeypatch.setenv plus cache_clear().
     """
-    source = os.environ.get("FMF_DATA_SOURCE")
+    source = os.environ.get("FMF_DATA_SOURCE", "sqlite")
 
     if source == "postgres":
-        # Imported lazily so the mock and sqlite paths never need psycopg,
+        # Imported lazily so the sqlite path never needs psycopg,
         # and so an unset FMF_DATABASE_URL fails here rather than at import.
         from backend.data.postgres_repository import PostgresRepository
 
@@ -85,4 +50,6 @@ def get_repository() -> OpportunityRepository:
 
         db_path = os.environ.get("FMF_DB_PATH", DB_PATH)
         return SqliteRepository(db_path)
-    return OpportunityRepository(load_mock_opportunities())
+    raise RuntimeError(
+        f"invalid FMF_DATA_SOURCE {source!r}: valid values are {', '.join(DATA_SOURCES)}"
+    )

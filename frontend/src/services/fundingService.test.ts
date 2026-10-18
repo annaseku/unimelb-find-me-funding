@@ -9,6 +9,11 @@ it('sends backend codes, pagination and default visibility rules as JSON', async
   expect(fetch).toHaveBeenCalledWith('https://find-me-funding-api.onrender.com/api/search', expect.objectContaining({ method: 'POST' }));
   expect(JSON.parse(fetch.mock.calls[0][1].body)).toEqual({ research_description: 'coral', for_codes: ['3103'], toa_codes: ['3'], citizenships: ['AU'], employer_type: 'research_institute', career_stage: 'postdoc_2_5', funding_types: ['equipment'], limit: 10, offset: 10, include_closed: false, hide_ineligible: false });
 });
+it('rejects a selection that is no longer an option, including a stale citizenship code', () => {
+  expect(() => buildSearchRequest('', { ...defaultFilterValues, fieldOfResearch: '99' })).toThrow(/no longer available/);
+  expect(() => buildSearchRequest('', { ...defaultFilterValues, citizenship: ['AU', 'XX'] })).toThrow(/no longer available/);
+  expect(() => buildSearchRequest('', { ...defaultFilterValues, fieldOfResearch: '3103', citizenship: ['AU', 'NZ'] })).not.toThrow();
+});
 it('leaves unselected filters unrestricted', () => {
   expect(buildSearchRequest('', defaultFilterValues)).toMatchObject({employer_type: null, career_stage: null, citizenships: [], funding_types: [],});
 });

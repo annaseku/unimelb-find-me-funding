@@ -1,0 +1,97 @@
+{
+  "_note": "ANZSRC 2020 divisions 30 to 52, matching the frontend research-area options. The weekly crawl rotates through five divisions per run.",
+  "profiles": [
+    {
+      "for_division": "30",
+      "field_of_research": "Agricultural, Veterinary and Food Sciences"
+    },
+    {
+      "for_division": "31",
+      "field_of_research": "Biological Sciences"
+    },
+    {
+      "for_division": "32",
+      "field_of_research": "Biomedical and Clinical Sciences"
+    },
+    {
+      "for_division": "33",
+      "field_of_research": "Built Environment and Design"
+    },
+    {
+      "for_division": "34",
+      "field_of_research": "Chemical Sciences"
+    },
+    {
+      "for_division": "35",
+      "field_of_research": "Commerce, Management, Tourism and Services"
+    },
+    {
+      "for_division": "36",
+      "field_of_research": "Creative Arts and Writing"
+    },
+    {
+      "for_division": "37",
+      "field_of_research": "Earth Sciences"
+    },
+    {
+      "for_division": "38",
+      "field_of_research": "Economics"
+    },
+    {
+      "for_division": "39",
+      "field_of_research": "Education"
+    },
+    {
+      "for_division": "40",
+      "field_of_research": "Engineering"
+    },
+    {
+      "for_division": "41",
+      "field_of_research": "Environmental Sciences"
+    },
+    {
+      "for_division": "42",
+      "field_of_research": "Health Sciences"
+    },
+    {
+      "for_division": "43",
+      "field_of_research": "History, Heritage and Archaeology"
+    },
+    {
+      "for_division": "44",
+      "field_of_research": "Human Society"
+    },
+    {
+      "for_division": "45",
+      "field_of_research": "Indigenous Studies"
+    },
+    {
+      "for_division": "46",
+      "field_of_research": "Information and Computing Sciences"
+    },
+    {
+      "for_division": "47",
+      "field_of_research": "Language, Communication and Culture"
+    },
+    {
+      "for_division": "48",
+      "field_of_research": "Law and Legal Studies"
+    },
+    {
+      "for_division": "49",
+      "field_of_research": "Mathematical Sciences"
+    },
+    {
+      "for_division": "50",
+      "field_of_research": "Philosophy and Religious Studies"
+    },
+    {
+      "for_division": "51",
+      "field_of_research": "Physical Sciences"
+    },
+    {
+      "for_division": "52",
+      "field_of_research": "Psychology"
+    }
+  ]
+}
