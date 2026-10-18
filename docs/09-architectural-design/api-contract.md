@@ -117,6 +117,26 @@ Labels per criterion: `eligibility` is one of `eligible`, `potentially_eligible`
 
 Returns the `opportunity` object above for one id, including closed records. 404 with `{"detail": "opportunity not found"}` if the id is unknown.
 
+## `GET /api/status`
+
+How the data behind the results was produced, so the frontend can warn when AI summaries are missing (KAN-67).
+
+```json
+{
+  "last_run": {
+    "finished_at": "2026-10-18T09:05:00Z",
+    "llm_calls": 5,
+    "llm_failures": 1,
+    "llm_stop_reason": "daily_quota",
+    "llm_stop_detail": "429 RESOURCE_EXHAUSTED: Quota exceeded"
+  },
+  "opportunities": 164,
+  "rule_only_summaries": 159
+}
+```
+
+`last_run` is null before the first recorded run. `llm_stop_reason` is null when the LLM ran to the end, `daily_quota` when the provider's per-day limit was reached, `plan_error` when it rejected the key, billing or plan, and `not_configured` when the run had no Gemini key. Per-minute rate limits are waited out and never appear here. `rule_only_summaries` counts stored opportunities whose summary was built by rules rather than the LLM.
+
 ## Contract rules
 
 These are team decisions, not implementation details. Changing one needs a conversation.

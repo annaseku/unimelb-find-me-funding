@@ -1,5 +1,5 @@
 import { filterOptions, type FilterKey, type FilterValues } from '../data/filterOptions';
-import type { CareerStage, EmployerType, FundingType, SearchRequest, SearchResponse } from '../types/funding';
+import type { CareerStage, DataStatus, EmployerType, FundingType, LlmStopReason, PipelineRun, SearchRequest, SearchResponse } from '../types/funding';
 
 const baseUrl = (import.meta.env.VITE_API_BASE_URL?.trim() || 'https://find-me-funding-api.onrender.com').replace(/\/+$/, '');
 const list = (value: string) => value ? [value] : [];
@@ -47,4 +47,28 @@ export async function fetchResults(search: string, filters: FilterValues, offset
     if (error instanceof TypeError) throw new Error('Could not reach the funding service. Check your connection and try again.', { cause: error });
     throw error;
   }
+}
+// The notice is advisory, so any failure here hides it rather than blocking the results.
+export async function fetchStatus(signal?: AbortSignal): Promise<DataStatus | null> {
+  try {
+    const response = await fetch(`${baseUrl}/api/status`, { signal });
+    return response.ok ? await response.json() as DataStatus : null;
+  } catch {
+    return null;
+  }
+}
+const day = (iso: string) => new Date(iso).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
+const stopMessages: Record<LlmStopReason, (run: PipelineRun) => string> = {
+  daily_quota: (run) => `AI summaries are paused: the Gemini plan's daily request limit was reached during the last data refresh (${day(run.finished_at)}).`,
+  plan_error: (run) => `AI summaries are unavailable: Gemini rejected the API key or plan during the last data refresh (${run.llm_stop_detail || day(run.finished_at)}).`,
+  not_configured: () => 'AI summaries are off: the last data refresh ran without a Gemini API key.',
+};
+export function statusNotice(status: DataStatus | null): string | null {
+  if (!status) return null;
+  const run = status.last_run;
+  const stop = run?.llm_stop_reason ? stopMessages[run.llm_stop_reason](run) : '';
+  const count = status.rule_only_summaries > 0
+    ? `${status.rule_only_summaries} of ${status.opportunities} opportunities show a shorter automatic summary instead of an AI one.`
+    : '';
+  return [stop, count].filter(Boolean).join(' ') || null;
 }

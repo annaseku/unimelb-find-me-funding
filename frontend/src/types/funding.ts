@@ -53,6 +53,15 @@ export interface RankedOpportunity {
 }
   
 
+export type LlmStopReason = 'daily_quota' | 'plan_error' | 'not_configured';
+
+export interface PipelineRun {
+  finished_at: string; llm_calls: number; llm_failures: number;
+  llm_stop_reason: LlmStopReason | null; llm_stop_detail: string;
+}
+
+export interface DataStatus { last_run: PipelineRun | null; opportunities: number; rule_only_summaries: number }
+
 export interface SearchResponse {
   results: RankedOpportunity[]; total: number; limit: number; offset: number;
   weights: Record<string, number>;
