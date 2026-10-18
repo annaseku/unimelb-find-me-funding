@@ -78,6 +78,19 @@ def test_every_result_has_four_scores_labels_and_reasons(client):
     assert result["opportunity"]["url"].startswith("http")
 
 
+def test_search_accepts_multiple_fields_of_research(client):
+    response = client.post(
+        "/api/search",
+        json={"for_codes": ["4611", "3103", "3104"], "limit": 100},
+    )
+    assert response.status_code == 200
+    assert any(
+        "3103" in reason
+        for result in response.json()["results"]
+        for reason in result["research_match"]["reasons"]
+    )
+
+
 def test_offset_paging_continues_the_same_ordering(client):
     first = client.post("/api/search", json={"limit": 5}).json()["results"]
     second = client.post("/api/search", json={"limit": 5, "offset": 5}).json()["results"]

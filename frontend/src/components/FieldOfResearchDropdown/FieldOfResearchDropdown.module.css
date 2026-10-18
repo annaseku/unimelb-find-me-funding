@@ -71,7 +71,7 @@
     top: calc(100% + 5px);
     left: 0;
 
-    width: 400px;
+    width: min(400px, calc(100vw - 32px));
     max-height: 450px;
     overflow-y: auto;
 
@@ -114,25 +114,35 @@
 
 .divisionOption {
     flex: 1;
-    border: none;
-    background: transparent;
-    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    padding-left: 5px;
+}
+
+.divisionOption label,
+.groupOption label {
+    flex: 1;
     cursor: pointer;
-    padding: 8px;
 }
 
 .groups {
     display: flex;
     flex-direction: column;
-    padding-left: 30px;
+    padding-left: 38px;
 }
 
 .groupOption {
-    border: none;
-    background: transparent;
-    text-align: left;
-    cursor: pointer;
-    padding: 7px 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    padding-left: 5px;
 }
 
 .divisionOption:hover,
@@ -140,6 +150,17 @@
 .anyOption:hover {
     background: #3367D1;
     color: white;
+}
+
+.divisionOption:hover label,
+.groupOption:hover label {
+    color: white;
+}
+
+.divisionOption.selectedOption,
+.groupOption.selectedOption {
+    background: #e8eef8;
+    color: #000f46;
 }
 
 .anyOption {

@@ -3,8 +3,8 @@ import { fieldOfResearchOptions } from '../../data/fieldOfResearchOptions';
 import styles from './FieldOfResearchDropdown.module.css';
 
 interface FieldOfResearchDropdownProps {
-    value: string;
-    onChange: (value: string) => void;
+    value: string[];
+    onChange: (value: string[]) => void;
 }
 
 export default function FieldOfResearchDropdown({
@@ -36,12 +36,18 @@ export default function FieldOfResearchDropdown({
 
     const searchTerm = search.trim().toLowerCase();
 
-    const selectedOption = fieldOfResearchOptions
+    const selectedOptions = fieldOfResearchOptions
         .flatMap((division) => [
             { value: division.value, label: division.label },
             ...division.groups,
         ])
-        .find((option) => option.value === value);
+        .filter((option) => value.includes(option.value));
+
+    const triggerLabel = selectedOptions.length === 0
+        ? 'Field of Research – Any'
+        : selectedOptions.length === 1
+            ? selectedOptions[0].label
+            : `${selectedOptions.length} fields selected`;
 
     const filteredDivisions = fieldOfResearchOptions
         .map((division) => {
@@ -81,17 +87,15 @@ export default function FieldOfResearchDropdown({
     };
 
     const handleSelect = (selectedValue: string) => {
-        onChange(selectedValue);
-        setIsOpen(false);
-        setSearch('');
-        setExpandedDivision(null);
+        onChange(
+            value.includes(selectedValue)
+                ? value.filter((selected) => selected !== selectedValue)
+                : [...value, selectedValue]
+        );
     };
 
     const handleClear = () => {
-        onChange('');
-        setIsOpen(false);
-        setSearch('');
-        setExpandedDivision(null);
+        onChange([]);
     };
 
     return (
@@ -104,9 +108,7 @@ export default function FieldOfResearchDropdown({
                 aria-expanded={isOpen}
             >
                 <span className={styles.triggerLabel}>
-                    {selectedOption
-                        ? selectedOption.label
-                        : 'Field of Research – Any'}
+                    {triggerLabel}
                 </span>
 
                 <span className={styles.triggerArrow}>
@@ -164,38 +166,46 @@ export default function FieldOfResearchDropdown({
                                             {isExpanded ? '▼' : '▶'}
                                         </button>
 
-                                        <button
-                                            type="button"
-                                            className={styles.divisionOption}
-                                            onClick={() =>
-                                                handleSelect(division.value)
-                                            }
+                                        <div
+                                            className={`${styles.divisionOption} ${
+                                                value.includes(division.value) ? styles.selectedOption : ''
+                                            }`}
                                         >
-                                            <span className={styles.code}>
-                                                {division.value}
-                                            </span>
-
-                                            {division.label}
-                                        </button>
+                                            <input
+                                                type="checkbox"
+                                                id={`for-${division.value}`}
+                                                className="checkbox"
+                                                checked={value.includes(division.value)}
+                                                onChange={() => handleSelect(division.value)}
+                                            />
+                                            <label htmlFor={`for-${division.value}`}>
+                                                <span className={styles.code}>{division.value}</span>
+                                                {division.label}
+                                            </label>
+                                        </div>
                                     </div>
 
                                     {showGroups && (
                                         <div className={styles.groups}>
                                             {division.groups.map((group) => (
-                                                <button
-                                                    type="button"
+                                                <div
                                                     key={group.value}
-                                                    className={styles.groupOption}
-                                                    onClick={() =>
-                                                        handleSelect(group.value)
-                                                    }
+                                                    className={`${styles.groupOption} ${
+                                                        value.includes(group.value) ? styles.selectedOption : ''
+                                                    }`}
                                                 >
-                                                    <span className={styles.code}>
-                                                        {group.value}
-                                                    </span>
-
-                                                    {group.label}
-                                                </button>
+                                                    <input
+                                                        type="checkbox"
+                                                        id={`for-${group.value}`}
+                                                        className="checkbox"
+                                                        checked={value.includes(group.value)}
+                                                        onChange={() => handleSelect(group.value)}
+                                                    />
+                                                    <label htmlFor={`for-${group.value}`}>
+                                                        <span className={styles.code}>{group.value}</span>
+                                                        {group.label}
+                                                    </label>
+                                                </div>
                                             ))}
                                         </div>
                                     )}

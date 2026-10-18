@@ -27,7 +27,7 @@ Rank funding opportunities against a researcher's inputs. Every field is optiona
 
 | Field | Type | Notes |
 | --- | --- | --- |
-| `for_codes` | `string[]` | ANZSRC 2020 Field of Research codes, two or four digits, e.g. `["3103"]` |
+| `for_codes` | `string[]` | One or more ANZSRC 2020 Field of Research codes, two or four digits, e.g. `["3103", "3708"]`; a result matches if it overlaps any selected code |
 | `toa_codes` | `string[]` | ANZSRC type of activity, `"1"` to `"4"` |
 | `citizenships` | `string[]` | ISO 3166-1 alpha-2, multiple allowed |
 | `employer_type` | enum or null | `university`, `research_institute`, `industry`, `philanthropic` |

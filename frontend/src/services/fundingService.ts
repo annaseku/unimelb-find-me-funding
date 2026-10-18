@@ -2,7 +2,7 @@ import { filterOptions, type FilterKey, type FilterValues } from '../data/filter
 import type { CareerStage, EmployerType, FundingType, SearchRequest, SearchResponse } from '../types/funding';
 
 const baseUrl = (import.meta.env.VITE_API_BASE_URL?.trim() || 'https://find-me-funding-api.onrender.com').replace(/\/+$/, '');
-const list = (value: string) => value ? [value] : [];
+const list = (value: string | string[]) => Array.isArray(value) ? value : value ? [value] : [];
 // Every value a filter may hold; a selection outside it (a stale deep link, a removed option) is rejected before it reaches the API.
 const knownValues: Record<FilterKey, Set<string>> = {
   fieldOfResearch: new Set(filterOptions.fieldOfResearch.flatMap((division) => [division.value, ...division.groups.map((group) => group.value)])),
@@ -22,7 +22,7 @@ export function buildSearchRequest(search: string, filters: FilterValues, offset
   }
   return {
     research_description: search.trim(),
-    for_codes: list(filters.fieldOfResearch), toa_codes: list(filters.typeOfActivity),
+    for_codes: filters.fieldOfResearch, toa_codes: list(filters.typeOfActivity),
     citizenships: filters.citizenship,
     employer_type: (filters.employerType || null) as EmployerType | null,
     career_stage: (filters.careerStage || null) as CareerStage | null,

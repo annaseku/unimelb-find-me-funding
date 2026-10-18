@@ -30,6 +30,24 @@ def test_same_division_only_is_medium():
     assert result.label == MatchLevel.MEDIUM
 
 
+def test_multiple_for_codes_match_when_any_selected_code_is_exact():
+    result = score_research_match(
+        make_opportunity(),
+        SearchRequest(for_codes=["4611", "3103", "3104"]),
+    )
+    assert result.label == MatchLevel.HIGH
+    assert any("3103" in reason for reason in result.reasons)
+
+
+def test_multiple_for_codes_match_when_any_selected_code_shares_a_division():
+    result = score_research_match(
+        make_opportunity(),
+        SearchRequest(for_codes=["4611", "3104"]),
+    )
+    assert result.label == MatchLevel.MEDIUM
+    assert any("31" in reason for reason in result.reasons)
+
+
 def test_unrelated_for_code_and_unrelated_text_is_low():
     request = SearchRequest(for_codes=["4611"], research_description="quantum compilers")
     result = score_research_match(make_opportunity(), request)

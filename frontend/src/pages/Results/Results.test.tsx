@@ -9,7 +9,7 @@ const fetchMock = vi.fn();
 const response = (body = page) => ({ ok: true, json: async () => body });
 beforeEach(() => { fetchMock.mockReset(); vi.stubGlobal('fetch', fetchMock); });
 afterEach(() => vi.unstubAllGlobals());
-function show() { return render(<MemoryRouter initialEntries={[{ pathname: '/results', state: { search: 'coral', filters: { ...defaultFilterValues, fieldOfResearch: '31' } } }]}><Results /></MemoryRouter>); }
+function show() { return render(<MemoryRouter initialEntries={[{ pathname: '/results', state: { search: 'coral', filters: { ...defaultFilterValues, fieldOfResearch: ['31'] } } }]}><Results /></MemoryRouter>); }
 it('explains cold starts and shows the total from the server, not the page count', async () => {
   fetchMock.mockResolvedValue(response({ ...page, total: 27 })); show();
   expect(screen.getByRole('status')).toHaveTextContent('first search can take about a minute');
@@ -27,11 +27,9 @@ it('appends pages using the submitted filters, then resets on a new search', asy
   show(); await screen.findByText('2 Results Found');
   await user.clear(screen.getByPlaceholderText('Search by keyword'));
   await user.type(screen.getByPlaceholderText('Search by keyword'), 'new research');
-  //await user.click(screen.getByText('Ecology', { selector: 'summary' }));
-  //await user.click(screen.getByRole('radio', { name: 'Biological Sciences' }));
-  //await user.click(screen.getByRole('button', { name: 'Ecology' }));
   await user.click(screen.getByRole('button', { name: 'Biological Sciences' }));
-  await user.click(screen.getByRole('button', { name: /31\s*Biological Sciences/i }));
+  await user.click(screen.getByRole('button', { name: 'Expand Biological Sciences' }));
+  await user.click(screen.getByRole('checkbox', { name: /3103\s*Ecology/i }));
   await user.click(screen.getByRole('button', { name: 'Show more' }));
   await screen.findByText('Wellcome Grant');
   expect(screen.getByText('ARC Research Grant')).toBeInTheDocument();
@@ -39,7 +37,7 @@ it('appends pages using the submitted filters, then resets on a new search', asy
   expect(screen.queryByRole('button', { name: 'Show more' })).not.toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Search' }));
   await screen.findByText('0 Results Found');
-  expect(JSON.parse(fetchMock.mock.calls[2][1].body)).toMatchObject({ offset: 0, research_description: 'new research', for_codes: ['31'] });
+  expect(JSON.parse(fetchMock.mock.calls[2][1].body)).toMatchObject({ offset: 0, research_description: 'new research', for_codes: ['31', '3103'] });
   expect(screen.queryByText('ARC Research Grant')).not.toBeInTheDocument();
 });
 it('shows an error and lets the researcher retry', async () => {
