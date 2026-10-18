@@ -65,10 +65,10 @@ FMF_DATA_SOURCE=sqlite FMF_DB_PATH=funding_crawler.db uvicorn backend.api.main:a
 | `FMF_DB_PATH` | SQLite file for `sqlite` mode; defaults to the crawler's `DB_PATH` |
 | `FMF_DATABASE_URL` | Postgres connection string for `postgres` mode. Required in that mode; the API raises rather than quietly falling back to another data source |
 | `GEMINI_API_KEY` | Enables the extractor. Everything runs without it; the records are just sparser |
-| `FMF_LLM_MODEL` | Gemini model for the extractor, default `gemini-2.5-flash` |
+| `FMF_LLM_MODEL` | Gemini model for the extractor, default `gemini-2.5-flash-lite` |
 | `FMF_LLM` | Set to `off` to skip the extractor even when a key is present |
 
-The extractor runs once per changed page: unchanged pages are skipped by content hash on later runs, so re-running the pipeline costs only what the crawler found new. Gemini's free tier allows 20 requests a day for `gemini-2.5-flash` (seen 18 October 2026); once the API answers 429 RESOURCE_EXHAUSTED the pipeline stops calling it for the rest of that run and finishes rules-only, so a weekly crawl enriches about 20 pages and the rest wait for a later run that re-reads them. Crawled text is stripped of NUL bytes on read, because Postgres rejects them inside JSON. Design record: `docs/09-architectural-design/adr/ADR-003-normaliser.md`.
+The extractor runs once per changed page: unchanged pages are skipped by content hash on later runs, so re-running the pipeline costs only what the crawler found new. Gemini's free tier allows 20 requests a day for `gemini-2.5-flash` (seen 18 October 2026), which is why the default is `gemini-2.5-flash-lite`, whose free quota is counted separately; once the API answers 429 RESOURCE_EXHAUSTED the pipeline stops calling it for the rest of that run and finishes rules-only, so a weekly crawl enriches about 20 pages and the rest wait for a later run that re-reads them. Crawled text is stripped of NUL bytes on read, because Postgres rejects them inside JSON. Design record: `docs/09-architectural-design/adr/ADR-003-normaliser.md`.
 
 ## Supabase Postgres
 

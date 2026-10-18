@@ -20,9 +20,11 @@ from pydantic import BaseModel
 from backend.normaliser.models import NormalisedRecord
 from backend.ranking.models import CareerStage, EmployerType, FundingType
 
-# Stable Flash model; override with FMF_LLM_MODEL. Chosen for the free tier,
-# not for peak quality; a Pro model is a one-variable change.
-DEFAULT_MODEL = "gemini-2.5-flash"
+# Flash-Lite; override with FMF_LLM_MODEL. Chosen for the free tier, not for
+# peak quality. The free quota is per model, and gemini-2.5-flash allows only
+# 20 requests a day, which one crawl used up (2026-10-18); setting
+# FMF_LLM_MODEL=gemini-2.5-flash switches back.
+DEFAULT_MODEL = "gemini-2.5-flash-lite"
 MAX_TEXT_CHARS = 20_000
 # The SDK has no timeout by default: one stalled request hung a crawl run for
 # 4.5 hours (2026-10-18). A timeout raises, and the pipeline goes rules-only for that row.
