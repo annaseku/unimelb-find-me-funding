@@ -39,7 +39,7 @@ function Home() {
   };
 
   return (
-    <>
+    <section className={styles.hero} aria-label="Find research funding">
       <div className={styles.homeContainer}>
         <h1 className={styles.title}>Find Me Funding</h1>
         <div className={styles.dropdownContainer}>
@@ -97,7 +97,7 @@ function Home() {
           </div>
         </form>
       </div>
-    </>
+    </section>
   );
 }
 
