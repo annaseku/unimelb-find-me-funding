@@ -59,9 +59,9 @@ export async function fetchStatus(signal?: AbortSignal): Promise<DataStatus | nu
 }
 const day = (iso: string) => new Date(iso).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
 const stopMessages: Record<LlmStopReason, (run: PipelineRun) => string> = {
-  daily_quota: (run) => `AI summaries are paused: the Gemini plan's daily request limit was reached during the last data refresh (${day(run.finished_at)}).`,
-  plan_error: (run) => `AI summaries are unavailable: Gemini rejected the API key or plan during the last data refresh (${run.llm_stop_detail || day(run.finished_at)}).`,
-  not_configured: () => 'AI summaries are off: the last data refresh ran without a Gemini API key.',
+  daily_quota: (run) => `AI summaries are paused: the AI provider's request limit was reached during the last data refresh (${day(run.finished_at)}).`,
+  plan_error: (run) => `AI summaries are unavailable: the OpenRouter key was rejected or is out of credits during the last data refresh (${run.llm_stop_detail || day(run.finished_at)}).`,
+  not_configured: () => 'AI summaries are off: the last data refresh ran without an OpenRouter API key.',
 };
 export function statusNotice(status: DataStatus | null): string | null {
   if (!status) return null;

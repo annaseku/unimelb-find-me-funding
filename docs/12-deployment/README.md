@@ -21,7 +21,7 @@ Decision record: `docs/09-architectural-design/adr/ADR-004-deployment-architectu
 ## Configuration and secrets
 
 - Frontend build: `VITE_API_BASE_URL` (repository variable; defaults to the Render URL).
-- API: `FMF_DATA_SOURCE`, `FMF_DATABASE_URL` and `GEMINI_API_KEY` are declared in `render.yaml`; API configuration and secret values live in the Render dashboard. The crawl workflow reads `SERPAPI_API_KEY`, `FMF_DATABASE_URL` and optional `GEMINI_API_KEY` from GitHub repository secrets. Never commit them. See `backend/.env.example` for the full list.
+- API: `FMF_DATA_SOURCE`, `FMF_DATABASE_URL` and `GEMINI_API_KEY` (unused by the API) are declared in `render.yaml`; API configuration and secret values live in the Render dashboard. The crawl workflow reads `SERPAPI_API_KEY`, `FMF_DATABASE_URL` and optional `OPENROUTER_API_KEY` from GitHub repository secrets. Never commit them. See `backend/.env.example` for the full list.
 
 ## Scheduled crawl
 
@@ -32,11 +32,11 @@ Set these GitHub repository secrets using the interactive prompts:
 ```bash
 gh secret set SERPAPI_API_KEY
 gh secret set FMF_DATABASE_URL
-# Optional: enables the Gemini extractor during normalisation.
-gh secret set GEMINI_API_KEY
+# Optional: enables the LLM extractor (OpenRouter) during normalisation.
+gh secret set OPENROUTER_API_KEY
 ```
 
-`FMF_DATABASE_URL` must be the Supabase session-mode pooler URL on port 5432, with the same value as the Render dashboard. `SERPAPI_API_KEY` enables discovery; without `GEMINI_API_KEY`, the normaliser uses its rules alone. With it, Gemini's free tier covers about 20 pages a day and the run continues rules-only once that quota answers 429, so a paid Gemini key is what makes the extractor cover a whole slice.
+`FMF_DATABASE_URL` must be the Supabase session-mode pooler URL on port 5432, with the same value as the Render dashboard. `SERPAPI_API_KEY` enables discovery; without `OPENROUTER_API_KEY`, the normaliser uses its rules alone. With it, every page goes through the extractor on pay-as-you-go credits, roughly US$0.10 per 160 pages on the default model; if the credits run out (402) the run continues rules-only and the Results page says so.
 
 The seed file contains all 23 ANZSRC 2020 divisions, matching the frontend names. Each week selects ten profiles starting at `(ISO week * 10) % 23`, wrapping at the end. Each profile generates four SerpApi searches: 40 per weekly run, about 175 per month. SerpApi's free plan (serpapi.com/pricing, checked 18 October 2026) allows 250 searches a month at no more than 50 an hour, so the weekly slice fits and the rotation reaches every area within three consecutive runs. A full `--all` run is 92 searches in a few minutes, which exceeds the hourly cap: on the free plan the queries past the cap fail and are logged, so cover everything with three dispatches at least an hour apart using the `week` input (0, 1 and 2) instead. On a paid plan `all=true` is fine.
 
@@ -48,19 +48,19 @@ gh workflow run crawl.yml -f week=1   # an hour later
 gh workflow run crawl.yml -f week=2   # an hour after that
 ```
 
-A weekly run only re-normalises the pages SerpApi returns that week, so a change to the extractor or the summary rules never reaches the records already in Postgres (KAN-68: 468 of 632 cards kept menu-text summaries after KAN-65). After any such change, dispatch the workflow with `refetch=true`: it reads every URL from Postgres, re-fetches each page through the current extractor with plain HTTP (no SerpApi searches, so it costs nothing against the plan), re-normalises and upserts them. A page that fails to fetch keeps its existing record. With Gemini on, 600 pages take a few hours because of the per-minute wait; add nothing and let KAN-67's handling run, or expect rule-built summaries past the daily quota.
+A weekly run only re-normalises the pages SerpApi returns that week, so a change to the extractor or the summary rules never reaches the records already in Postgres (KAN-68: 468 of 632 cards kept menu-text summaries after KAN-65). After any such change, dispatch the workflow with `refetch=true`: it reads every URL from Postgres, re-fetches each page through the current extractor with plain HTTP (no SerpApi searches, so it costs nothing against the plan), re-normalises and upserts them. A page that fails to fetch keeps its existing record. With the extractor on, each page is one OpenRouter call, so 600 pages cost well under a dollar on the default model.
 
 ```bash
 gh workflow run crawl.yml -f refetch=true
 ```
 
-To run the same pipeline by hand, export `SERPAPI_API_KEY`, `FMF_DATABASE_URL` and optional `GEMINI_API_KEY` in your shell and run from the repository root:
+To run the same pipeline by hand, export `SERPAPI_API_KEY`, `FMF_DATABASE_URL` and optional `OPENROUTER_API_KEY` in your shell and run from the repository root:
 
 ```bash
 python -m backend.data.refresh --all
 ```
 
-Omit `--all` for this week's ten-profile slice, add `--no-llm` to skip Gemini, add `--skip-publish` to keep the result in the local SQLite database instead of Postgres, or use `--dry-run` to print the profiles and search count without credentials or pipeline calls. The crawler writes `backend.crawler.config.DB_PATH` (`funding_crawler.db`) relative to the current directory; `--db-path` changes only the database normalised and published, so keep its default for the normal crawl path.
+Omit `--all` for this week's ten-profile slice, add `--no-llm` to skip the LLM extractor, add `--skip-publish` to keep the result in the local SQLite database instead of Postgres, or use `--dry-run` to print the profiles and search count without credentials or pipeline calls. The crawler writes `backend.crawler.config.DB_PATH` (`funding_crawler.db`) relative to the current directory; `--db-path` changes only the database normalised and published, so keep its default for the normal crawl path.
 
 ## Before a demo
 

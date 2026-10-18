@@ -8,22 +8,22 @@ const status = (overrides: Partial<DataStatus> = {}): DataStatus => ({ last_run:
 const serve = (body: DataStatus | null, ok = true) => vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok, json: async () => body }));
 afterEach(() => vi.unstubAllGlobals());
 
-it('warns when the last refresh hit the daily plan limit, with how many summaries are rule-built', async () => {
+it('warns when the last refresh hit the provider limit, with how many summaries are rule-built', async () => {
   serve(status({ last_run: { ...run, llm_stop_reason: 'daily_quota' }, rule_only_summaries: 159 }));
   render(<DataNotice />);
   const note = await screen.findByRole('note');
-  expect(note).toHaveTextContent("daily request limit was reached during the last data refresh (18 Oct 2026)");
+  expect(note).toHaveTextContent("request limit was reached during the last data refresh (18 Oct 2026)");
   expect(note).toHaveTextContent('159 of 164 opportunities show a shorter automatic summary');
 });
-it('names a rejected key or plan', async () => {
-  serve(status({ last_run: { ...run, llm_stop_reason: 'plan_error', llm_stop_detail: '403 PERMISSION_DENIED' } }));
+it('names a rejected key or empty credit', async () => {
+  serve(status({ last_run: { ...run, llm_stop_reason: 'plan_error', llm_stop_detail: '402 Insufficient credits' } }));
   render(<DataNotice />);
-  expect(await screen.findByRole('note')).toHaveTextContent('Gemini rejected the API key or plan during the last data refresh (403 PERMISSION_DENIED)');
+  expect(await screen.findByRole('note')).toHaveTextContent('the OpenRouter key was rejected or is out of credits during the last data refresh (402 Insufficient credits)');
 });
-it('says when refreshes run without a Gemini key', async () => {
+it('says when refreshes run without an OpenRouter key', async () => {
   serve(status({ last_run: { ...run, llm_stop_reason: 'not_configured' } }));
   render(<DataNotice />);
-  expect(await screen.findByRole('note')).toHaveTextContent('without a Gemini API key');
+  expect(await screen.findByRole('note')).toHaveTextContent('without an OpenRouter API key');
 });
 it('shows nothing when every summary came from the AI', async () => {
   const fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => status() });
