@@ -41,13 +41,14 @@ def test_citizenship_mismatch_is_likely_ineligible_and_still_scored():
 
 
 def test_one_of_several_citizenships_matching_passes():
-    opportunity = make_opportunity(citizenships_allowed=["AU"])
+    opportunity = make_opportunity(citizenships_allowed=["AU"], countries=["AU"])
     result = score_eligibility(opportunity, SearchRequest(citizenships=["GB", "AU"]))
     assert result.label == EligibilityState.ELIGIBLE
 
 
 def test_all_stated_restrictions_passing_is_eligible_with_score_one():
     opportunity = make_opportunity(
+        countries=["AU"],
         citizenships_allowed=["AU"],
         employer_types_allowed=[EmployerType.UNIVERSITY],
         career_stages_allowed=[CareerStage.POSTDOC_2_5],
@@ -62,7 +63,7 @@ def test_all_stated_restrictions_passing_is_eligible_with_score_one():
     result = score_eligibility(opportunity, request)
     assert result.label == EligibilityState.ELIGIBLE
     assert result.score == 1.0
-    assert len(result.reasons) == 4
+    assert len(result.reasons) == 5  # location plus the four stated restrictions
 
 
 def test_mixed_pass_and_unknown_is_potentially_eligible():
@@ -89,7 +90,7 @@ def test_career_stage_mismatch_fails():
 
 @pytest.mark.parametrize("wanted", [FundingType.ALL, FundingType.ANY])
 def test_all_or_any_funding_type_never_contradicts(wanted):
-    opportunity = make_opportunity(funding_types_offered=[FundingType.EQUIPMENT])
+    opportunity = make_opportunity(funding_types_offered=[FundingType.EQUIPMENT], countries=["AU"])
     result = score_eligibility(opportunity, SearchRequest(funding_types=[wanted]))
     assert result.label == EligibilityState.ELIGIBLE
 
@@ -183,3 +184,13 @@ def test_institution_country_can_be_overridden():
     opportunity = make_opportunity(url="https://www.ukri.org.uk/x", countries=["GB"])
     request = SearchRequest(institution_country="GB")
     assert score_eligibility(opportunity, request).label == EligibilityState.ELIGIBLE
+
+
+def test_passing_filters_with_unconfirmed_location_is_never_fully_eligible():
+    # A generic-domain funder that states no location: passing career stage
+    # alone used to read as 100% eligible for an overseas funder.
+    opportunity = make_opportunity(career_stages_allowed=[CareerStage.POSTDOC_2_5])
+    result = score_eligibility(opportunity, SearchRequest(career_stage=CareerStage.POSTDOC_2_5))
+    assert result.label == EligibilityState.POTENTIALLY_ELIGIBLE
+    assert result.score < 1.0
+    assert any("cannot confirm" in r for r in result.reasons)

@@ -123,7 +123,7 @@ def test_ties_break_on_eligibility_then_id():
     opportunities = [
         make_opportunity(id="b"),
         make_opportunity(id="a"),
-        make_opportunity(id="c", citizenships_allowed=["AU"]),
+        make_opportunity(id="c", citizenships_allowed=["AU"], countries=["AU"]),
     ]
     results = rank(opportunities, SearchRequest(citizenships=["AU"]), weights, TODAY)
     assert [r.opportunity.id for r in results] == ["c", "a", "b"]
