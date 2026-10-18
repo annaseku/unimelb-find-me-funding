@@ -36,7 +36,7 @@ gh secret set FMF_DATABASE_URL
 gh secret set GEMINI_API_KEY
 ```
 
-`FMF_DATABASE_URL` must be the Supabase session-mode pooler URL on port 5432, with the same value as the Render dashboard. `SERPAPI_API_KEY` enables discovery; without `GEMINI_API_KEY`, the normaliser uses its rules alone.
+`FMF_DATABASE_URL` must be the Supabase session-mode pooler URL on port 5432, with the same value as the Render dashboard. `SERPAPI_API_KEY` enables discovery; without `GEMINI_API_KEY`, the normaliser uses its rules alone. With it, Gemini's free tier covers about 20 pages a day and the run continues rules-only once that quota answers 429, so a paid Gemini key is what makes the extractor cover a whole slice.
 
 The seed file contains all 23 ANZSRC 2020 divisions, matching the frontend names. Each week selects ten profiles starting at `(ISO week * 10) % 23`, wrapping at the end. Each profile generates four SerpApi searches: 40 per weekly run, about 175 per month. SerpApi's free plan (serpapi.com/pricing, checked 18 October 2026) allows 250 searches a month at no more than 50 an hour, so the weekly slice fits and the rotation reaches every area within three consecutive runs. A full `--all` run is 92 searches in a few minutes, which exceeds the hourly cap: on the free plan the queries past the cap fail and are logged, so cover everything with three dispatches at least an hour apart using the `week` input (0, 1 and 2) instead. On a paid plan `all=true` is fine.
 

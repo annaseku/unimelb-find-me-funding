@@ -135,3 +135,12 @@ def test_postgres_without_a_url_fails_loudly_rather_than_falling_back(monkeypatc
             get_repository()
     finally:
         get_repository.cache_clear()
+
+
+def test_publish_accepts_text_that_still_carries_a_nul_byte(database_url):
+    record = corpus_records()[0]
+    record.opportunity.summary = "Binary page\x00 residue"
+    publish(database_url, [record])
+    stored = PostgresRepository(database_url).get(record.opportunity.id)
+    assert stored is not None
+    assert stored.summary == "Binary page residue"
