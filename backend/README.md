@@ -7,7 +7,7 @@ Two packages live here. `crawler/` (Jummana) discovers and stores funding pages;
 | Crawler (discovery, fetch, extract, store) | Built, see `crawler/README` |
 | Ranking engine (four criterion scores, weighted overall) | Prototype built; ranks normalised crawler records from SQLite by default or Supabase Postgres in deployment; evals use a separate corpus |
 | FastAPI search endpoint for the frontend | Deployed on Render with Postgres; locally defaults to the crawler SQLite database |
-| Normalising crawler rows into structured opportunities | Prototype built, rules plus optional Gemini extractor, see Normaliser below |
+| Normalising crawler rows into structured opportunities | Prototype built, rules plus optional LLM extractor (OpenRouter), see Normaliser below |
 | LLM or embedding research-match scorer | Not started, seam is in `ranking/research_match.py` |
 
 ## Setup
@@ -24,12 +24,12 @@ pip install -r backend/requirements-dev.txt
 
 Copy the template once: `cp backend/.env.example backend/.env`. The file can be empty or absent for local SQLite development, tests and evals. The API needs a normalised SQLite database (see below) or a Postgres connection. These local workflows need no key; the only code that uses one is the normaliser's optional extractor (see Normaliser below), and it runs rules-only without it.
 
-The template lists `GEMINI_API_KEY` and `FMF_DATABASE_URL`. `GEMINI_API_KEY` enables the normaliser's extractor today and is reserved for the LLM research-match scorer that has not been started. Generate your own key in Google AI Studio and put it in your own `backend/.env`; the `google-genai` SDK reads that variable straight from the environment, so `genai.Client()` needs no arguments. You do not need a key to work on the crawler, the ranker, the API or the frontend. Rules that apply to everyone:
+The template lists `OPENROUTER_API_KEY` and `FMF_DATABASE_URL`. `OPENROUTER_API_KEY` enables the normaliser's extractor today and is reserved for the LLM research-match scorer that has not been started. Create a key at openrouter.ai and put it in your own `backend/.env`; `backend/normaliser/llm.py` reads it from the environment. You do not need a key to work on the crawler, the ranker, the API or the frontend. Rules that apply to everyone:
 
 - Never commit a key. `.env` is gitignored, and if `git status` ever lists it, fix the ignore rule rather than committing it. A key committed once stays in the history even after you delete the line, so a leak means rotating the key, not just reverting the commit.
 - Never paste a key into Slack, a Jira comment or a Confluence page. If one has to be shared, share it through a password manager.
 - Never put a key in `frontend/`. Vite inlines anything prefixed `VITE_` into the browser bundle, so it would ship to every visitor. LLM calls go through the backend.
-- In CI a key is a GitHub Actions repository secret referenced as `${{ secrets.GEMINI_API_KEY }}`, never a file. Better still, mock the LLM in tests so the suite stays deterministic and free.
+- In CI a key is a GitHub Actions repository secret referenced as `${{ secrets.OPENROUTER_API_KEY }}`, never a file. Better still, mock the LLM in tests so the suite stays deterministic and free.
 - Keep the key backend-side. `backend/.env` is for secrets; if the frontend later needs configuration such as an API base URL, that belongs in a separate `frontend/.env` where a `VITE_` prefix is safe because the values are public.
 
 ## Running the API and tests
@@ -51,7 +51,7 @@ curl -s -X POST localhost:8000/api/search -H 'content-type: application/json' \
 
 ## Normaliser
 
-`normaliser/` turns the crawler's raw rows (page text, a parsed deadline, a raw dollar string, an eligibility snippet) into the structured `Opportunity` records the ranker scores. Deterministic rules run first and stamp every field with where it came from; if `GEMINI_API_KEY` is set, a Gemini extractor fills the prose-derived fields (citizenship, career stage, research codes, funder name, summary) and never overrides a rule-parsed date or amount. Results land in a `normalised_opportunities` table in the same SQLite file; the crawler's own table is never written.
+`normaliser/` turns the crawler's raw rows (page text, a parsed deadline, a raw dollar string, an eligibility snippet) into the structured `Opportunity` records the ranker scores. Deterministic rules run first and stamp every field with where it came from; if `OPENROUTER_API_KEY` is set, an LLM extractor fills the prose-derived fields (citizenship, career stage, research codes, funder name, summary) and never overrides a rule-parsed date or amount. Results land in a `normalised_opportunities` table in the same SQLite file; the crawler's own table is never written.
 
 ```bash
 python -m backend.normaliser.run --db funding_crawler.db            # rules, plus the model if a key is set
@@ -64,11 +64,11 @@ FMF_DATA_SOURCE=sqlite FMF_DB_PATH=funding_crawler.db uvicorn backend.api.main:a
 | `FMF_DATA_SOURCE` | `sqlite` (default) serves the normalised crawler table; `postgres` serves Supabase for the deployed API (see Supabase Postgres below). Other values are rejected |
 | `FMF_DB_PATH` | SQLite file for `sqlite` mode; defaults to the crawler's `DB_PATH` |
 | `FMF_DATABASE_URL` | Postgres connection string for `postgres` mode. Required in that mode; the API raises rather than quietly falling back to another data source |
-| `GEMINI_API_KEY` | Enables the extractor. Everything runs without it; the records are just sparser |
-| `FMF_LLM_MODEL` | Gemini model for the extractor, default `gemini-2.5-flash` |
+| `OPENROUTER_API_KEY` | Enables the extractor. Everything runs without it; the records are just sparser |
+| `FMF_LLM_MODEL` | OpenRouter model id for the extractor, default `qwen/qwen3-30b-a3b-instruct-2507`. It must support structured outputs |
 | `FMF_LLM` | Set to `off` to skip the extractor even when a key is present |
 
-The extractor runs once per changed page: unchanged pages are skipped by content hash on later runs, so re-running the pipeline costs only what the crawler found new. Gemini's free tier allows 20 requests a day for `gemini-2.5-flash` (seen 18 October 2026); once the API answers 429 RESOURCE_EXHAUSTED the pipeline stops calling it for the rest of that run and finishes rules-only, so a weekly crawl enriches about 20 pages and the rest wait for a later run that re-reads them. Crawled text is stripped of NUL bytes on read, because Postgres rejects them inside JSON. Design record: `docs/09-architectural-design/adr/ADR-003-normaliser.md`.
+The extractor runs once per changed page: unchanged pages are skipped by content hash on later runs, so re-running the pipeline costs only what the crawler found new. The extractor calls OpenRouter with pay-as-you-go credits (KAN-69 replaced Gemini, whose free tier capped it at 5 requests a minute). A 429 is waited out using the Retry-After header; a 401 (bad key) or 402 (out of credits) stops LLM use for the rest of the run, which finishes rules-only, and the Results page says so. Crawled text is stripped of NUL bytes on read, because Postgres rejects them inside JSON. Design record: `docs/09-architectural-design/adr/ADR-003-normaliser.md`.
 
 ## Supabase Postgres
 

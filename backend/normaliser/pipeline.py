@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import json
 import logging
-import re
 import sqlite3
 import time
 from collections.abc import Callable, Iterable
@@ -30,13 +29,15 @@ logger = logging.getLogger(__name__)
 NORMALISED_TABLE = "normalised_opportunities"
 RUNS_TABLE = "pipeline_runs"
 
-# Per-minute rate limits are waited out, not treated as the end of the run.
+# Rate limits are waited out, not treated as the end of the run; only one that
+# outlasts every retry stops LLM use.
 MAX_RATE_LIMIT_RETRIES = 5
-DEFAULT_RATE_LIMIT_WAIT_S = 60.0
+DEFAULT_RATE_LIMIT_WAIT_S = 20.0
 MAX_RATE_LIMIT_WAIT_S = 120.0
 
-# Gemini statuses meaning the key, billing or plan itself is the problem.
-PLAN_ERROR_STATUSES = frozenset({"PERMISSION_DENIED", "UNAUTHENTICATED", "FAILED_PRECONDITION"})
+# OpenRouter statuses meaning the key or account itself is the problem:
+# 401 invalid or disabled key, 402 out of credits.
+PLAN_ERROR_CODES = frozenset({401, 402})
 
 LlmErrorKind = Literal["rate_limit", "daily_quota", "plan_error", "row_error"]
 
@@ -86,55 +87,38 @@ def read_crawled_rows(conn: sqlite3.Connection) -> list[CrawledRow]:
     ]
 
 
-def _error_details(exc: BaseException) -> list[dict]:
-    """The `error.details` list of a Gemini APIError, or [] for anything else."""
-    body = getattr(exc, "details", None)
-    error = body.get("error") if isinstance(body, dict) else None
-    details = error.get("details") if isinstance(error, dict) else None
-    return [d for d in details if isinstance(d, dict)] if isinstance(details, list) else []
+def _status_code(exc: BaseException) -> int | None:
+    code = getattr(exc, "status_code", None)
+    return code if isinstance(code, int) else None
 
 
-def _retry_delay(details: list[dict]) -> float:
-    for detail in details:
-        match = re.fullmatch(r"([\d.]+)s", str(detail.get("retryDelay", "")))
-        if match:
-            return min(float(match.group(1)) + 1, MAX_RATE_LIMIT_WAIT_S)
-    return DEFAULT_RATE_LIMIT_WAIT_S
+def _retry_delay(exc: BaseException) -> float:
+    """The provider's Retry-After header in seconds, else a default."""
+    response = getattr(exc, "response", None)
+    headers = getattr(response, "headers", None) or {}
+    try:
+        return min(float(headers.get("retry-after")) + 1, MAX_RATE_LIMIT_WAIT_S)
+    except (TypeError, ValueError):
+        return DEFAULT_RATE_LIMIT_WAIT_S
 
 
 def classify_llm_error(exc: BaseException) -> tuple[LlmErrorKind, float]:
     """What a failed LLM call means for the rest of the run, plus how long to
-    wait before retrying when it is only a per-minute rate limit.
-
-    The free tier's per-minute cap (5 requests a minute on gemini-2.5-flash)
-    returns the same 429 RESOURCE_EXHAUSTED as the daily cap; only the
-    QuotaFailure quotaId tells them apart. A 429 that names no per-minute
-    quota is treated as the daily one."""
-    code = getattr(exc, "code", None)
-    status = str(getattr(exc, "status", "") or "")
-    details = _error_details(exc)
-    if code == 429 or "RESOURCE_EXHAUSTED" in str(exc):
-        quota_ids = [
-            str(v.get("quotaId", ""))
-            for d in details
-            for v in d.get("violations", [])
-            if isinstance(v, dict)
-        ]
-        if quota_ids and all("PerMinute" in q for q in quota_ids):
-            return "rate_limit", _retry_delay(details)
-        return "daily_quota", 0
-    if code in (401, 403) or status in PLAN_ERROR_STATUSES:
-        return "plan_error", 0
-    if code == 400 and "API key" in str(exc):
+    wait before retrying a rate limit. A 429 is always retried; one that
+    outlasts every retry is reported as the provider's limit (`daily_quota`)."""
+    code = _status_code(exc)
+    if code == 429:
+        return "rate_limit", _retry_delay(exc)
+    if code in PLAN_ERROR_CODES:
         return "plan_error", 0
     return "row_error", 0
 
 
 def _short_error(exc: BaseException) -> str:
     """Code, status and message only; safe to show on screen (no key, no page text)."""
-    parts = [str(getattr(exc, "code", "") or ""), str(getattr(exc, "status", "") or "")]
+    code = _status_code(exc)
     message = str(getattr(exc, "message", "") or "").split("\n")[0][:200]
-    return " ".join(p for p in parts if p) + (f": {message}" if message else "")
+    return " ".join(p for p in [str(code or ""), message] if p)
 
 
 def _extract_with_retries(
@@ -143,8 +127,8 @@ def _extract_with_retries(
     stats: PipelineStats,
     sleep: Callable[[float], None],
 ) -> ExtractedFields:
-    """One extractor call, waiting out per-minute rate limits. Any other
-    error (or a rate limit that outlasts the retries) propagates."""
+    """One extractor call, waiting out rate limits. Any other error (or a rate
+    limit that outlasts the retries) propagates."""
     for attempt in range(MAX_RATE_LIMIT_RETRIES + 1):
         try:
             return extractor.extract(row.title or "", row.url, row.raw_text or "")
@@ -153,7 +137,7 @@ def _extract_with_retries(
             if kind != "rate_limit" or attempt == MAX_RATE_LIMIT_RETRIES:
                 raise
             stats.rate_limit_waits += 1
-            logger.info("LLM per-minute limit hit; waiting %.0fs", wait)
+            logger.info("LLM rate limit hit; waiting %.0fs", wait)
             sleep(wait)
     raise AssertionError("unreachable")
 
@@ -290,9 +274,11 @@ def normalise_database(
                     logger.warning("LLM extraction failed for %s", row.url, exc_info=True)
                     stats.llm_failures += 1
                     kind, _ = classify_llm_error(exc)
-                    if kind in ("daily_quota", "plan_error"):
-                        logger.warning("LLM stopped (%s); the rest of this run is rules-only", kind)
-                        stats.llm_stop_reason = kind
+                    # A rate limit that outlasted every retry is the provider's limit.
+                    reason = {"rate_limit": "daily_quota", "plan_error": "plan_error"}.get(kind)
+                    if reason:
+                        logger.warning("LLM stopped (%s); rest of run is rules-only", reason)
+                        stats.llm_stop_reason = reason
                         stats.llm_stop_detail = _short_error(exc)
                         extractor = None
                 else:

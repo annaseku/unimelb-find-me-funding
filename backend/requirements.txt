@@ -5,6 +5,6 @@ serpapi
 fastapi
 uvicorn
 pydantic
-google-genai
+openai
 python-dotenv
 psycopg[binary]

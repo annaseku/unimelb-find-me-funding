@@ -12,7 +12,7 @@ Live frontend: https://annaseku.github.io/unimelb-find-me-funding/, calling the 
 funder websites
    -> crawler          discover pages via search, fetch politely, extract raw signals   backend/crawler
    -> normaliser       raw text -> structured Opportunity records, rules first,         backend/normaliser
-                       optional Gemini extractor for the prose-derived fields
+                       optional LLM extractor (OpenRouter) for the prose-derived fields
    -> store            normalised_opportunities table: SQLite locally, Supabase Postgres  backend/data
                        when deployed (python -m backend.data.publish)
    -> ranker           four separate scores + weighted overall, plain-English reasons    backend/ranking
@@ -36,7 +36,7 @@ Default weights are eligibility 0.4, research match 0.3, funding value 0.15, dea
 | Component | Status | Owner |
 | --- | --- | --- |
 | Crawler: SerpApi discovery, robots.txt, fetch, extract, SQLite, scheduler loop | Built | Jummana |
-| Normaliser: rules plus optional Gemini extractor, provenance per field | Prototype | Anna |
+| Normaliser: rules plus optional LLM extractor (OpenRouter), provenance per field | Prototype | Anna |
 | Ranking engine: four criterion scores, weighted overall, golden-set evals | Prototype | Anna |
 | FastAPI search endpoint | Deployed on Render, reading Supabase Postgres | Anna |
 | Frontend: search form and results page, UoM design system | Built, calling the deployed API | Paige, Andrew, Sophia |
@@ -90,7 +90,7 @@ npm run dev                                # http://localhost:5173
 npm test && npm run lint && npm run build  # what CI runs
 ```
 
-The API serves the crawler's SQLite database by default and raises on the first search if none exists. To work without SerpApi or Gemini keys, seed one from the evals corpus; to run on real crawled data:
+The API serves the crawler's SQLite database by default and raises on the first search if none exists. To work without SerpApi or OpenRouter keys, seed one from the evals corpus; to run on real crawled data:
 
 ```bash
 python -m backend.evals.seed_sqlite funding_crawler.db   # 30 illustrative records, no keys needed
@@ -100,7 +100,7 @@ python -m backend.data.refresh --all --no-llm --skip-publish   # crawl every see
 uvicorn backend.api.main:app --reload      # serves funding_crawler.db
 ```
 
-Set `GEMINI_API_KEY` (free key from Google AI Studio) and drop `--no-llm` to let the extractor fill the fields the rules cannot read. Copy `backend/.env.example` to `backend/.env` for the full list of variables. Never commit a key; `.env` is gitignored.
+Set `OPENROUTER_API_KEY` (pay-as-you-go key from openrouter.ai) and drop `--no-llm` to let the extractor fill the fields the rules cannot read. Copy `backend/.env.example` to `backend/.env` for the full list of variables. Never commit a key; `.env` is gitignored.
 
 ## CI, hosting and branch rules
 
