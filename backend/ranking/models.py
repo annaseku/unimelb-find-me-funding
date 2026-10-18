@@ -119,6 +119,10 @@ class SearchRequest(BaseModel):
     for_codes: list[str] = Field(default_factory=list)
     toa_codes: list[str] = Field(default_factory=list)
     citizenships: list[str] = Field(default_factory=list, description="ISO 3166-1 alpha-2.")
+    institution_country: str = Field(
+        default="AU",
+        description="ISO 3166-1 alpha-2 of the researcher's institution; UoM is in Australia.",
+    )
     employer_type: EmployerType | None = None
     career_stage: CareerStage | None = None
     funding_types: list[FundingType] = Field(default_factory=list)

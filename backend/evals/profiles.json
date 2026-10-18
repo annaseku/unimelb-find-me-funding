@@ -34,6 +34,7 @@
         "for_codes": ["4008"],
         "toa_codes": ["4"],
         "citizenships": ["GB"],
+        "institution_country": "GB",
         "employer_type": "industry",
         "career_stage": "postdoc_5_10",
         "funding_types": ["equipment"],

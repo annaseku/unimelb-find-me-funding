@@ -37,8 +37,8 @@
     "uk-industry-engineer": {
       "expected_eligibility": {
         "innovate-uk-energy-catalyst": "eligible",
-        "arena-advancing-renewables": "eligible",
-        "nih-r01-cancer-genomics": "eligible",
+        "arena-advancing-renewables": "likely_ineligible",
+        "nih-r01-cancer-genomics": "potentially_eligible",
         "ukri-future-leaders-2026": "eligible",
         "arc-discovery-2027": "likely_ineligible",
         "westpac-research-fellowship": "likely_ineligible",
@@ -46,7 +46,7 @@
         "msca-postdoctoral-2026": "likely_ineligible",
         "ian-potter-science-2027": "likely_ineligible"
       },
-      "must_be_in_top_5": ["innovate-uk-energy-catalyst", "arena-advancing-renewables"],
+      "must_be_in_top_5": ["innovate-uk-energy-catalyst", "ukri-future-leaders-2026"],
       "must_not_be_in_top_10": ["csiro-early-career-postdoc", "arc-decra-2028", "uom-summer-research-2026"]
     },
     "philanthropic-health-ecr": {
@@ -81,7 +81,7 @@
       "expected_eligibility": {
         "nhmrc-ideas-2027": "eligible",
         "wellcome-discovery-2026": "eligible",
-        "erc-consolidator-2027": "eligible",
+        "erc-consolidator-2027": "likely_ineligible",
         "gbrf-reef-trust-partnership": "eligible",
         "arena-advancing-renewables": "eligible",
         "arc-discovery-2027": "likely_ineligible",
@@ -90,16 +90,16 @@
         "ukri-future-leaders-2026": "likely_ineligible",
         "ian-potter-science-2027": "likely_ineligible"
       },
-      "must_be_in_top_5": ["gbrf-reef-trust-partnership", "erc-consolidator-2027", "wellcome-discovery-2026"],
+      "must_be_in_top_5": ["gbrf-reef-trust-partnership", "wellcome-discovery-2026"],
       "must_not_be_in_top_10": ["ukri-future-leaders-2026", "westpac-research-fellowship", "csiro-early-career-postdoc"]
     },
     "text-only-biostatistics": {
       "expected_eligibility": {
         "nih-r01-cancer-genomics": "unknown",
         "google-phd-fellowship-2027": "unknown",
-        "gbrf-reef-trust-partnership": "unknown",
-        "fulbright-au-postdoctoral": "unknown",
-        "arc-discovery-2027": "unknown",
+        "gbrf-reef-trust-partnership": "potentially_eligible",
+        "fulbright-au-postdoctoral": "potentially_eligible",
+        "arc-discovery-2027": "potentially_eligible",
         "wellcome-discovery-2026": "unknown"
       },
       "must_be_in_top_5": ["nih-r01-cancer-genomics"],
@@ -107,14 +107,14 @@
     },
     "empty": {
       "expected_eligibility": {
-        "arc-discovery-2027": "unknown",
+        "arc-discovery-2027": "potentially_eligible",
         "google-phd-fellowship-2027": "unknown",
-        "mrff-indigenous-health": "unknown",
+        "mrff-indigenous-health": "potentially_eligible",
         "wellcome-discovery-2026": "unknown",
         "gates-grand-challenges-health": "unknown",
-        "amsi-vacation-research-2026": "unknown"
+        "amsi-vacation-research-2026": "potentially_eligible"
       },
-      "must_be_in_top_5": ["wellcome-discovery-2026", "arc-discovery-2027"],
+      "must_be_in_top_5": ["arc-discovery-2027"],
       "must_not_be_in_top_10": ["amsi-vacation-research-2026", "uom-summer-research-2026", "fulbright-us-scholar-au"]
     }
   }

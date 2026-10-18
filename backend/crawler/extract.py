@@ -47,10 +47,14 @@ def extract_title_and_text(html: str):
 
     title = soup.title.string.strip() if soup.title and soup.title.string else ""
 
-    for tag in soup(["script", "style", "noscript"]):
+    for tag in soup(["script", "style", "noscript", "nav", "header", "footer", "aside", "form"]):
+        tag.decompose()
+    for tag in soup.select('[role="navigation"], [role="banner"], [role="contentinfo"]'):
         tag.decompose()
 
-    text = " ".join(soup.get_text(separator=" ").split())
+    # Menus and footers otherwise lead the text and end up as the summary.
+    body = soup.find("main") or soup.find(attrs={"role": "main"}) or soup.find("article") or soup
+    text = " ".join(body.get_text(separator=" ").split())
     return title, text
 
 

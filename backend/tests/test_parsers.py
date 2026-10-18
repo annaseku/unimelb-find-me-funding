@@ -189,3 +189,17 @@ def test_amount_currency_code_needs_word_boundary():
     amount, note = parse_amount_aud("European 2026 round offers $40,000")
     assert amount == 40_000
     assert "AUD" in note
+
+
+def test_summarise_skips_leading_menu_text():
+    raw_text = (
+        "Skip to main content Home About Us Funding News Contact Search "
+        "The Foundation funds early-career researchers studying coral reefs. "
+        "Applications close in March."
+    )
+    assert summarise(raw_text, None).startswith("The Foundation funds early-career researchers")
+
+
+def test_summarise_keeps_text_that_starts_with_prose():
+    raw_text = "Our grants support field-initiated research on young people."
+    assert summarise(raw_text, None) == raw_text

@@ -142,3 +142,44 @@ def test_funding_type_reason_uses_a_human_label():
     reason = " ".join(result.reasons)
     assert "all kinds" in reason
     assert "salary" in reason
+
+
+# --- institution location ----------------------------------------------------
+
+
+def test_stated_country_excluding_the_researchers_is_likely_ineligible():
+    opportunity = make_opportunity(countries=["DE", "FR"])
+    result = score_eligibility(opportunity, SearchRequest())
+    assert result.label == EligibilityState.LIKELY_INELIGIBLE
+    assert any("Australia" in r for r in result.reasons)
+
+
+def test_australian_funder_domain_passes_for_the_default_australian_institution():
+    opportunity = make_opportunity(url="https://www.arc.gov.au/funding")
+    result = score_eligibility(opportunity, SearchRequest())
+    assert result.label == EligibilityState.ELIGIBLE
+
+
+def test_mention_of_australia_passes_on_a_generic_domain():
+    opportunity = make_opportunity(summary="Open to early-career Australian researchers.")
+    assert score_eligibility(opportunity, SearchRequest()).label == EligibilityState.ELIGIBLE
+
+
+def test_overseas_funder_domain_is_unknown_not_ineligible():
+    # NIH funds some foreign institutions, so a US domain alone is never a fail.
+    opportunity = make_opportunity(url="https://grants.nih.gov/r01")
+    result = score_eligibility(opportunity, SearchRequest())
+    assert result.label == EligibilityState.UNKNOWN
+    assert any("the United States" in r for r in result.reasons)
+
+
+def test_australian_funder_outranks_us_funder_on_eligibility():
+    au = score_eligibility(make_opportunity(url="https://nhmrc.gov.au/x"), SearchRequest())
+    us = score_eligibility(make_opportunity(url="https://www.nsf.gov/x"), SearchRequest())
+    assert au.score > us.score
+
+
+def test_institution_country_can_be_overridden():
+    opportunity = make_opportunity(url="https://www.ukri.org.uk/x", countries=["GB"])
+    request = SearchRequest(institution_country="GB")
+    assert score_eligibility(opportunity, request).label == EligibilityState.ELIGIBLE
