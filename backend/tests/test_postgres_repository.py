@@ -24,6 +24,7 @@ import pytest
 from backend.data.postgres_repository import (
     PostgresRepository,
     init_schema,
+    read_published_urls,
     upsert_records,
 )
 from backend.data.publish import publish, records_from_sqlite
@@ -73,6 +74,12 @@ def test_repository_round_trips_an_opportunity_through_jsonb(seeded):
     source = {o.id: o for o in (r.opportunity for r in corpus_records())}
     for served in PostgresRepository(seeded).all():
         assert served == source[served.id], f"{served.id} changed in transit"
+
+
+def test_read_published_urls_returns_every_seeded_url(seeded):
+    assert sorted(read_published_urls(seeded)) == sorted(
+        record.opportunity.url for record in corpus_records()
+    )
 
 
 def test_publishing_twice_upserts_rather_than_duplicating(seeded):

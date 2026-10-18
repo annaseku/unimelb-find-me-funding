@@ -48,6 +48,12 @@ gh workflow run crawl.yml -f week=1   # an hour later
 gh workflow run crawl.yml -f week=2   # an hour after that
 ```
 
+A weekly run only re-normalises the pages SerpApi returns that week, so a change to the extractor or the summary rules never reaches the records already in Postgres (KAN-68: 468 of 632 cards kept menu-text summaries after KAN-65). After any such change, dispatch the workflow with `refetch=true`: it reads every URL from Postgres, re-fetches each page through the current extractor with plain HTTP (no SerpApi searches, so it costs nothing against the plan), re-normalises and upserts them. A page that fails to fetch keeps its existing record. With Gemini on, 600 pages take a few hours because of the per-minute wait; add nothing and let KAN-67's handling run, or expect rule-built summaries past the daily quota.
+
+```bash
+gh workflow run crawl.yml -f refetch=true
+```
+
 To run the same pipeline by hand, export `SERPAPI_API_KEY`, `FMF_DATABASE_URL` and optional `GEMINI_API_KEY` in your shell and run from the repository root:
 
 ```bash
