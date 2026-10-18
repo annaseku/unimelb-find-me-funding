@@ -3,7 +3,11 @@ summary and keywords."""
 
 from __future__ import annotations
 
+import json
 from datetime import timedelta
+from pathlib import Path
+
+import pytest
 
 from backend.normaliser.parsers import (
     derive_status,
@@ -212,3 +216,104 @@ def test_summarise_skips_government_banner_sentences():
         "This program funds agricultural research at land-grant universities."
     )
     assert summarise(raw_text, None).startswith("This program funds agricultural research")
+
+
+# --- summarise real page openings (KAN-68) ------------------------------------
+
+
+@pytest.fixture(scope="module")
+def prose_start_pages():
+    path = Path(__file__).parent / "fixtures" / "prose_start_pages.json"
+    return json.loads(path.read_text(encoding="utf-8"))["pages"]
+
+
+def test_summarise_keeps_fhri_fund_name(prose_start_pages):
+    page = prose_start_pages["fhri_wa"]
+    summary = summarise(page["raw_text"], page["title"])
+    assert "The FHRI Fund releases funding programs" in summary
+    assert not summary.startswith("Fund releases")
+
+
+def test_summarise_keeps_nesp_program_name(prose_start_pages):
+    page = prose_start_pages["nesp_marine"]
+    summary = summarise(page["raw_text"], page["title"])
+    assert summary.startswith(
+        "The National Environmental Science Program (NESP) is a long-term commitment"
+    )
+
+
+def test_summarise_keeps_biological_technologies_and_company_name(prose_start_pages):
+    page = prose_start_pages["nsf_seedfund"]
+    summary = summarise(page["raw_text"], page["title"])
+    assert "Biological Technologies (BT) Miromatrix Medical Inc’s unique technology" in summary
+    assert not summary.startswith("Inc’s")
+
+
+def test_summarise_skips_creative_australia_filter_menu(prose_start_pages):
+    page = prose_start_pages["creative_australia"]
+    summary = summarise(page["raw_text"], page["title"])
+    assert summary.startswith("Fellowships of $80,000 support")
+
+
+@pytest.mark.parametrize("name", ["aimspress", "aimspress_old"])
+def test_summarise_skips_journal_navigation(prose_start_pages, name):
+    page = prose_start_pages[name]
+    summary = summarise(page["raw_text"], page["title"])
+    assert not summary.startswith("Home")
+    assert "(MBE) is an interdisciplinary Open Access journal" in summary
+    assert summary.startswith(
+        (
+            "Mathematical Biosciences and Engineering (MBE) is",
+            "Contact by email Mathematical Biosciences",
+        )
+    )
+
+
+def test_summarise_skips_sicb_breadcrumb(prose_start_pages):
+    page = prose_start_pages["sicb"]
+    summary = summarise(page["raw_text"], page["title"])
+    assert not summary.startswith("Home <")
+    assert "SICB offers grants and scholarships" in summary
+
+
+def test_summarise_skips_laf_scholarship_headings(prose_start_pages):
+    page = prose_start_pages["lafoundation"]
+    summary = summarise(page["raw_text"], page["title"])
+    assert summary.startswith("To date, LAF has awarded")
+
+
+@pytest.mark.parametrize("name", ["lafoundation_old", "sicb_old"])
+def test_summarise_skips_old_extractor_accessibility_links(prose_start_pages, name):
+    page = prose_start_pages[name]
+    summary = summarise(page["raw_text"], page["title"])
+    assert not summary.startswith("Skip to")
+
+
+def test_summarise_keeps_name_marked_by_a_sentence_opener():
+    raw_text = (
+        "Home About Donate The Coral Reef Foundation supports early-career researchers "
+        "studying marine life."
+    )
+    assert summarise(raw_text, None).startswith("The Coral Reef Foundation supports")
+
+
+@pytest.mark.parametrize(
+    "boundary", ["/", "<", "|", "Share", "Twitter", "Facebook", "LinkedIn", "Email"]
+)
+def test_summarise_keeps_name_marked_by_an_acronym_after_a_menu_boundary(boundary):
+    raw_text = (
+        f"Home {boundary} "
+        "Coral Reef Foundation (CRF) supports early-career researchers studying marine life."
+    )
+    assert summarise(raw_text, None).startswith("Coral Reef Foundation (CRF) supports")
+
+
+def test_summarise_treats_an_unmarked_capitalised_run_as_a_menu():
+    # Without an opener or an acronym, "Home About Donate Coral Reef Foundation" reads
+    # the same as a menu; the bulk comparison on 684 crawled rows showed that restoring
+    # such runs re-attached menus far more often than it recovered names.
+    raw_text = (
+        "Home About Donate Coral Reef Foundation supports early-career researchers "
+        "studying marine life."
+    )
+    assert summarise(raw_text, None).startswith("Foundation supports")

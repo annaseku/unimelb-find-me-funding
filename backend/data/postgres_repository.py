@@ -112,6 +112,12 @@ def insert_run(conn: psycopg.Connection, run: PipelineRun) -> None:
     )
 
 
+def read_published_urls(database_url: str) -> list[str]:
+    """Return every published URL without loading the opportunity payloads."""
+    with psycopg.connect(database_url) as conn:
+        return [row[0] for row in conn.execute(f"SELECT url FROM {NORMALISED_TABLE}").fetchall()]
+
+
 class PostgresRepository(OpportunityRepository):
     """Loads every row from `normalised_opportunities` once, at construction
     time, exactly as SqliteRepository does. A database that has not been

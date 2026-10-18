@@ -169,8 +169,10 @@ MIN_PROSE_WORDS = 6
 MIN_LOWERCASE_SHARE = 0.5
 # Capitalised words that open a sentence rather than label a menu item.
 _SENTENCE_OPENERS = frozenset(
-    "The A An Our This These We Its Their Each All In For Applications Funding".split()
+    "The A An Our This These We Its Their Each All In For To Applications Funding".split()
 )
+_MENU_BOUNDARIES = frozenset("/ < | Share Twitter Facebook LinkedIn Email".split())
+_MAX_NAME_WORDS = 8
 # Site-wide notices that read as prose but say nothing about the opportunity.
 _BOILERPLATE_RE = re.compile(
     r"\.gov|official website|government websites|https://|browser does not support"
@@ -184,10 +186,31 @@ def _is_menu_token(token: str) -> bool:
     return not token[0].islower()
 
 
+def _is_name_token(token: str) -> bool:
+    return token not in _MENU_BOUNDARIES and token.lstrip("(")[:1].isupper()
+
+
+def _name_start(words: list[str], start: int) -> int:
+    """Keep a proper name that opens the prose ("The FHRI Fund releases",
+    "Biological Technologies (BT) Miromatrix Medical Inc's unique ...").
+    Walk back over the capitalised run ending at `start`, but only keep it
+    when a sentence opener or a parenthesised acronym marks it as a name:
+    a bare run of capitalised words is just as likely a menu."""
+    if start + 1 >= len(words) or not words[start + 1][0].islower():
+        return start
+    first = start
+    while first > 0 and start - first < _MAX_NAME_WORDS and _is_name_token(words[first - 1]):
+        first -= 1
+    for i in range(start, first - 1, -1):
+        if words[i] in _SENTENCE_OPENERS:
+            return i
+    if any(word.startswith("(") for word in words[first : start + 1]):
+        return first
+    return start
+
+
 def _prose_start(text: str) -> int | None:
-    """Offset of the first sentence that reads as prose. Menus and breadcrumbs
-    are runs of capitalised labels with no full stop, so any run of three or
-    more such tokens is skipped; the last of them starts the sentence."""
+    """Skip capitalised menu runs, retaining short names that introduce prose."""
     sentence_start = 0
     ends = [m.end() for m in _SENTENCE_END_RE.finditer(text)] + [len(text)]
     for end in ends:
@@ -198,11 +221,16 @@ def _prose_start(text: str) -> int | None:
                 start = i
         if start and tokens[start - 1].group() in _SENTENCE_OPENERS:
             start -= 1
-        words = [t.group() for t in tokens[start:]]
-        lowercase = sum(1 for w in words if w[0].islower())
-        is_prose = len(words) >= MIN_PROSE_WORDS and lowercase / len(words) >= MIN_LOWERCASE_SHARE
-        if is_prose and not _BOILERPLATE_RE.search(" ".join(words)):
-            return tokens[start].start()
+        words = [t.group() for t in tokens]
+        for candidate in (_name_start(words, start), start):
+            remaining = words[candidate:]
+            lowercase = sum(1 for w in remaining if w[0].islower())
+            is_prose = (
+                len(remaining) >= MIN_PROSE_WORDS
+                and lowercase / len(remaining) >= MIN_LOWERCASE_SHARE
+            )
+            if is_prose and not _BOILERPLATE_RE.search(" ".join(remaining)):
+                return tokens[candidate].start()
         sentence_start = end
     return None
 

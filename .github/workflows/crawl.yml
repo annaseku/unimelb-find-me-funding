@@ -8,6 +8,10 @@ on:
     - cron: "0 20 * * 0"
   workflow_dispatch:
     inputs:
+      refetch:
+        description: "Re-fetch every page already published through the current extractor and rules; no SerpApi searches"
+        type: boolean
+        default: false
       all:
         description: "Crawl every seed research area instead of this week's slice (92 searches: exceeds the free plan's 50-per-hour cap)"
         type: boolean
@@ -39,9 +43,14 @@ jobs:
         env:
           SERPAPI_API_KEY: ${{ secrets.SERPAPI_API_KEY }}
           FMF_DATABASE_URL: ${{ secrets.FMF_DATABASE_URL }}
+          CRAWL_REFETCH: ${{ inputs.refetch }}
         run: |
-          if [ -z "$SERPAPI_API_KEY" ] || [ -z "$FMF_DATABASE_URL" ]; then
-            echo "Set repository secrets SERPAPI_API_KEY and FMF_DATABASE_URL before running the crawl." >&2
+          if [ -z "$FMF_DATABASE_URL" ]; then
+            echo "Set repository secret FMF_DATABASE_URL before running the crawl." >&2
+            exit 1
+          fi
+          if [ "$CRAWL_REFETCH" != "true" ] && [ -z "$SERPAPI_API_KEY" ]; then
+            echo "Set repository secret SERPAPI_API_KEY before running a seed crawl." >&2
             exit 1
           fi
       - name: Crawl, normalise and publish
@@ -51,8 +60,11 @@ jobs:
           FMF_DATABASE_URL: ${{ secrets.FMF_DATABASE_URL }}
           CRAWL_ALL: ${{ inputs.all }}
           CRAWL_WEEK: ${{ inputs.week }}
+          CRAWL_REFETCH: ${{ inputs.refetch }}
         run: |
-          if [ "$CRAWL_ALL" = "true" ]; then
+          if [ "$CRAWL_REFETCH" = "true" ]; then
+            python -m backend.data.refresh --refetch
+          elif [ "$CRAWL_ALL" = "true" ]; then
             python -m backend.data.refresh --all
           elif [ -n "$CRAWL_WEEK" ]; then
             python -m backend.data.refresh --week "$CRAWL_WEEK"

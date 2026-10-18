@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import sqlite3
 import sys
 from datetime import date
 from types import ModuleType
@@ -19,7 +20,7 @@ def fail_if_called(*args, **kwargs):
 
 @pytest.fixture
 def blocked_pipeline(monkeypatch):
-    for name in ("crawl", "normalise", "publish_to_postgres"):
+    for name in ("crawl", "refetch", "normalise", "publish_to_postgres"):
         monkeypatch.setattr(refresh, name, fail_if_called)
 
 
@@ -252,3 +253,202 @@ def test_nonpositive_per_run_is_rejected(per_run, blocked_pipeline):
     with pytest.raises(SystemExit) as error:
         refresh.main(["--dry-run", "--per-run", per_run])
     assert error.value.code == 2
+
+
+@pytest.mark.parametrize("skip_publish", [False, True])
+def test_refetch_needs_no_serpapi_and_runs_before_normalise_and_publish(
+    monkeypatch, tmp_path, capsys, skip_publish
+):
+    monkeypatch.delenv("SERPAPI_API_KEY", raising=False)
+    monkeypatch.setenv("FMF_DATABASE_URL", "postgresql://env-url")
+    for name in ("crawl", "load_seed_profiles", "generate_seed_queries"):
+        monkeypatch.setattr(refresh, name, fail_if_called)
+    urls = ["https://example.org/a", "https://example.org/b"]
+    calls = []
+    db = str(tmp_path / "crawler.db")
+    monkeypatch.setattr(refresh, "DB_PATH", db)
+    monkeypatch.setattr(
+        refresh,
+        "read_published_urls",
+        lambda database_url: calls.append(("read", database_url)) or urls,
+    )
+    monkeypatch.setattr(
+        refresh, "refetch", lambda targets: calls.append(("refetch", targets)) or (1, 1)
+    )
+    monkeypatch.setattr(
+        refresh,
+        "normalise",
+        lambda db_path, today, use_llm: (
+            calls.append(("normalise", db_path, today, use_llm)) or PipelineStats(normalised=1)
+        ),
+    )
+    monkeypatch.setattr(
+        refresh,
+        "publish_to_postgres",
+        lambda db_path, database_url: calls.append(("publish", db_path, database_url)) or 1,
+    )
+    args = ["--refetch", "--db-path", db]
+    if skip_publish:
+        args.extend(["--skip-publish", "--no-llm"])
+    else:
+        args.extend(["--database-url", "postgresql://flag-url"])
+
+    assert refresh.main(args) == 0
+    database_url = "postgresql://env-url" if skip_publish else "postgresql://flag-url"
+    assert calls == [
+        ("read", database_url),
+        ("refetch", urls),
+        ("normalise", db, date.today(), not skip_publish),
+    ] + ([] if skip_publish else [("publish", db, database_url)])
+    output = capsys.readouterr()
+    assert output.err == ""
+    assert output.out.splitlines()[:4] == [
+        "urls: 2",
+        "fetched: 1",
+        "fetch failed: 1",
+        "normalised: 1",
+    ]
+    assert "llm calls: 0" in output.out
+    assert ("not published:" if skip_publish else "published: 1") in output.out
+
+
+@pytest.mark.parametrize("urls", [[], ["https://example.org/a", "https://example.org/b"]])
+def test_refetch_dry_run_only_reads_and_counts_urls(monkeypatch, capsys, blocked_pipeline, urls):
+    monkeypatch.delenv("SERPAPI_API_KEY", raising=False)
+    monkeypatch.setenv("FMF_DATABASE_URL", "postgresql://test")
+    monkeypatch.setitem(sys.modules, "backend.crawler.crawler", None)
+    for name in ("load_seed_profiles", "generate_seed_queries"):
+        monkeypatch.setattr(refresh, name, fail_if_called)
+    calls = []
+    monkeypatch.setattr(
+        refresh,
+        "read_published_urls",
+        lambda database_url: calls.append(database_url) or urls,
+    )
+    assert refresh.main(["--refetch", "--dry-run"]) == 0
+    assert calls == ["postgresql://test"]
+    assert capsys.readouterr().out == f"urls: {len(urls)}\n"
+
+
+@pytest.mark.parametrize("conflict", [["--all"], ["--week", "0"]])
+def test_refetch_rejects_seed_rotation_flags(monkeypatch, blocked_pipeline, conflict):
+    monkeypatch.setattr(refresh, "read_published_urls", fail_if_called)
+    with pytest.raises(SystemExit) as error:
+        refresh.main(["--refetch", *conflict])
+    assert error.value.code == 2
+
+
+@pytest.mark.parametrize("extra", [[], ["--dry-run"], ["--skip-publish"]])
+@pytest.mark.parametrize("database_url", [None, "", "   "])
+def test_refetch_requires_database_before_any_stage(
+    monkeypatch, capsys, blocked_pipeline, extra, database_url
+):
+    monkeypatch.delenv("SERPAPI_API_KEY", raising=False)
+    if database_url is None:
+        monkeypatch.delenv("FMF_DATABASE_URL", raising=False)
+    else:
+        monkeypatch.setenv("FMF_DATABASE_URL", database_url)
+    monkeypatch.setattr(refresh, "read_published_urls", fail_if_called)
+    monkeypatch.setattr(refresh, "load_seed_profiles", fail_if_called)
+    assert refresh.main(["--refetch", *extra]) == 2
+    assert "FMF_DATABASE_URL" in capsys.readouterr().err
+
+
+def test_refetch_database_error_returns_two_without_fetching(monkeypatch, capsys, blocked_pipeline):
+    import psycopg
+
+    def cannot_connect(database_url):
+        raise psycopg.OperationalError("connection refused")
+
+    monkeypatch.setattr(refresh, "read_published_urls", cannot_connect)
+    assert refresh.main(["--refetch", "--dry-run", "--database-url", "postgresql://test"]) == 2
+    assert "connection refused" in capsys.readouterr().err
+
+
+def test_refetch_rejects_a_different_publish_database(
+    monkeypatch, tmp_path, capsys, blocked_pipeline
+):
+    monkeypatch.setattr(refresh, "read_published_urls", fail_if_called)
+    with pytest.raises(SystemExit) as error:
+        refresh.main(
+            [
+                "--refetch",
+                "--database-url",
+                "postgresql://test",
+                "--db-path",
+                str(tmp_path / "other.db"),
+            ]
+        )
+    assert error.value.code == 2
+    assert "--db-path" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("empty", [False, True])
+def test_refetch_initialises_then_crawls_each_url_and_counts_sqlite_results(
+    monkeypatch, tmp_path, empty
+):
+    from backend.crawler.storage import init_db, mark_fetch_failed, save_opportunity
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv("SERPAPI_API_KEY", raising=False)
+    calls = []
+    urls = (
+        [] if empty else ["https://example.org/a", "https://example.org/b", "https://example.org/c"]
+    )
+    fake_crawler = ModuleType("backend.crawler.crawler")
+
+    def initialise():
+        calls.append("init")
+        init_db()
+
+    def crawl_url(url, source_query):
+        calls.append((url, source_query))
+        if url.endswith("/a"):
+            save_opportunity(
+                url, {"title": "Grant", "raw_text": "Research grant funding"}, source_query
+            )
+        elif url.endswith("/b"):
+            mark_fetch_failed(url)
+        # /c models a robots.txt rejection, which stores nothing.
+
+    fake_crawler.init_db = initialise
+    fake_crawler.crawl_url = crawl_url
+    monkeypatch.setitem(sys.modules, "backend.crawler.crawler", fake_crawler)
+    assert refresh.refetch(urls) == ((0, 0) if empty else (1, 2))
+    assert calls == ["init", *((url, "refetch") for url in urls)]
+    with sqlite3.connect(refresh.DB_PATH) as conn:
+        assert dict(conn.execute("SELECT url, fetch_failed FROM opportunities")) == (
+            {} if empty else {urls[0]: 0, urls[1]: 1, urls[2]: 1}
+        )
+
+
+def test_refetch_reprocesses_cached_pages_and_does_not_publish_failed_cached_records(
+    monkeypatch, normalised_sqlite_db, today
+):
+    from backend.crawler.storage import init_db, mark_fetch_failed
+    from backend.normaliser.pipeline import read_crawled_rows
+
+    monkeypatch.chdir(normalised_sqlite_db.parent)
+    monkeypatch.setattr(refresh, "DB_PATH", str(normalised_sqlite_db))
+    with sqlite3.connect(normalised_sqlite_db) as conn:
+        rows = read_crawled_rows(conn)
+    good, failed, blocked = (row.url for row in rows[:3])
+    fake_crawler = ModuleType("backend.crawler.crawler")
+    fake_crawler.init_db = lambda: init_db(str(normalised_sqlite_db))
+
+    def crawl_url(url, source_query):
+        if url == good:
+            with sqlite3.connect(normalised_sqlite_db) as conn:
+                conn.execute("UPDATE opportunities SET fetch_failed = 0 WHERE url = ?", (url,))
+        elif url == failed:
+            mark_fetch_failed(url, str(normalised_sqlite_db))
+
+    fake_crawler.crawl_url = crawl_url
+    monkeypatch.setitem(sys.modules, "backend.crawler.crawler", fake_crawler)
+    assert refresh.refetch([good, failed, blocked]) == (1, 2)
+    stats = refresh.normalise(normalised_sqlite_db, today, False)
+    assert stats.normalised == 1
+    published_urls = {r.opportunity.url for r in refresh.records_from_sqlite(normalised_sqlite_db)}
+    assert good in published_urls
+    assert failed not in published_urls
+    assert blocked not in published_urls
