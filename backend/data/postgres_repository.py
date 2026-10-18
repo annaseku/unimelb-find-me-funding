@@ -16,6 +16,7 @@ uses by default.
 
 from __future__ import annotations
 
+import json
 from collections.abc import Iterable
 from pathlib import Path
 
@@ -54,6 +55,12 @@ def init_schema(conn: psycopg.Connection) -> None:
     )
 
 
+def _dumps_without_nul(obj: object) -> str:
+    """jsonb cannot hold \\u0000, which a crawled binary page can leave in a
+    text field; the normaliser strips NUL on read, this is the last line."""
+    return json.dumps(obj).replace("\\u0000", "")
+
+
 def upsert_records(conn: psycopg.Connection, records: Iterable[NormalisedRecord]) -> int:
     """Insert or refresh one batch of normalised records, keyed on URL to
     match the SQLite pipeline's upsert semantics. Returns the row count."""
@@ -62,8 +69,8 @@ def upsert_records(conn: psycopg.Connection, records: Iterable[NormalisedRecord]
             record.opportunity.id,
             record.opportunity.url,
             record.content_hash,
-            Jsonb(record.opportunity.model_dump(mode="json")),
-            Jsonb(record.provenance),
+            Jsonb(record.opportunity.model_dump(mode="json"), dumps=_dumps_without_nul),
+            Jsonb(record.provenance, dumps=_dumps_without_nul),
             record.used_llm,
         )
         for record in records

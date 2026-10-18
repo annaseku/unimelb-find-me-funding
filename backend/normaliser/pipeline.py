@@ -34,6 +34,7 @@ class PipelineStats:
     skipped_unchanged: int = 0
     llm_calls: int = 0
     llm_failures: int = 0
+    llm_quota_exhausted: bool = False
 
 
 def init_normalised_table(conn: sqlite3.Connection) -> None:
@@ -53,11 +54,26 @@ def init_normalised_table(conn: sqlite3.Connection) -> None:
     )
 
 
+def _without_nul(value: object) -> object:
+    """Postgres rejects NUL inside text and JSON; a crawled PDF or binary page
+    can carry them, and SQLite stores them without complaint."""
+    return value.replace("\x00", "") if isinstance(value, str) else value
+
+
 def read_crawled_rows(conn: sqlite3.Connection) -> list[CrawledRow]:
     """Every crawled row that fetched successfully (fetch_failed = 0)."""
     conn.row_factory = sqlite3.Row
     cursor = conn.execute("SELECT * FROM opportunities WHERE fetch_failed = 0")
-    return [CrawledRow(**dict(row)) for row in cursor.fetchall()]
+    return [
+        CrawledRow(**{key: _without_nul(value) for key, value in dict(row).items()})
+        for row in cursor.fetchall()
+    ]
+
+
+def quota_exhausted(exc: BaseException) -> bool:
+    """A provider saying the day's free quota is gone: retrying every remaining
+    row would only burn time, so the run continues rules-only."""
+    return getattr(exc, "code", None) == 429 or "RESOURCE_EXHAUSTED" in str(exc)
 
 
 def load_normalised(conn: sqlite3.Connection) -> list[NormalisedRecord]:
@@ -159,9 +175,13 @@ def normalise_database(
             if extractor is not None:
                 try:
                     extracted = extractor.extract(row.title or "", row.url, row.raw_text or "")
-                except Exception:
+                except Exception as exc:
                     logger.warning("LLM extraction failed for %s", row.url, exc_info=True)
                     stats.llm_failures += 1
+                    if quota_exhausted(exc):
+                        logger.warning("LLM quota exhausted; the rest of this run is rules-only")
+                        stats.llm_quota_exhausted = True
+                        extractor = None
                 else:
                     record = merge(record, extracted)
                     # A model-supplied deadline can turn a rule-only "active"

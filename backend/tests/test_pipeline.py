@@ -5,6 +5,7 @@ failure paths."""
 
 from __future__ import annotations
 
+import json
 import sqlite3
 from datetime import date
 
@@ -161,3 +162,55 @@ def test_model_supplied_past_deadline_closes_a_record_with_no_rule_deadline(tmp_
     assert record.opportunity.deadline == past_deadline
     assert record.opportunity.status.value == "closed"
     assert record.provenance["deadline"] == "llm"
+
+
+def test_nul_bytes_from_a_binary_page_are_stripped_before_normalising(tmp_path):
+    db = tmp_path / "crawler.db"
+    init_db(str(db))
+    save_opportunity(
+        "https://example.org/binary.pdf",
+        {
+            "title": "Grant\x00 guidelines",
+            "raw_text": "%PDF-1.4\x00\x00 Applications close 1 March 2027. Up to $50,000.",
+            "deadline_raw": None,
+            "deadline_parsed": None,
+            "funding_amount_raw": "$50,000",
+            "eligibility_snippet": None,
+        },
+        "test",
+        db_path=str(db),
+    )
+    normalise_database(db, TODAY)
+    with sqlite3.connect(str(db)) as conn:
+        row = conn.execute("SELECT opportunity_json FROM normalised_opportunities").fetchone()
+    assert "\\u0000" not in row[0]
+    assert "\x00" not in row[0]
+    assert json.loads(row[0])["title"] == "Grant guidelines"
+
+
+class _QuotaExhausted(Exception):
+    code = 429
+
+
+class _ExplodingExtractor:
+    def __init__(self):
+        self.calls = 0
+
+    def extract(self, title, url, text):
+        self.calls += 1
+        raise _QuotaExhausted("429 RESOURCE_EXHAUSTED: quota exceeded")
+
+
+def test_llm_quota_exhaustion_switches_the_rest_of_the_run_to_rules_only(crawler_db):
+    extractor = _ExplodingExtractor()
+    stats = normalise_database(crawler_db, TODAY, extractor=extractor)
+    assert extractor.calls == 1
+    assert stats.llm_failures == 1
+    assert stats.llm_quota_exhausted is True
+    assert stats.normalised == stats.rows_read
+    assert all(not r.used_llm for r in _load(crawler_db))
+
+
+def _load(db):
+    with sqlite3.connect(str(db)) as conn:
+        return load_normalised(conn)

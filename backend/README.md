@@ -68,7 +68,7 @@ FMF_DATA_SOURCE=sqlite FMF_DB_PATH=funding_crawler.db uvicorn backend.api.main:a
 | `FMF_LLM_MODEL` | Gemini model for the extractor, default `gemini-2.5-flash` |
 | `FMF_LLM` | Set to `off` to skip the extractor even when a key is present |
 
-The extractor runs once per changed page: unchanged pages are skipped by content hash on later runs, so re-running the pipeline daily costs only what the crawler found new. Design record: `docs/09-architectural-design/adr/ADR-003-normaliser.md`.
+The extractor runs once per changed page: unchanged pages are skipped by content hash on later runs, so re-running the pipeline costs only what the crawler found new. Gemini's free tier allows 20 requests a day for `gemini-2.5-flash` (seen 18 October 2026); once the API answers 429 RESOURCE_EXHAUSTED the pipeline stops calling it for the rest of that run and finishes rules-only, so a weekly crawl enriches about 20 pages and the rest wait for a later run that re-reads them. Crawled text is stripped of NUL bytes on read, because Postgres rejects them inside JSON. Design record: `docs/09-architectural-design/adr/ADR-003-normaliser.md`.
 
 ## Supabase Postgres
 
