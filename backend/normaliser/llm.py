@@ -29,6 +29,11 @@ MAX_TEXT_CHARS = 20_000
 # One stalled request once hung a crawl run for 4.5 hours (2026-10-18). A
 # timeout raises, and the pipeline goes rules-only for that row.
 REQUEST_TIMEOUT_S = 60.0
+# The timeout never fires while tokens keep arriving: four runaway replies of up
+# to 790,000 characters held run 39157596776 for over four hours (KAN-70). A
+# full ExtractedFields reply is a few hundred tokens, so a capped runaway ends
+# in seconds as invalid JSON and the row falls back to rules.
+MAX_OUTPUT_TOKENS = 1500
 
 # Fields the model may set or override, provided it returns a non-empty
 # value. Anything not listed here (amount and deadline) is rule-priority.
@@ -148,6 +153,7 @@ class OpenRouterExtractor:
                 },
             },
             temperature=0,
+            max_tokens=MAX_OUTPUT_TOKENS,
             # Route only to providers that honour response_format for this model.
             extra_body={"provider": {"require_parameters": True}},
         )

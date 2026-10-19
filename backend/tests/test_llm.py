@@ -209,6 +209,17 @@ def test_openrouter_extractor_calls_the_client_with_expected_kwargs():
     assert len(user["content"]) < len(long_text)
 
 
+def test_openrouter_extractor_caps_the_reply_length():
+    # Regression (crawl run 39157596776): with no cap, a runaway reply ran for
+    # over an hour per page because the request timeout never fires mid-stream.
+    client = StubClient("{}")
+    OpenRouterExtractor(client=client, model="vendor/test-model").extract(
+        "Title", "https://example.org", "text"
+    )
+    assert client.calls[0]["max_tokens"] == llm_module.MAX_OUTPUT_TOKENS
+    assert llm_module.MAX_OUTPUT_TOKENS <= 2000
+
+
 def test_openrouter_extractor_accepts_json_wrapped_in_a_code_fence():
     client = StubClient('```json\n{"summary": "Fenced."}\n```')
     extractor = OpenRouterExtractor(client=client, model="vendor/test-model")
