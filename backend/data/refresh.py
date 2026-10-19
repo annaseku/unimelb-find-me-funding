@@ -13,9 +13,12 @@ import json
 import os
 import sqlite3
 import sys
+from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
+from urllib.parse import urlsplit
 
 import psycopg
 from pydantic import BaseModel
@@ -28,6 +31,9 @@ from backend.normaliser.llm import extractor_from_env
 from backend.normaliser.pipeline import NORMALISED_TABLE, PipelineStats, normalise_database
 
 SEED_FILE = Path(__file__).with_name("seed_profiles.json")
+# A serial refetch of 668 pages took about 1.5 hours (KAN-71).
+FETCH_WORKERS = 8
+LLM_WORKERS = 8
 
 
 class SeedProfile(BaseModel):
@@ -87,8 +93,18 @@ def refetch(urls: list[str]) -> tuple[int, int]:
                 f"DELETE FROM {NORMALISED_TABLE} WHERE url = ?", ((url,) for url in urls)
             )
 
+    # One site's pages stay sequential, keeping the crawler's per-request
+    # delay towards each host; different sites are fetched in parallel.
+    by_host: dict[str, list[str]] = defaultdict(list)
     for url in urls:
-        crawl_url(url, source_query="refetch")
+        by_host[urlsplit(url).netloc.lower()].append(url)
+
+    def fetch_host(host_urls: list[str]) -> None:
+        for url in host_urls:
+            crawl_url(url, source_query="refetch")
+
+    with ThreadPoolExecutor(max_workers=FETCH_WORKERS) as pool:
+        list(pool.map(fetch_host, by_host.values()))
 
     with sqlite3.connect(DB_PATH) as conn:
         states = dict(conn.execute("SELECT url, fetch_failed FROM opportunities"))
@@ -97,7 +113,7 @@ def refetch(urls: list[str]) -> tuple[int, int]:
 
 def normalise(db_path: str | Path, today: date, use_llm: bool) -> PipelineStats:
     extractor = extractor_from_env() if use_llm else None
-    return normalise_database(db_path, today, extractor=extractor)
+    return normalise_database(db_path, today, extractor=extractor, llm_workers=LLM_WORKERS)
 
 
 def publish_to_postgres(db_path: str | Path, database_url: str) -> int:

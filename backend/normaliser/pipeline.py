@@ -11,8 +11,10 @@ from __future__ import annotations
 import json
 import logging
 import sqlite3
+import threading
 import time
 from collections.abc import Callable, Iterable
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from pathlib import Path
@@ -234,12 +236,47 @@ def write_records(conn: sqlite3.Connection, records: Iterable[NormalisedRecord])
     return written
 
 
+def _extract_all(
+    extractor: Extractor | None,
+    rows: list[CrawledRow],
+    stats: PipelineStats,
+    sleep: Callable[[float], None],
+    workers: int,
+) -> list[ExtractedFields | Exception | None]:
+    """Run the extractor over `rows`, up to `workers` calls at once, in row
+    order. Each slot is the extracted fields, the exception the call raised,
+    or None when there was no call. Once a call fails in a way that ends LLM
+    use for the run, calls not yet started are skipped."""
+    if extractor is None:
+        return [None] * len(rows)
+    stopped = threading.Event()
+    lock = threading.Lock()
+
+    def one(row: CrawledRow) -> ExtractedFields | Exception | None:
+        if stopped.is_set():
+            return None
+        local = PipelineStats()
+        try:
+            return _extract_with_retries(extractor, row, local, sleep)
+        except Exception as exc:
+            if classify_llm_error(exc)[0] in ("rate_limit", "plan_error"):
+                stopped.set()
+            return exc
+        finally:
+            with lock:
+                stats.rate_limit_waits += local.rate_limit_waits
+
+    with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
+        return list(pool.map(one, rows))
+
+
 def normalise_database(
     db_path: str | Path,
     today: date,
     extractor: Extractor | None = None,
     force: bool = False,
     sleep: Callable[[float], None] = time.sleep,
+    llm_workers: int = 1,
 ) -> PipelineStats:
     """Read every crawled row out of `db_path`, normalise it, and upsert the
     result into `normalised_opportunities` in the same file."""
@@ -253,6 +290,7 @@ def normalise_database(
         rows = read_crawled_rows(conn)
         stats.rows_read = len(rows)
 
+        pending = []
         for row in rows:
             row_hash = content_hash(row)
             stored = existing.get(row.url)
@@ -264,30 +302,30 @@ def normalise_database(
                 if stored_hash == row_hash and (stored_used_llm or extractor is None):
                     stats.skipped_unchanged += 1
                     continue
+            pending.append(row)
 
+        outcomes = _extract_all(extractor, pending, stats, sleep, llm_workers)
+
+        for row, outcome in zip(pending, outcomes, strict=True):
             record = normalise_row(row, today)
 
-            if extractor is not None:
-                try:
-                    extracted = _extract_with_retries(extractor, row, stats, sleep)
-                except Exception as exc:
-                    logger.warning("LLM extraction failed for %s", row.url, exc_info=True)
-                    stats.llm_failures += 1
-                    kind, _ = classify_llm_error(exc)
-                    # A rate limit that outlasted every retry is the provider's limit.
-                    reason = {"rate_limit": "daily_quota", "plan_error": "plan_error"}.get(kind)
-                    if reason:
-                        logger.warning("LLM stopped (%s); rest of run is rules-only", reason)
-                        stats.llm_stop_reason = reason
-                        stats.llm_stop_detail = _short_error(exc)
-                        extractor = None
-                else:
-                    record = merge(record, extracted)
-                    # A model-supplied deadline can turn a rule-only "active"
-                    # record into a closed one (or vice versa); re-derive
-                    # status so the two never disagree.
-                    record.opportunity.status = derive_status(record.opportunity.deadline, today)
-                    stats.llm_calls += 1
+            if isinstance(outcome, Exception):
+                logger.warning("LLM extraction failed for %s", row.url, exc_info=outcome)
+                stats.llm_failures += 1
+                kind, _ = classify_llm_error(outcome)
+                # A rate limit that outlasted every retry is the provider's limit.
+                reason = {"rate_limit": "daily_quota", "plan_error": "plan_error"}.get(kind)
+                if reason and stats.llm_stop_reason is None:
+                    logger.warning("LLM stopped (%s); rest of run is rules-only", reason)
+                    stats.llm_stop_reason = reason
+                    stats.llm_stop_detail = _short_error(outcome)
+            elif outcome is not None:
+                record = merge(record, outcome)
+                # A model-supplied deadline can turn a rule-only "active"
+                # record into a closed one (or vice versa); re-derive
+                # status so the two never disagree.
+                record.opportunity.status = derive_status(record.opportunity.deadline, today)
+                stats.llm_calls += 1
 
             stats.normalised += write_records(conn, [record])
 
