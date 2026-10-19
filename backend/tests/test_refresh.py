@@ -202,8 +202,8 @@ def test_normalise_selects_the_optional_extractor(monkeypatch, tmp_path, use_llm
         calls.append("extractor")
         return extractor
 
-    def normalise_database(db_path, today, extractor=None):
-        calls.append((db_path, today, extractor))
+    def normalise_database(db_path, today, extractor=None, llm_workers=1):
+        calls.append((db_path, today, extractor, llm_workers))
         return PipelineStats(normalised=3)
 
     monkeypatch.setattr(refresh, "extractor_from_env", extractor_from_env)
@@ -212,7 +212,7 @@ def test_normalise_selects_the_optional_extractor(monkeypatch, tmp_path, use_llm
     today = date(2026, 10, 18)
     assert refresh.normalise(db, today, use_llm).normalised == 3
     assert calls == (["extractor"] if use_llm else []) + [
-        (db, today, extractor if use_llm else None)
+        (db, today, extractor if use_llm else None, refresh.LLM_WORKERS)
     ]
 
 
