@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+import threading
 from datetime import date
 
 import httpx
@@ -280,6 +281,40 @@ def test_a_one_off_row_error_does_not_stop_the_run(crawler_db, error):
     assert stats.llm_failures == 1
     assert stats.llm_stop_reason is None
     assert stats.llm_calls == stats.rows_read - 1
+
+
+class _BarrierExtractor:
+    """The first two calls only return once both are in flight, so a serial
+    pipeline breaks the barrier and records failures."""
+
+    def __init__(self):
+        self.barrier = threading.Barrier(2, timeout=5)
+        self.calls = 0
+        self.lock = threading.Lock()
+
+    def extract(self, title, url, text):
+        with self.lock:
+            self.calls += 1
+            first_two = self.calls <= 2
+        if first_two:
+            self.barrier.wait()
+        return ExtractedFields(summary=f"Summary of {url}.")
+
+
+def test_llm_workers_run_extractor_calls_in_parallel(crawler_db):
+    stats = normalise_database(crawler_db, TODAY, extractor=_BarrierExtractor(), llm_workers=4)
+    assert stats.llm_failures == 0
+    assert stats.llm_calls == stats.rows_read
+    records = _load(crawler_db)
+    assert all(r.opportunity.summary == f"Summary of {r.opportunity.url}." for r in records)
+
+
+def test_a_bad_key_still_stops_llm_use_with_parallel_workers(crawler_db):
+    extractor = _ScriptedExtractor([_provider_error(402, "Insufficient credits")] * 20)
+    stats = normalise_database(crawler_db, TODAY, extractor=extractor, llm_workers=4)
+    assert stats.llm_stop_reason == "plan_error"
+    assert stats.normalised == stats.rows_read
+    assert all(not r.used_llm for r in _load(crawler_db))
 
 
 def test_each_run_is_recorded_with_its_llm_outcome(crawler_db):
