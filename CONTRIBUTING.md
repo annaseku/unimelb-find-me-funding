@@ -80,4 +80,4 @@ Found in your own PR: fix it there. Found anywhere else: raise a Task labelled `
 
 ## Releases
 
-A tagged GitHub release closes each sprint: `v0.<sprint>.0`, then `v1.0.0` at handover. See `docs/12-deployment/README.md`.
+Every merge to main deploys; the handover build is tagged `v1.0.0`. See `docs/12-deployment/README.md`.

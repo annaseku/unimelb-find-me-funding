@@ -1,6 +1,6 @@
 # Normaliser Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> Historical plan, kept as a record of GenAI use: it was executed with an AI coding agent, and its file paths and steps reflect the repository at the time. The LLM provider has since moved from Gemini to OpenRouter (KAN-69). Current design: `docs/09-architectural-design/`.
 
 **Goal:** Turn the crawler's raw SQLite rows into structured `Opportunity` records so the ranker and API run on real crawled pages, with deterministic rules first and an optional Gemini extractor filling the prose-derived fields.
 

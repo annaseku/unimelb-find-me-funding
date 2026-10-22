@@ -87,7 +87,7 @@ FMF_DATA_SOURCE=postgres uvicorn backend.api.main:app --reload
 
 **Use the Supavisor session-mode pooler URL, port 5432, not the direct connection string.** Supabase's direct endpoint (`db.<ref>.supabase.co`) publishes only an IPv6 `AAAA` record on the free plan, and Render is IPv4-only, so a direct URL fails from the deployed service while working fine from a laptop. Transaction mode (port 6543) is also wrong here: it does not support the prepared statements psycopg uses. Copy the exact string from the Supabase dashboard's **Connect** button, session mode.
 
-Free-plan projects pause after seven days of low database activity, which the scheduled crawl prevents once it runs against Postgres. Until then, an idle project pauses and `/api/search` returns HTTP 500 while `/api/health` still returns 200. Restore the project from the Supabase dashboard.
+Free-plan projects pause after seven days of low database activity; the weekly crawl keeps the project active. If it does pause, `/api/search` returns HTTP 500 while `/api/health` still returns 200; restore it from the Supabase dashboard.
 
 ## CI/CD
 

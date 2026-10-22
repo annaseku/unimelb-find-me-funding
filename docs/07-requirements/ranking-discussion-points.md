@@ -44,10 +44,10 @@ Evidence: none from the client; chosen so an unknown never outranks a confirmed 
 
 Question for the team: with the tier rule in point 2, the 0.1 only orders ineligible results among themselves. If the team prefers pure weighted ordering instead of the tier rule, 0.1 is not low enough: a perfect match with a large amount reaches about 0.64 and outranks an applicable result with a weak match at about 0.47.
 
-## 6. Country and institution-location restrictions are stored but not checked
+## 6. Institution location defaults to Australia
 
-Implemented: `Opportunity.countries` records where the applicant's institution must be based (for example ERC grants need an EU host). Nothing compares it to the researcher because the frontend collects no country or institution input; citizenship is the only proxy.
+Implemented: `Opportunity.countries` records where the applicant's institution must be based (for example ERC grants need an EU host), and `SearchRequest.institution_country` (default `AU`) is checked against it. With no stated countries, the funder's domain stands in: a local funder or one that mentions Australia passes, an overseas one is marked unknown. The form has no country input, so every search uses the default.
 
 Evidence: the architecture page lists "country restrictions" as a deterministic check, but the brief's input list has no country field.
 
-Question for the team and client: add an "institution country" drop-down (defaulting to Australia) so this becomes a real check? Cheap on both sides.
+Question for the client: is defaulting to Australia right, or should the form offer an "institution country" drop-down?

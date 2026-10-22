@@ -1,5 +1,7 @@
 # Ranking engine and search API: design spec
 
+> Historical design spec, written before implementation with an AI coding agent. File paths reflect the repository at the time. Current design: `docs/09-architectural-design/`.
+
 Date: 2026-09-06. Owner: Anna Sekulic (Ranker prototype, per Sprint Description). Status: approved in conversation, ready for an implementation plan.
 
 ## 1. Purpose

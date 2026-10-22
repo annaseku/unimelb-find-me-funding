@@ -25,7 +25,7 @@ Decision record: `docs/09-architectural-design/adr/ADR-004-deployment-architectu
 
 ## Scheduled crawl
 
-GitHub Actions `Crawl and publish` runs every Sunday at 20:00 UTC (Monday morning in Melbourne), or on manual dispatch. From the repository root, `backend.data.refresh` crawls a rotating slice of research areas with the crawler, normalises the SQLite rows, then publishes them to Supabase Postgres for the deployed API. The workflow retains `funding_crawler.db` as an artifact for seven days, including after a failed run when a database was created. Until the first successful run, the deployed table still holds the 30-record evals corpus.
+GitHub Actions `Crawl and publish` runs every Sunday at 20:00 UTC (Monday morning in Melbourne), or on manual dispatch. From the repository root, `backend.data.refresh` crawls a rotating slice of research areas with the crawler, normalises the SQLite rows, then publishes them to Supabase Postgres for the deployed API. The workflow retains `funding_crawler.db` as an artifact for seven days, including after a failed run when a database was created.
 
 Set these GitHub repository secrets using the interactive prompts:
 
@@ -68,13 +68,11 @@ Render's free plan sleeps after 15 minutes idle and takes about a minute to wake
 
 ## Releases
 
-Tag a GitHub release at the end of each sprint so the client demo maps to exact code:
+Every merge to main is a deploy, identified by the API image's `sha-<commit>` tag. The handover build will be tagged as a GitHub release:
 
 ```bash
-gh release create v0.3.0 --target main --title "Sprint 3" --generate-notes
+gh release create v1.0.0 --target main --title "Handover" --generate-notes
 ```
-
-Minor version = sprint number until the final handover, which is `v1.0.0`.
 
 ## Rollback
 

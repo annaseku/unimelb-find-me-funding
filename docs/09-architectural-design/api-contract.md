@@ -128,7 +128,7 @@ How the data behind the results was produced, so the frontend can warn when AI s
     "llm_calls": 5,
     "llm_failures": 1,
     "llm_stop_reason": "daily_quota",
-    "llm_stop_detail": "429 RESOURCE_EXHAUSTED: Quota exceeded"
+    "llm_stop_detail": "429 Too Many Requests"
   },
   "opportunities": 164,
   "rule_only_summaries": 159
