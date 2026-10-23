@@ -77,7 +77,7 @@ Backend, from the repository root (Python 3.11 or newer):
 python3 -m venv backend/.venv && source backend/.venv/bin/activate
 pip install -r backend/requirements-dev.txt
 uvicorn backend.api.main:app --reload      # docs at http://localhost:8000/docs
-pytest backend                             # 372 tests
+pytest backend                             # 406 tests
 python -m backend.evals.run_evals          # ranking evals and weight sensitivity
 ```
 
