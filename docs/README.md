@@ -1,6 +1,6 @@
 # Documentation
 
-Organised by the COMP30022 Progress Checklist, numbered the same way. Items 1 to 6 (process) and the written artefacts live in Confluence; this folder holds what belongs next to the code. The [Confluence space home](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/overview) indexes all twelve. Confluence and Jira need an Atlassian login, so read-only snapshots taken 23 October 2026 live in [`confluence/`](confluence/README.md) and [`jira/`](jira/README.md).
+Organised by the COMP30022 Progress Checklist, numbered the same way. Items 1 to 6 (process) and the written artefacts live in Confluence; this folder holds what belongs next to the code. The [Confluence space home](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/overview) indexes all twelve. Confluence and Jira need an Atlassian login, so read-only snapshots taken 23 October 2026 live in [`snapshots/confluence/`](snapshots/confluence/README.md) and [`snapshots/jira/`](snapshots/jira/README.md).
 
 | # | Checklist item | Confluence | In this repo |
 | --- | --- | --- | --- |
