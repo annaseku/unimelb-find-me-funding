@@ -10,16 +10,10 @@ matching/ranking engine's job, not the crawler's.
 """
 
 import re
-from datetime import datetime
 
 from bs4 import BeautifulSoup
 
-try:
-    from dateutil import parser as dateutil_parser
-
-    _HAVE_DATEUTIL = True
-except ImportError:
-    _HAVE_DATEUTIL = False
+from backend.crawler.dates import parse_date_text
 
 # --- Regex patterns ----------------------------------------------------------
 
@@ -32,9 +26,10 @@ _DEADLINE_LABEL_RE = re.compile(
     re.IGNORECASE,
 )
 
-# Matches dollar figures like "$500,000", "$1.2 million", "AUD 2,000,000"
+# Matches dollar figures like "$500,000", "$1.2 million", "AUD 2,000,000". The figure must
+# start with a digit, and the multiplier must end a word so "$500 more" is not $500 million.
 _AMOUNT_RE = re.compile(
-    r"(AUD|A\$|\$)\s?([\d,]+(?:\.\d+)?)\s?(million|m|k)?",
+    r"(AUD|A\$|\$)\s?(\d[\d,]*(?:\.\d+)?)\s?(?:(million|m|k)\b)?",
     re.IGNORECASE,
 )
 
@@ -72,16 +67,8 @@ def extract_deadline(text: str):
 
     raw = match.group(2).strip()
 
-    parsed_iso = None
-    if _HAVE_DATEUTIL:
-        try:
-            parsed_date = dateutil_parser.parse(raw, fuzzy=True, default=datetime(1900, 1, 1))
-            # Reject obviously-wrong parses (e.g. dateutil grabbing a
-            # stray number as a year) by requiring a "sane" year range.
-            if 2020 <= parsed_date.year <= 2100:
-                parsed_iso = parsed_date.date().isoformat()
-        except (ValueError, OverflowError):
-            pass
+    parsed = parse_date_text(raw)
+    parsed_iso = parsed.isoformat() if parsed else None
 
     return raw, parsed_iso
 
