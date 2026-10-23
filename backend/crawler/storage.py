@@ -3,7 +3,7 @@ SQLite storage for crawled funding opportunities.
 """
 
 import sqlite3
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from backend.crawler.config import DB_PATH
 
@@ -38,7 +38,7 @@ def save_opportunity(url: str, fields: dict, source_query: str, db_path: str = D
     ON CONFLICT clause below leaves it untouched on updates); every other
     field is refreshed on each re-crawl (upsert semantics keyed on URL).
     """
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
 
     with sqlite3.connect(db_path) as conn:
         conn.execute(
@@ -61,10 +61,16 @@ def save_opportunity(url: str, fields: dict, source_query: str, db_path: str = D
                 fetch_failed = 0
             """,
             (
-                url, fields.get("title"), fields.get("raw_text"),
-                fields.get("deadline_raw"), fields.get("deadline_parsed"),
-                fields.get("funding_amount_raw"), fields.get("eligibility_snippet"),
-                source_query, now, now,
+                url,
+                fields.get("title"),
+                fields.get("raw_text"),
+                fields.get("deadline_raw"),
+                fields.get("deadline_parsed"),
+                fields.get("funding_amount_raw"),
+                fields.get("eligibility_snippet"),
+                source_query,
+                now,
+                now,
             ),
         )
 
@@ -74,7 +80,7 @@ def mark_fetch_failed(url: str, db_path: str = DB_PATH) -> None:
     with sqlite3.connect(db_path) as conn:
         conn.execute(
             "UPDATE opportunities SET fetch_failed = 1, fetched_at = ? WHERE url = ?",
-            (datetime.now(timezone.utc).isoformat(), url),
+            (datetime.now(UTC).isoformat(), url),
         )
 
 

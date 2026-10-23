@@ -12,12 +12,12 @@ import time
 
 import requests
 
-from backend.crawler.config import HEADERS, REQUEST_TIMEOUT, REQUEST_DELAY_SECONDS
-from backend.crawler.query_builder import generate_seed_queries
+from backend.crawler.config import HEADERS, REQUEST_DELAY_SECONDS, REQUEST_TIMEOUT
 from backend.crawler.discover_url import discover_candidate_urls
-from backend.crawler.robot_check import is_allowed
 from backend.crawler.extract import extract_fields
-from backend.crawler.storage import init_db, save_opportunity, mark_fetch_failed
+from backend.crawler.query_builder import generate_seed_queries
+from backend.crawler.robot_check import is_allowed
+from backend.crawler.storage import init_db, mark_fetch_failed, save_opportunity
 
 
 def fetch_page(url: str):
@@ -81,7 +81,8 @@ def run_crawl(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Funding opportunity crawler")
     parser.add_argument(
-        "--schedule", action="store_true",
+        "--schedule",
+        action="store_true",
         help="keep re-crawling on a loop after the first run",
     )
     args = parser.parse_args()
@@ -99,4 +100,5 @@ if __name__ == "__main__":
 
     if args.schedule:
         from backend.crawler.scheduler import run_scheduler_loop
+
         run_scheduler_loop(example_profile)

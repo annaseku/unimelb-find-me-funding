@@ -16,6 +16,7 @@ from bs4 import BeautifulSoup
 
 try:
     from dateutil import parser as dateutil_parser
+
     _HAVE_DATEUTIL = True
 except ImportError:
     _HAVE_DATEUTIL = False

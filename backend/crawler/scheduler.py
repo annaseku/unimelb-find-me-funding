@@ -14,10 +14,10 @@ etc.) rather than a long-lived Python process.
 
 import time
 
-from backend.crawler.config import STALE_AFTER_DAYS, SCHEDULER_POLL_INTERVAL_SECONDS
-from backend.crawler.storage import get_stale_urls, save_opportunity, mark_fetch_failed
-from backend.crawler.robot_check import is_allowed
+from backend.crawler.config import SCHEDULER_POLL_INTERVAL_SECONDS, STALE_AFTER_DAYS
 from backend.crawler.extract import extract_fields
+from backend.crawler.robot_check import is_allowed
+from backend.crawler.storage import get_stale_urls, mark_fetch_failed, save_opportunity
 
 
 def refresh_stale_opportunities() -> None:

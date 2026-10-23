@@ -14,7 +14,8 @@ from backend.crawler.scheduler import run_scheduler_loop
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Funding opportunity crawler")
     parser.add_argument(
-        "--schedule", action="store_true",
+        "--schedule",
+        action="store_true",
         help="keep re-crawling on a loop after the first run",
     )
     args = parser.parse_args()

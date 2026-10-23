@@ -17,7 +17,7 @@ import time
 
 import serpapi
 
-from backend.crawler.config import REQUEST_DELAY_SECONDS, MAX_RESULTS_PER_QUERY
+from backend.crawler.config import MAX_RESULTS_PER_QUERY, REQUEST_DELAY_SECONDS
 
 SERPAPI_API_KEY = os.environ.get("SERPAPI_API_KEY")
 

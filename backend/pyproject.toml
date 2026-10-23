@@ -17,9 +17,6 @@ omit = ["*/tests/*"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-# crawler/ is Jummana's package and is being rewritten on feature/backend-crawler;
-# lint it once that lands so CI does not force reformatting into her merge.
-extend-exclude = ["crawler"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
