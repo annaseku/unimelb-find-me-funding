@@ -13,9 +13,9 @@ import time
 import requests
 
 from backend.crawler.config import HEADERS, REQUEST_TIMEOUT, REQUEST_DELAY_SECONDS
-from backend.crawler.queryBuilder import generate_seed_queries
-from backend.crawler.discoverURL import discover_candidate_urls
-from backend.crawler.robotCheck import is_allowed
+from backend.crawler.query_builder import generate_seed_queries
+from backend.crawler.discover_url import discover_candidate_urls
+from backend.crawler.robot_check import is_allowed
 from backend.crawler.extract import extract_fields
 from backend.crawler.storage import init_db, save_opportunity, mark_fetch_failed
 

@@ -1,6 +1,6 @@
 """Shared data model for the ranking engine and the search API.
 
-The enum values deliberately match the keys in backend/crawler/queryBuilder.py
+The enum values deliberately match the keys in backend/crawler/query_builder.py
 and the frontend drop-downs, so all three sides speak the same vocabulary.
 Implements Confluence decision 4 (four eligibility states) and decision 5
 (four separate scores reported alongside the overall).

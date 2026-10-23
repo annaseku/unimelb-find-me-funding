@@ -67,7 +67,7 @@ def test_dry_run_prints_ten_profiles_and_search_budget_without_credentials_or_cr
     monkeypatch.delenv("SERPAPI_API_KEY", raising=False)
     monkeypatch.delenv("FMF_DATABASE_URL", raising=False)
     monkeypatch.setitem(sys.modules, "backend.crawler.crawler", None)
-    monkeypatch.setitem(sys.modules, "backend.crawler.discoverURL", None)
+    monkeypatch.setitem(sys.modules, "backend.crawler.discover_url", None)
 
     assert refresh.main(["--dry-run", "--week", "0"]) == 0
 

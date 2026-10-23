@@ -24,7 +24,7 @@ import psycopg
 from pydantic import BaseModel
 
 from backend.crawler.config import DB_PATH
-from backend.crawler.queryBuilder import generate_seed_queries
+from backend.crawler.query_builder import generate_seed_queries
 from backend.data.postgres_repository import read_published_urls
 from backend.data.publish import latest_run_from_sqlite, publish, records_from_sqlite
 from backend.normaliser.llm import extractor_from_env

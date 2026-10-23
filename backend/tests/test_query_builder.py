@@ -1,6 +1,6 @@
 """Discovery queries are scoped to Australia, where UoM researchers are based."""
 
-from backend.crawler.queryBuilder import generate_seed_queries
+from backend.crawler.query_builder import generate_seed_queries
 
 
 def test_every_seed_query_mentions_australia():

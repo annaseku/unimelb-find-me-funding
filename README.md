@@ -48,7 +48,7 @@ Default weights are eligibility 0.4, research match 0.3, funding value 0.15, dea
 
 ```text
 backend/
-  crawler/       discovery, fetch, extract, storage, scheduler (see backend/crawler/README)
+  crawler/       discovery, fetch, extract, storage, scheduler (see backend/crawler/README.md)
   normaliser/    crawler rows -> Opportunity records; python -m backend.normaliser.run
   ranking/       models, four scorers, weights, ranker
   data/          repository seam, SQLite and Postgres repositories, publish step, scheduled refresh

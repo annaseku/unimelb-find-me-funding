@@ -16,7 +16,7 @@ import time
 
 from backend.crawler.config import STALE_AFTER_DAYS, SCHEDULER_POLL_INTERVAL_SECONDS
 from backend.crawler.storage import get_stale_urls, save_opportunity, mark_fetch_failed
-from backend.crawler.robotCheck import is_allowed
+from backend.crawler.robot_check import is_allowed
 from backend.crawler.extract import extract_fields
 
 
