@@ -3,6 +3,7 @@ SQLite storage for crawled funding opportunities.
 """
 
 import sqlite3
+from contextlib import closing
 from datetime import UTC, datetime
 
 from backend.crawler.config import DB_PATH
@@ -10,7 +11,7 @@ from backend.crawler.config import DB_PATH
 
 def init_db(db_path: str = DB_PATH) -> None:
     """Create the opportunities table if it doesn't already exist."""
-    with sqlite3.connect(db_path) as conn:
+    with closing(sqlite3.connect(db_path)) as conn, conn:
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS opportunities (
@@ -42,7 +43,7 @@ def save_opportunity(
     """
     now = datetime.now(UTC).isoformat()
 
-    with sqlite3.connect(db_path) as conn:
+    with closing(sqlite3.connect(db_path)) as conn, conn:
         conn.execute(
             """
             INSERT INTO opportunities (
@@ -79,7 +80,7 @@ def save_opportunity(
 
 def mark_fetch_failed(url: str, db_path: str = DB_PATH) -> None:
     """Flag a URL as having failed to fetch, without deleting its old data."""
-    with sqlite3.connect(db_path) as conn:
+    with closing(sqlite3.connect(db_path)) as conn, conn:
         conn.execute(
             "UPDATE opportunities SET fetch_failed = 1, fetched_at = ? WHERE url = ?",
             (datetime.now(UTC).isoformat(), url),
@@ -88,7 +89,7 @@ def mark_fetch_failed(url: str, db_path: str = DB_PATH) -> None:
 
 def get_stale_urls(stale_after_days: int, db_path: str = DB_PATH) -> list[str]:
     """Return URLs whose stored data is older than `stale_after_days`."""
-    with sqlite3.connect(db_path) as conn:
+    with closing(sqlite3.connect(db_path)) as conn, conn:
         cursor = conn.execute(
             """
             SELECT url FROM opportunities
@@ -101,7 +102,7 @@ def get_stale_urls(stale_after_days: int, db_path: str = DB_PATH) -> list[str]:
 
 def get_all_opportunities(db_path: str = DB_PATH) -> list[dict[str, object]]:
     """Return all stored (non-failed) opportunities as a list of dicts."""
-    with sqlite3.connect(db_path) as conn:
+    with closing(sqlite3.connect(db_path)) as conn, conn:
         conn.row_factory = sqlite3.Row
         cursor = conn.execute("SELECT * FROM opportunities WHERE fetch_failed = 0")
         return [dict(row) for row in cursor.fetchall()]

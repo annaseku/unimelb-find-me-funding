@@ -15,6 +15,7 @@ import threading
 import time
 from collections.abc import Callable, Iterable
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import closing
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from pathlib import Path
@@ -284,7 +285,7 @@ def normalise_database(
     if extractor is None:
         stats.llm_stop_reason = "not_configured"
 
-    with sqlite3.connect(str(db_path)) as conn:
+    with closing(sqlite3.connect(str(db_path))) as conn, conn:
         init_normalised_table(conn)
         existing = _existing_state(conn)
         rows = read_crawled_rows(conn)

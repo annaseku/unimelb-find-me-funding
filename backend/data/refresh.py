@@ -16,6 +16,7 @@ import sqlite3
 import sys
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import closing
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
@@ -77,7 +78,7 @@ def refetch(urls: list[str]) -> tuple[int, int]:
     from backend.crawler.crawler import crawl_url, init_db
 
     init_db()
-    with sqlite3.connect(DB_PATH) as conn:
+    with closing(sqlite3.connect(DB_PATH)) as conn, conn:
         # The crawler only marks failures on existing rows. Pending rows also
         # keep robots.txt rejections from reusing a previous successful fetch.
         conn.executemany(
@@ -107,7 +108,7 @@ def refetch(urls: list[str]) -> tuple[int, int]:
     with ThreadPoolExecutor(max_workers=FETCH_WORKERS) as pool:
         list(pool.map(fetch_host, by_host.values()))
 
-    with sqlite3.connect(DB_PATH) as conn:
+    with closing(sqlite3.connect(DB_PATH)) as conn, conn:
         states = dict(conn.execute("SELECT url, fetch_failed FROM opportunities"))
     return sum(states[url] == 0 for url in urls), sum(states[url] != 0 for url in urls)
 

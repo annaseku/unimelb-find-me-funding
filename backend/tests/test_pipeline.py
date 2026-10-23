@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 import sqlite3
 import threading
+from contextlib import closing
 from datetime import date
 
 import httpx
@@ -85,7 +86,7 @@ def test_force_reruns_every_row_even_when_unchanged(crawler_db):
 
 def test_load_normalised_returns_five_valid_records_with_unique_ids(crawler_db):
     normalise_database(crawler_db, TODAY)
-    with sqlite3.connect(str(crawler_db)) as conn:
+    with closing(sqlite3.connect(str(crawler_db))) as conn, conn:
         records = load_normalised(conn)
     assert len(records) == 5
     ids = {record.opportunity.id for record in records}
@@ -95,7 +96,7 @@ def test_load_normalised_returns_five_valid_records_with_unique_ids(crawler_db):
 def test_fetch_failed_row_is_never_read(crawler_db):
     stats = normalise_database(crawler_db, TODAY)
     assert stats.rows_read == 5
-    with sqlite3.connect(str(crawler_db)) as conn:
+    with closing(sqlite3.connect(str(crawler_db))) as conn, conn:
         records = load_normalised(conn)
     assert NEWS_URL in {record.opportunity.url for record in records}
     assert "https://www.example-failed.org/grants/gone" not in {
@@ -112,7 +113,7 @@ def test_unchanged_row_is_reprocessed_once_an_extractor_becomes_available(crawle
     assert stats.normalised == 5
     assert stats.skipped_unchanged == 0
     assert stats.llm_calls == 5
-    with sqlite3.connect(str(crawler_db)) as conn:
+    with closing(sqlite3.connect(str(crawler_db))) as conn, conn:
         records = load_normalised(conn)
     assert all(record.used_llm for record in records)
 
@@ -126,7 +127,7 @@ def test_llm_failures_still_write_rule_only_records(crawler_db):
 
     assert stats.llm_failures == 5
     assert stats.normalised == 5
-    with sqlite3.connect(str(crawler_db)) as conn:
+    with closing(sqlite3.connect(str(crawler_db))) as conn, conn:
         records = load_normalised(conn)
     assert len(records) == 5
     assert all(not record.used_llm for record in records)
@@ -164,7 +165,7 @@ def test_model_supplied_past_deadline_closes_a_record_with_no_rule_deadline(tmp_
 
     assert stats.normalised == 1
     assert stats.llm_calls == 1
-    with sqlite3.connect(str(db)) as conn:
+    with closing(sqlite3.connect(str(db))) as conn, conn:
         records = load_normalised(conn)
     assert len(records) == 1
     record = records[0]
@@ -190,7 +191,7 @@ def test_nul_bytes_from_a_binary_page_are_stripped_before_normalising(tmp_path):
         db_path=str(db),
     )
     normalise_database(db, TODAY)
-    with sqlite3.connect(str(db)) as conn:
+    with closing(sqlite3.connect(str(db))) as conn, conn:
         row = conn.execute("SELECT opportunity_json FROM normalised_opportunities").fetchone()
     assert "\\u0000" not in row[0]
     assert "\x00" not in row[0]
@@ -320,7 +321,7 @@ def test_a_bad_key_still_stops_llm_use_with_parallel_workers(crawler_db):
 def test_each_run_is_recorded_with_its_llm_outcome(crawler_db):
     extractor = _ScriptedExtractor([_provider_error(402, "Insufficient credits")])
     normalise_database(crawler_db, TODAY, extractor=extractor)
-    with sqlite3.connect(str(crawler_db)) as conn:
+    with closing(sqlite3.connect(str(crawler_db))) as conn, conn:
         run = load_latest_run(conn)
     assert run is not None
     assert run.llm_stop_reason == "plan_error"
@@ -329,10 +330,10 @@ def test_each_run_is_recorded_with_its_llm_outcome(crawler_db):
 
 def test_a_run_without_an_extractor_is_recorded_as_not_configured(crawler_db):
     normalise_database(crawler_db, TODAY)
-    with sqlite3.connect(str(crawler_db)) as conn:
+    with closing(sqlite3.connect(str(crawler_db))) as conn, conn:
         assert load_latest_run(conn).llm_stop_reason == "not_configured"
 
 
 def _load(db):
-    with sqlite3.connect(str(db)) as conn:
+    with closing(sqlite3.connect(str(db))) as conn, conn:
         return load_normalised(conn)
