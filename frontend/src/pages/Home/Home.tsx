@@ -70,9 +70,9 @@ function Home() {
             onChange={(value) => handleFilterChange('fundingType', value)}
           />
         </div>
-        <label htmlFor={searchId} className={styles.searchLabel}>
-          Search by description of project or research:
-        </label>
+        <p className={styles.searchLabel}>
+          <label htmlFor={searchId}>Search by description of project or research:</label>
+        </p>
 
         <form onSubmit={handleSearch} className={styles.searchSubmit}>
           <div className={styles.searchbarContainer}>

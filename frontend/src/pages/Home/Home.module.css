@@ -21,11 +21,18 @@
 }
 
 .hero .searchLabel {
-  display: block;
   color: #ffffff;
   margin-top: 10px !important;
   margin-left: 5px !important;
   margin-bottom: 0 !important;
+}
+
+/* The design system makes form labels bold blocks; this one keeps its paragraph's look. */
+.hero .searchLabel label {
+  display: inline;
+  margin: 0;
+  color: inherit;
+  font-weight: inherit;
 }
 
 .searchbar {
