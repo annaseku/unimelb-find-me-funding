@@ -1,3 +1,4 @@
+import { useId, useState } from 'react';
 import styles from './Result.module.css';
 import { criteria, type CriterionKey, type RankedOpportunity } from '../../types/funding';
 const labels: Record<string, string> = {
@@ -20,6 +21,8 @@ const labels: Record<string, string> = {
 };
 export default function Result({ result }: { result: RankedOpportunity }) {
   const { opportunity } = result;
+  const [expanded, setExpanded] = useState(false);
+  const detailsId = useId();
 
   const eligibility = result.eligibility.label;
 
@@ -49,69 +52,79 @@ export default function Result({ result }: { result: RankedOpportunity }) {
       })
     : 'Not specified';
 
+  // The title button is the disclosure control; it stretches over the whole preview so the
+  // card still opens from anywhere, but its accessible name is the title alone.
   return (
-    <article className={styles.resultContainer}>
-      <details className={styles.resultDetails}>
-        <summary className={styles.resultSummary}>
-          <div className={styles.heading}>
-            <h2>{opportunity.title}</h2>
-            <span className={`${styles.eligibilityBadge} ${eligibilityClass}`}>
-              {labels[eligibility] ?? eligibility}
-            </span>
-          </div>
-
-          <p className={styles.funder}>{opportunity.funder}</p>
-
-          <p className={styles.description}>{opportunity.summary}</p>
-
-          <div className={styles.cardFooter}>
-            <div className={styles.tags}>
-              <span className={styles.tag}> Funding: {funding} </span>
-              <span className={styles.tag}> Deadline: {deadline} </span>
-            </div>
-
-            <span className={styles.expandIcon} aria-hidden="true">
-              {' '}
-              ▼{' '}
-            </span>
-          </div>
-        </summary>
-
-        <div className={styles.expandedContent}>
-          {opportunity.amount_note && (
-            <p className={styles.amountNote}>Funding Notes: {opportunity.amount_note}</p>
-          )}
-
-          <div className={styles.criteria}>
-            {(Object.keys(criteria) as CriterionKey[]).map((key) => (
-              <section key={key} className={styles.criterion}>
-                <h3>{criteria[key]}</h3>
-
-                <p className={styles.criterionScore}>
-                  {labels[result[key].label] ?? result[key].label.replaceAll('_', ' ')}
-                  {' · '}
-                  {Math.round(result[key].score * 100)}%
-                </p>
-
-                <ul>
-                  {result[key].reasons.map((reason, index) => (
-                    <li key={index}>{reason}</li>
-                  ))}
-                </ul>
-              </section>
-            ))}
-          </div>
-
-          <a
-            className={styles.opportunityLink}
-            href={opportunity.url}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            View opportunity ↗
-          </a>
+    <article className={`${styles.resultContainer} ${expanded ? styles.expanded : ''}`}>
+      <div className={styles.resultSummary}>
+        <div className={styles.heading}>
+          <h2>
+            <button
+              type="button"
+              className={styles.toggle}
+              aria-expanded={expanded}
+              aria-controls={detailsId}
+              onClick={() => setExpanded(!expanded)}
+            >
+              {opportunity.title}
+            </button>
+          </h2>
+          <span className={`${styles.eligibilityBadge} ${eligibilityClass}`}>
+            {labels[eligibility] ?? eligibility}
+          </span>
         </div>
-      </details>
+
+        <p className={styles.funder}>{opportunity.funder}</p>
+
+        <p className={styles.description}>{opportunity.summary}</p>
+
+        <div className={styles.cardFooter}>
+          <div className={styles.tags}>
+            <span className={styles.tag}> Funding: {funding} </span>
+            <span className={styles.tag}> Deadline: {deadline} </span>
+          </div>
+
+          <span className={styles.expandIcon} aria-hidden="true">
+            {' '}
+            ▼{' '}
+          </span>
+        </div>
+      </div>
+
+      <div id={detailsId} className={styles.expandedContent} hidden={!expanded}>
+        {opportunity.amount_note && (
+          <p className={styles.amountNote}>Funding Notes: {opportunity.amount_note}</p>
+        )}
+
+        <div className={styles.criteria}>
+          {(Object.keys(criteria) as CriterionKey[]).map((key) => (
+            <section key={key} className={styles.criterion}>
+              <h3>{criteria[key]}</h3>
+
+              <p className={styles.criterionScore}>
+                {labels[result[key].label] ?? result[key].label.replaceAll('_', ' ')}
+                {' · '}
+                {Math.round(result[key].score * 100)}%
+              </p>
+
+              <ul>
+                {result[key].reasons.map((reason, index) => (
+                  <li key={index}>{reason}</li>
+                ))}
+              </ul>
+            </section>
+          ))}
+        </div>
+
+        <a
+          className={styles.opportunityLink}
+          href={opportunity.url}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          View opportunity ↗
+        </a>
+      </div>
     </article>
   );
 }

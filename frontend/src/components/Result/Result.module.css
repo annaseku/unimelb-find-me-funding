@@ -11,10 +11,6 @@
     transform 0.2s ease;
 }
 
-.resultDetails {
-  width: 100%;
-}
-
 .resultContainer:hover {
   box-shadow:
     0 6px 16px rgba(0, 15, 70, 0.08),
@@ -23,10 +19,37 @@
 }
 
 .resultSummary {
-  display: block;
+  position: relative;
   padding: 16px 20px;
   cursor: pointer;
-  list-style: none;
+}
+
+.toggle {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Stretches the title button over the whole preview, so clicking anywhere on it toggles. */
+.toggle::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+/* The outline goes round the whole preview, as it did when the preview was a <summary>. */
+:global(.campus-background) .toggle:focus-visible {
+  outline: none !important;
+}
+
+.toggle:focus-visible::after {
+  outline: 3px solid #8bd5ff;
+  outline-offset: 3px;
 }
 
 .resultSummary:hover {
@@ -114,7 +137,7 @@
   transition: transform 0.2s ease;
 }
 
-.resultDetails[open] .expandIcon {
+.expanded .expandIcon {
   transform: rotate(180deg);
 }
 
