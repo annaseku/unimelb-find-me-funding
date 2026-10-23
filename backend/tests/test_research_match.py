@@ -6,16 +6,16 @@ from backend.ranking.research_match import score_research_match, tokenize
 
 
 def make_opportunity(**overrides) -> Opportunity:
-    base = dict(
-        id="o1",
-        title="Coral reef resilience grant",
-        funder="F",
-        url="https://example.org",
-        summary="Supports research into coral reef ecosystems and ocean acidification.",
-        keywords=["marine", "coral"],
-        for_codes=["3103"],
-        toa_codes=["3"],
-    )
+    base = {
+        "id": "o1",
+        "title": "Coral reef resilience grant",
+        "funder": "F",
+        "url": "https://example.org",
+        "summary": "Supports research into coral reef ecosystems and ocean acidification.",
+        "keywords": ["marine", "coral"],
+        "for_codes": ["3103"],
+        "toa_codes": ["3"],
+    }
     return Opportunity(**{**base, **overrides})
 
 

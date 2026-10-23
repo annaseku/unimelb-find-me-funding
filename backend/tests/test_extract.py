@@ -38,5 +38,5 @@ def test_a_dollar_sign_without_digits_is_not_an_amount():
 
 
 def test_slash_deadlines_are_read_day_first():
-    raw, parsed = extract_deadline("Applications close: 03/04/2026 at 5pm")
+    _raw, parsed = extract_deadline("Applications close: 03/04/2026 at 5pm")
     assert parsed == "2026-04-03"

@@ -237,7 +237,7 @@ def summarise(raw_text: str | None, title: str | None, max_chars: int = 400) -> 
     if title and text.lower().startswith(title.strip().lower()):
         text = text[len(title.strip()) :]
         # Drop the separator left dangling after the title (". ", " - ", etc.)
-        text = re.sub(r"^[\s.,;:!\-–—]+", "", text)
+        text = re.sub(r"^[\s.,;:!\-\u2013\u2014]+", "", text)
 
     text = re.sub(r"\s+", " ", text).strip()
     if not text:

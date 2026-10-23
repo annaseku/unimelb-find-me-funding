@@ -17,8 +17,9 @@ Nobody pushes to main directly; the ruleset blocks it.
 
 Python (`backend/`):
 
-- Python 3.11 or newer, formatted and linted with ruff (`ruff format backend`, `ruff check backend`). CI rejects anything ruff flags.
-- Type hints on public functions. Data crossing a boundary (API, database, crawler rows) is a Pydantic model, not a dict.
+- Python 3.11 or newer, formatted and linted with ruff (`ruff format backend main.py --config backend/pyproject.toml`, then `ruff check` with the same arguments). The rule set in `backend/pyproject.toml` covers naming, likely bugs, type hints, commented-out code and stray `print`. CI rejects anything ruff flags.
+- Type hints on every function outside tests. Data crossing a boundary (API, database, crawler rows) is a Pydantic model, not a dict.
+- Library code logs through `logging.getLogger(__name__)`; only the command-line tools print.
 - One test file per module in `backend/tests/`, named `test_<module>.py`.
 - Layers stay separate: `api/` handles HTTP only, `ranking/` and `normaliser/` hold the logic, and the API reads data only through the repositories in `data/`.
 
