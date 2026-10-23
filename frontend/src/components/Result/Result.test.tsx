@@ -12,7 +12,7 @@ it('renders all four criteria, researcher-facing reasons, labels, and the funder
   for (const name of ['Eligibility', 'Research match', 'Funding value', 'Time to deadline'])
     expect(screen.getByRole('heading', { name })).toBeInTheDocument();
   for (const key of ['eligibility', 'research_match', 'funding_value', 'deadline'] as const)
-    expect(screen.getByText(ranked[key].reasons[0])).toBeInTheDocument();
+    for (const reason of ranked[key].reasons) expect(screen.getByText(reason)).toBeInTheDocument();
   expect(screen.getAllByText(/Potentially eligible/)).toHaveLength(2);
   expect(screen.getByText(/Over 60 days/)).toBeInTheDocument();
   expect(screen.getByRole('link', { name: /View opportunity/i })).toHaveAttribute(

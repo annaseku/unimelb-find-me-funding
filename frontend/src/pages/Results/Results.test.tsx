@@ -75,7 +75,7 @@ it('appends pages using the submitted filters, then resets on a new search', asy
   await user.click(screen.getByRole('button', { name: 'Show more' }));
   await screen.findByText('Wellcome Grant');
   expect(screen.getByText('ARC Research Grant')).toBeInTheDocument();
-  expect(JSON.parse(fetchMock.mock.calls[1][1].body)).toMatchObject({
+  expect(JSON.parse(fetchMock.mock.calls[1]?.[1].body)).toMatchObject({
     offset: 1,
     research_description: 'coral',
     for_codes: ['31'],
@@ -83,7 +83,7 @@ it('appends pages using the submitted filters, then resets on a new search', asy
   expect(screen.queryByRole('button', { name: 'Show more' })).not.toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Search' }));
   await screen.findByText('0 Results Found');
-  expect(JSON.parse(fetchMock.mock.calls[2][1].body)).toMatchObject({
+  expect(JSON.parse(fetchMock.mock.calls[2]?.[1].body)).toMatchObject({
     offset: 0,
     research_description: 'new research',
     for_codes: ['31'],
@@ -116,19 +116,19 @@ it('ignores a stale response when a newer search has completed', async () => {
     finish(response());
   });
   expect(screen.queryByText('ARC Research Grant')).not.toBeInTheDocument();
-  expect(fetchMock.mock.calls[0][1].signal.aborted).toBe(true);
+  expect(fetchMock.mock.calls[0]?.[1].signal.aborted).toBe(true);
 });
 it('aborts an in-flight request on unmount', () => {
   fetchMock.mockReturnValue(new Promise(() => {}));
   const view = show();
   view.unmount();
-  expect(fetchMock.mock.calls[0][1].signal.aborted).toBe(true);
+  expect(fetchMock.mock.calls[0]?.[1].signal.aborted).toBe(true);
 });
 it('ignores router state of the wrong shape instead of sending it to the API', async () => {
   fetchMock.mockResolvedValue(response());
   show({ search: 42, filters: { citizenship: 'AU', careerStage: ['undergraduate'] } });
   await screen.findByText('ARC Research Grant');
-  expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toMatchObject({
+  expect(JSON.parse(fetchMock.mock.calls[0]?.[1].body)).toMatchObject({
     research_description: '',
     citizenships: [],
     career_stage: null,

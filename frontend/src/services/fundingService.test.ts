@@ -26,7 +26,7 @@ it('sends backend codes, pagination and default visibility rules as JSON', async
     'https://find-me-funding-api.onrender.com/api/search',
     expect.objectContaining({ method: 'POST' }),
   );
-  expect(JSON.parse(fetch.mock.calls[0][1].body)).toEqual({
+  expect(JSON.parse(fetch.mock.calls[0]?.[1].body)).toEqual({
     research_description: 'coral',
     for_codes: ['3103'],
     toa_codes: ['3'],
@@ -80,5 +80,5 @@ it('uses the configured base URL without duplicating slashes', async () => {
   vi.stubGlobal('fetch', fetch);
   const service = await import('./fundingService');
   await service.fetchResults('', defaultFilterValues);
-  expect(fetch.mock.calls[0][0]).toBe('http://localhost:8000/api/search');
+  expect(fetch.mock.calls[0]?.[0]).toBe('http://localhost:8000/api/search');
 });
