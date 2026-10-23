@@ -14,16 +14,14 @@ beforeEach(() => {
   vi.stubGlobal('fetch', fetchMock);
 });
 afterEach(() => vi.unstubAllGlobals());
-function show() {
+function show(
+  state: unknown = {
+    search: 'coral',
+    filters: { ...defaultFilterValues, fieldOfResearch: '31' },
+  },
+) {
   return render(
-    <MemoryRouter
-      initialEntries={[
-        {
-          pathname: '/results',
-          state: { search: 'coral', filters: { ...defaultFilterValues, fieldOfResearch: '31' } },
-        },
-      ]}
-    >
+    <MemoryRouter initialEntries={[{ pathname: '/results', state }]}>
       <Results />
     </MemoryRouter>,
   );
@@ -116,4 +114,14 @@ it('aborts an in-flight request on unmount', () => {
   const view = show();
   view.unmount();
   expect(fetchMock.mock.calls[0][1].signal.aborted).toBe(true);
+});
+it('ignores router state of the wrong shape instead of sending it to the API', async () => {
+  fetchMock.mockResolvedValue(response());
+  show({ search: 42, filters: { citizenship: 'AU', careerStage: ['undergraduate'] } });
+  await screen.findByText('ARC Research Grant');
+  expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toMatchObject({
+    research_description: '',
+    citizenships: [],
+    career_stage: null,
+  });
 });

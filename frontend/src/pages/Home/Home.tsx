@@ -22,7 +22,8 @@ function Home() {
   const handleSearch = (event: React.FormEvent) => {
     event.preventDefault();
 
-    navigate('/results', {
+    // Only data routers return a promise here; under BrowserRouter navigation is synchronous.
+    void navigate('/results', {
       state: {
         search,
         filters,

@@ -1,6 +1,6 @@
 // mutation-check: characterisation
 import { expect, test, type Page } from '@playwright/test';
-import type { SearchRequest, SearchResponse } from '../src/types/funding';
+import type { SearchRequest, SearchResponse } from '../src/types/funding.ts';
 
 // The API that playwright.config.ts starts; the tests ask it directly for the
 // ranking they expect the UI to show.

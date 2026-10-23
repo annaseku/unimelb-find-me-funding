@@ -16,12 +16,34 @@ import FieldOfResearchDropdown from '../../components/FieldOfResearchDropdown/Fi
 import CitizenshipDropdown from '../../components/CitizenshipDropdown/CitizenshipDropdown';
 
 type Query = { search: string; filters: FilterValues };
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null;
+const text = (value: unknown) => (typeof value === 'string' ? value : '');
+const textList = (value: unknown) =>
+  Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
+
+// Router state can come from browser history or a hand-built link, so it is checked, not trusted.
+function queryFromState(state: unknown): Query {
+  const query = isRecord(state) ? state : {};
+  const filters = isRecord(query.filters) ? query.filters : {};
+  return {
+    search: text(query.search),
+    filters: {
+      ...defaultFilterValues,
+      fieldOfResearch: text(filters.fieldOfResearch),
+      typeOfActivity: text(filters.typeOfActivity),
+      citizenship: textList(filters.citizenship),
+      employerType: text(filters.employerType),
+      careerStage: text(filters.careerStage),
+      fundingType: text(filters.fundingType),
+    },
+  };
+}
+
 export default function Results() {
   const location = useLocation();
-  const [initial] = useState<Query>(() => ({
-    search: location.state?.search ?? '',
-    filters: { ...defaultFilterValues, ...location.state?.filters },
-  }));
+  const [initial] = useState<Query>(() => queryFromState(location.state));
   const [search, setSearch] = useState(initial.search);
   const [filters, setFilters] = useState(initial.filters);
   const [submitted, setSubmitted] = useState(initial);
