@@ -7,12 +7,7 @@ it('allows selecting a research group from a division', async () => {
   const user = userEvent.setup();
   const onChange = vi.fn();
 
-  render(
-    <FieldOfResearchDropdown
-      value=""
-      onChange={onChange}
-    />
-  );
+  render(<FieldOfResearchDropdown value="" onChange={onChange} />);
 
   await user.click(screen.getByRole('button', { name: 'Field of Research – Any' }));
 

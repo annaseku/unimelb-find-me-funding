@@ -17,8 +17,7 @@ it('allows selecting multiple citizenships', async () => {
   // Simulate the parent updating the controlled value.
   rerender(<CitizenshipDropdown value={['AU']} onChange={onChange} />);
 
-  await user.click(screen.getByRole('checkbox', { name: 'New Zealand' })
-);
+  await user.click(screen.getByRole('checkbox', { name: 'New Zealand' }));
 
   expect(onChange).toHaveBeenLastCalledWith(['AU', 'NZ']);
 }, 15000);

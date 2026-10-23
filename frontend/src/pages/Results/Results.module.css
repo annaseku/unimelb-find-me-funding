@@ -1,43 +1,42 @@
 .resultsContainer .title {
-    color: #ffffff;
-    font-weight: 500; 
-    font-size: 56px;
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 56px;
 }
 
 .numResults {
-    margin-top: 10px !important;
-    margin-left: 5px !important;
-    margin-bottom: 0 !important;
+  margin-top: 10px !important;
+  margin-left: 5px !important;
+  margin-bottom: 0 !important;
 }
 
 .resultsContainer {
+  display: flex;
+  flex-direction: column;
 
-    display: flex;
-    flex-direction: column;
-
-    width: min(1400px, calc(100% - 40px));
-    max-width: none;
-    margin: 0 auto;
+  width: min(1400px, calc(100% - 40px));
+  max-width: none;
+  margin: 0 auto;
 }
 
 .searchControls {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 16px;
-    margin-inline: 0px !important;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  margin-inline: 0px !important;
 }
 
 .searchInput {
-    border-radius: 20px;
+  border-radius: 20px;
 }
 
 .searchButton {
-    border-radius: 20px;
-    background: #000F46;
-    color: #ffffff;
-    font-family: 'Source Sans 3';
-    cursor: pointer;
+  border-radius: 20px;
+  background: #000f46;
+  color: #ffffff;
+  font-family: 'Source Sans 3';
+  cursor: pointer;
 }
 .resultsContainer > p,
 .resultsContainer > [role='alert'],
@@ -46,30 +45,39 @@
 .resultsContainer > details > summary,
 .resultsContainer > details li,
 .dropdownContainer > div > span {
-    color: #ffffff;
+  color: #ffffff;
 }
 
 .dropdownContainer {
-    color: #000f46;
+  color: #000f46;
 }
 
 .dropdownContainer {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    column-gap: 20px;
-    row-gap: 16px;
-    align-items: center;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: 20px;
+  row-gap: 16px;
+  align-items: center;
 }
 
 @media (max-width: 760px) {
-    .dropdownContainer {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+  .dropdownContainer {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 @media (max-width: 560px) {
-    .dropdownContainer {
-        grid-template-columns: 1fr;
-    }
+  .dropdownContainer {
+    grid-template-columns: 1fr;
+  }
 }
-.searchInput { flex: 1; width: 100%; min-width: 0; background: #ffffff; color: #000f46; }
-.searchButton:disabled { opacity: .6; cursor: wait; }
+.searchInput {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  background: #ffffff;
+  color: #000f46;
+}
+.searchButton:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}

@@ -5,26 +5,18 @@ import Dropdown from '../../components/Dropdown/Dropdown';
 import FieldOfResearchDropdown from '../../components/FieldOfResearchDropdown/FieldOfResearchDropdown';
 import CitizenshipDropdown from '../../components/CitizenshipDropdown/CitizenshipDropdown';
 
-import {
-  filterOptions,
-  defaultFilterValues,
-  type FilterKey,
-} from '../../data/filterOptions';
-
+import { filterOptions, defaultFilterValues, type FilterKey } from '../../data/filterOptions';
 
 function Home() {
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState(defaultFilterValues);
   const navigate = useNavigate();
 
-  const handleFilterChange = (
-      key: FilterKey,
-      value: string | string[]
-  ) => {
-      setFilters((current) => ({
-          ...current,
-          [key]: value,
-      }));
+  const handleFilterChange = (key: FilterKey, value: string | string[]) => {
+    setFilters((current) => ({
+      ...current,
+      [key]: value,
+    }));
   };
 
   const handleSearch = (event: React.FormEvent) => {
@@ -45,9 +37,7 @@ function Home() {
         <div className={styles.dropdownContainer}>
           <FieldOfResearchDropdown
             value={filters.fieldOfResearch}
-            onChange={(value) =>
-                handleFilterChange('fieldOfResearch', value)
-            }
+            onChange={(value) => handleFilterChange('fieldOfResearch', value)}
           />
           <Dropdown
             label="Type of Activity"
@@ -56,10 +46,8 @@ function Home() {
             onChange={(value) => handleFilterChange('typeOfActivity', value)}
           />
           <CitizenshipDropdown
-              value={filters.citizenship}
-              onChange={(value) =>
-                  handleFilterChange('citizenship', value)
-              }
+            value={filters.citizenship}
+            onChange={(value) => handleFilterChange('citizenship', value)}
           />
           <Dropdown
             label="Employer Type"

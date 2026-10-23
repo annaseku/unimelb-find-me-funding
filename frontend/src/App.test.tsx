@@ -5,7 +5,9 @@ import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import App from './App';
 
 import { page } from './test/fundingFixture';
-beforeEach(() => { vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => page })); });
+beforeEach(() => {
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => page }));
+});
 afterEach(() => vi.unstubAllGlobals());
 
 const findTimeout = { timeout: 2000 };
