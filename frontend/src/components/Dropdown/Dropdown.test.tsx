@@ -33,3 +33,28 @@ it('separates the label from "Any" with an en dash in the blank option', () => {
   render(<Dropdown label="Career Stage" options={[]} value="" onChange={vi.fn()} />);
   expect(screen.getByText('Career Stage – Any', { selector: 'summary' })).toBeInTheDocument();
 });
+
+it('closes on Escape and when focus tabs out, returning focus to the summary on Escape', async () => {
+  const user = userEvent.setup();
+  render(
+    <>
+      <Dropdown label="Career Stage" options={[]} value="" onChange={vi.fn()} />
+      <button>Next field</button>
+    </>,
+  );
+  const summary = screen.getByText('Career Stage – Any', { selector: 'summary' });
+  const details = summary.closest('details');
+
+  await user.click(summary);
+  expect(details).toHaveAttribute('open');
+  await user.tab();
+  await user.keyboard('{Escape}');
+  expect(details).not.toHaveAttribute('open');
+  expect(summary).toHaveFocus();
+
+  await user.click(summary);
+  await user.tab();
+  await user.tab();
+  expect(screen.getByRole('button', { name: 'Next field' })).toHaveFocus();
+  expect(details).not.toHaveAttribute('open');
+});

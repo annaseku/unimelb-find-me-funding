@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { fieldOfResearchOptions } from '../../data/fieldOfResearchOptions';
+import { useDismiss } from '../../hooks/useDismiss';
 import styles from './FieldOfResearchDropdown.module.css';
 
 interface FieldOfResearchDropdownProps {
@@ -13,20 +14,9 @@ export default function FieldOfResearchDropdown({ value, onChange }: FieldOfRese
   const [expandedDivision, setExpandedDivision] = useState<string | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuId = useId();
+  useDismiss({ open: isOpen, onDismiss: () => setIsOpen(false), containerRef, triggerRef });
 
   const searchTerm = search.trim().toLowerCase();
 
@@ -67,28 +57,25 @@ export default function FieldOfResearchDropdown({ value, onChange }: FieldOfRese
     setExpandedDivision((current) => (current === divisionValue ? null : divisionValue));
   };
 
+  // The chosen option unmounts with the menu, so focus goes back to the trigger.
   const handleSelect = (selectedValue: string) => {
     onChange(selectedValue);
     setIsOpen(false);
     setSearch('');
     setExpandedDivision(null);
-  };
-
-  const handleClear = () => {
-    onChange('');
-    setIsOpen(false);
-    setSearch('');
-    setExpandedDivision(null);
+    triggerRef.current?.focus();
   };
 
   return (
     <div ref={containerRef} className={styles.dropdownWrapper}>
       <span className={styles.label}>Field of Research</span>
       <button
+        ref={triggerRef}
         type="button"
         className={styles.trigger}
         onClick={() => setIsOpen((current) => !current)}
         aria-expanded={isOpen}
+        aria-controls={isOpen ? menuId : undefined}
       >
         <span className={styles.triggerLabel}>
           {selectedOption ? selectedOption.label : 'Field of Research – Any'}
@@ -99,7 +86,7 @@ export default function FieldOfResearchDropdown({ value, onChange }: FieldOfRese
         </span>
       </button>
       {isOpen && (
-        <div className={styles.menu}>
+        <div id={menuId} className={styles.menu}>
           <input
             type="text"
             className={styles.search}
@@ -109,7 +96,7 @@ export default function FieldOfResearchDropdown({ value, onChange }: FieldOfRese
             onChange={(event) => setSearch(event.target.value)}
           />
 
-          <button type="button" className={styles.anyOption} onClick={handleClear}>
+          <button type="button" className={styles.anyOption} onClick={() => handleSelect('')}>
             Any
           </button>
 
@@ -118,6 +105,7 @@ export default function FieldOfResearchDropdown({ value, onChange }: FieldOfRese
               const isExpanded = expandedDivision === division.value;
 
               const showGroups = isExpanded || searchTerm.length > 0;
+              const groupsId = `${menuId}-${division.value}`;
 
               return (
                 <div key={division.value} className={styles.division}>
@@ -126,7 +114,9 @@ export default function FieldOfResearchDropdown({ value, onChange }: FieldOfRese
                       type="button"
                       className={styles.expandButton}
                       onClick={() => toggleDivision(division.value)}
-                      aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${division.label}`}
+                      aria-label={`${division.label} groups`}
+                      aria-expanded={showGroups}
+                      aria-controls={showGroups ? groupsId : undefined}
                     >
                       {isExpanded ? '▼' : '▶'}
                     </button>
@@ -143,7 +133,7 @@ export default function FieldOfResearchDropdown({ value, onChange }: FieldOfRese
                   </div>
 
                   {showGroups && (
-                    <div className={styles.groups}>
+                    <div id={groupsId} className={styles.groups}>
                       {division.groups.map((group) => (
                         <button
                           type="button"

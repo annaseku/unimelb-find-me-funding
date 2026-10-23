@@ -1,5 +1,6 @@
 import styles from './Dropdown.module.css';
-import { useEffect, useId, useRef } from 'react';
+import { useId, useRef, useState } from 'react';
+import { useDismiss } from '../../hooks/useDismiss';
 import type { FilterOption } from '../../data/filterOptions';
 
 interface DropdownProps {
@@ -13,25 +14,21 @@ export default function Dropdown({ label, options, value, onChange }: DropdownPr
   const dropdownId = useId();
   const dropdownRef = useRef<HTMLDetailsElement>(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        dropdownRef.current.open = false;
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+  const summaryRef = useRef<HTMLElement>(null);
+  // Mirrors the native open state so the dismiss listeners run only while the panel shows.
+  const [open, setOpen] = useState(false);
+  const close = () => {
+    if (dropdownRef.current) dropdownRef.current.open = false;
+  };
+  useDismiss({ open, onDismiss: close, containerRef: dropdownRef, triggerRef: summaryRef });
 
   const selectedOption = options.find((option) => option.value === value);
 
+  // The chosen radio is hidden once the panel closes, so focus goes back to the summary.
   const selectOption = (nextValue: string) => {
     onChange(nextValue);
-    if (dropdownRef.current) dropdownRef.current.open = false;
+    close();
+    summaryRef.current?.focus();
   };
 
   return (
@@ -43,8 +40,9 @@ export default function Dropdown({ label, options, value, onChange }: DropdownPr
         ref={dropdownRef}
         className={`dropdown ${styles.dropdown}`}
         aria-labelledby={`${dropdownId}-label`}
+        onToggle={(event) => setOpen(event.currentTarget.open)}
       >
-        <summary>{selectedOption?.label ?? `${label} – Any`}</summary>
+        <summary ref={summaryRef}>{selectedOption?.label ?? `${label} – Any`}</summary>
         <div className="dropdown__panel">
           <fieldset>
             <legend className="screenreaders-only">{label}</legend>

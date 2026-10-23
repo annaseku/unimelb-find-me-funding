@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { filterOptions } from '../../data/filterOptions';
+import { useDismiss } from '../../hooks/useDismiss';
 import styles from './CitizenshipDropdown.module.css';
 
 interface CitizenshipDropdownProps {
@@ -12,20 +13,9 @@ export default function CitizenshipDropdown({ value, onChange }: CitizenshipDrop
   const [search, setSearch] = useState('');
 
   const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuId = useId();
+  useDismiss({ open: isOpen, onDismiss: () => setIsOpen(false), containerRef, triggerRef });
 
   const searchTerm = search.trim().toLowerCase();
 
@@ -67,10 +57,12 @@ export default function CitizenshipDropdown({ value, onChange }: CitizenshipDrop
     <div ref={containerRef} className={styles.dropdownWrapper}>
       <span className={styles.label}>Citizenship</span>
       <button
+        ref={triggerRef}
         type="button"
         className={styles.trigger}
         onClick={() => setIsOpen((current) => !current)}
         aria-expanded={isOpen}
+        aria-controls={isOpen ? menuId : undefined}
       >
         <span className={styles.triggerLabel}>{getDisplayLabel()}</span>
 
@@ -80,7 +72,7 @@ export default function CitizenshipDropdown({ value, onChange }: CitizenshipDrop
       </button>
 
       {isOpen && (
-        <div className={styles.menu}>
+        <div id={menuId} className={styles.menu}>
           <input
             type="text"
             className={styles.search}
