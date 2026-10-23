@@ -47,3 +47,8 @@ it('reports each division as expanded or collapsed and returns focus after a cho
   expect(trigger).toHaveAttribute('aria-expanded', 'false');
   expect(trigger).toHaveFocus();
 });
+
+it('keeps the label in the trigger name once a field is chosen', () => {
+  render(<FieldOfResearchDropdown value="3103" onChange={vi.fn()} />);
+  expect(screen.getByRole('button', { name: 'Field of Research Ecology' })).toBeInTheDocument();
+});

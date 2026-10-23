@@ -58,3 +58,17 @@ it('closes on Escape and when focus tabs out, returning focus to the summary on 
   expect(screen.getByRole('button', { name: 'Next field' })).toHaveFocus();
   expect(details).not.toHaveAttribute('open');
 });
+
+it('keeps the label in the summary name once a value is chosen', () => {
+  render(
+    <Dropdown
+      label="Employer Type"
+      options={[{ value: 'industry', label: 'Industry' }]}
+      value="industry"
+      onChange={vi.fn()}
+    />,
+  );
+  expect(screen.getByText('Industry', { selector: 'summary' })).toHaveAccessibleName(
+    'Employer Type Industry',
+  );
+});

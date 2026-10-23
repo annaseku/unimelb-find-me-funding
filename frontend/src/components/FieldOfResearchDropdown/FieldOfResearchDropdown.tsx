@@ -15,7 +15,8 @@ export default function FieldOfResearchDropdown({ value, onChange }: FieldOfRese
 
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const menuId = useId();
+  const id = useId();
+  const menuId = `${id}-menu`;
   useDismiss({ open: isOpen, onDismiss: () => setIsOpen(false), containerRef, triggerRef });
 
   const searchTerm = search.trim().toLowerCase();
@@ -68,7 +69,9 @@ export default function FieldOfResearchDropdown({ value, onChange }: FieldOfRese
 
   return (
     <div ref={containerRef} className={styles.dropdownWrapper}>
-      <span className={styles.label}>Field of Research</span>
+      <span id={`${id}-label`} className={styles.label}>
+        Field of Research
+      </span>
       <button
         ref={triggerRef}
         type="button"
@@ -76,8 +79,9 @@ export default function FieldOfResearchDropdown({ value, onChange }: FieldOfRese
         onClick={() => setIsOpen((current) => !current)}
         aria-expanded={isOpen}
         aria-controls={isOpen ? menuId : undefined}
+        aria-labelledby={selectedOption ? `${id}-label ${id}-value` : `${id}-value`}
       >
-        <span className={styles.triggerLabel}>
+        <span id={`${id}-value`} className={styles.triggerLabel}>
           {selectedOption ? selectedOption.label : 'Field of Research – Any'}
         </span>
 

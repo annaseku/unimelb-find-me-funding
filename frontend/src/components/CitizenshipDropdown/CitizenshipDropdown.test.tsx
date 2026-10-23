@@ -50,3 +50,8 @@ it('ties the trigger to its menu and closes on Escape with focus back on the tri
   expect(trigger).not.toHaveAttribute('aria-controls');
   expect(trigger).toHaveFocus();
 });
+
+it('keeps the label in the trigger name once a citizenship is chosen', () => {
+  render(<CitizenshipDropdown value={['AU']} onChange={vi.fn()} />);
+  expect(screen.getByRole('button', { name: 'Citizenship Australia' })).toBeInTheDocument();
+});

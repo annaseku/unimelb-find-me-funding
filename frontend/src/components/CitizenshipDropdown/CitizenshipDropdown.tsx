@@ -14,7 +14,8 @@ export default function CitizenshipDropdown({ value, onChange }: CitizenshipDrop
 
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const menuId = useId();
+  const id = useId();
+  const menuId = `${id}-menu`;
   useDismiss({ open: isOpen, onDismiss: () => setIsOpen(false), containerRef, triggerRef });
 
   const searchTerm = search.trim().toLowerCase();
@@ -55,7 +56,9 @@ export default function CitizenshipDropdown({ value, onChange }: CitizenshipDrop
 
   return (
     <div ref={containerRef} className={styles.dropdownWrapper}>
-      <span className={styles.label}>Citizenship</span>
+      <span id={`${id}-label`} className={styles.label}>
+        Citizenship
+      </span>
       <button
         ref={triggerRef}
         type="button"
@@ -63,8 +66,11 @@ export default function CitizenshipDropdown({ value, onChange }: CitizenshipDrop
         onClick={() => setIsOpen((current) => !current)}
         aria-expanded={isOpen}
         aria-controls={isOpen ? menuId : undefined}
+        aria-labelledby={value.length > 0 ? `${id}-label ${id}-value` : `${id}-value`}
       >
-        <span className={styles.triggerLabel}>{getDisplayLabel()}</span>
+        <span id={`${id}-value`} className={styles.triggerLabel}>
+          {getDisplayLabel()}
+        </span>
 
         <span className={styles.triggerArrow}>
           <span data-icon="chevron-bottom" data-size="sm" data-hide-label="true" />

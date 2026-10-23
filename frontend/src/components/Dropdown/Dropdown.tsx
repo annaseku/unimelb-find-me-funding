@@ -42,7 +42,13 @@ export default function Dropdown({ label, options, value, onChange }: DropdownPr
         aria-labelledby={`${dropdownId}-label`}
         onToggle={(event) => setOpen(event.currentTarget.open)}
       >
-        <summary ref={summaryRef}>{selectedOption?.label ?? `${label} – Any`}</summary>
+        <summary
+          ref={summaryRef}
+          id={`${dropdownId}-value`}
+          aria-labelledby={selectedOption ? `${dropdownId}-label ${dropdownId}-value` : undefined}
+        >
+          {selectedOption?.label ?? `${label} – Any`}
+        </summary>
         <div className="dropdown__panel">
           <fieldset>
             <legend className="screenreaders-only">{label}</legend>
