@@ -125,7 +125,7 @@
 }
 
 .tag {
-  background-color: #507f91;
+  background-color: #4f7d8f;
   color: white;
   border-radius: 12px;
   padding: 4px 10px;
@@ -183,8 +183,7 @@
 
 .opportunityLink {
   display: inline-block;
-  color: #000b34 !important;
-  background-color: #46c8f0 !important;
+  background-color: #46c8f0;
   padding: 5px;
   border: 10px;
   font-size: 14px;
@@ -192,6 +191,11 @@
   text-decoration: underline;
 }
 
-.opportunityLink:hover {
-  color: #28617a;
+/* Outranks the design system's a:where([href]) link, visited and hover colours. */
+.resultContainer .opportunityLink:is(:link, :visited) {
+  color: #000b34;
+}
+
+.resultContainer .opportunityLink:hover {
+  color: #214f64;
 }
