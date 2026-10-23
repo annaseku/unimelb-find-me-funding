@@ -3,6 +3,7 @@ import { buildSearchRequest, fetchResults } from './fundingService';
 import { defaultFilterValues } from '../data/filterOptions';
 import { page } from '../test/fundingFixture';
 afterEach(() => {
+  vi.restoreAllMocks();
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
   vi.resetModules();
@@ -67,6 +68,24 @@ it.each([422, 500])('reports HTTP %s without showing mock data', async (status) 
   vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status }));
   await expect(fetchResults('', defaultFilterValues)).rejects.toThrow(
     status === 422 ? /not accepted/ : /unavailable/,
+  );
+});
+it('reports a timeout when the service takes too long, but not a caller cancelling', async () => {
+  const timeout = new AbortController();
+  vi.spyOn(AbortSignal, 'timeout').mockReturnValue(timeout.signal);
+  const fetch = vi.fn().mockImplementation(() => {
+    timeout.abort();
+    return Promise.reject(new DOMException('The operation timed out.', 'TimeoutError'));
+  });
+  vi.stubGlobal('fetch', fetch);
+  await expect(fetchResults('', defaultFilterValues)).rejects.toThrow(
+    'The funding service took too long to respond. Please try again.',
+  );
+
+  const caller = new AbortController();
+  caller.abort();
+  await expect(fetchResults('', defaultFilterValues, 0, caller.signal)).rejects.not.toThrow(
+    /took too long/,
   );
 });
 it('reports connection failures', async () => {
