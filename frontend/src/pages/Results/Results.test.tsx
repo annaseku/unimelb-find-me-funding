@@ -5,11 +5,23 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import Results from './Results';
 import { page, ranked } from '../../test/fundingFixture';
 import { defaultFilterValues } from '../../data/filterOptions';
-// DataNotice makes its own status request; it has its own tests.
-vi.mock('../../components/DataNotice/DataNotice', () => ({ default: () => null }));
+// DataNotice makes its own status request and has its own tests; here it only counts mounts.
+const notice = vi.hoisted(() => ({ mounts: 0 }));
+vi.mock('../../components/DataNotice/DataNotice', async () => {
+  const { useEffect } = await import('react');
+  return {
+    default: function DataNotice() {
+      useEffect(() => {
+        notice.mounts += 1;
+      }, []);
+      return null;
+    },
+  };
+});
 const fetchMock = vi.fn();
 const response = (body = page) => ({ ok: true, json: async () => body });
 beforeEach(() => {
+  notice.mounts = 0;
   fetchMock.mockReset();
   vi.stubGlobal('fetch', fetchMock);
 });
@@ -121,4 +133,42 @@ it('ignores router state of the wrong shape instead of sending it to the API', a
     citizenships: [],
     career_stage: null,
   });
+});
+it('says "Result" for a single result', async () => {
+  fetchMock.mockResolvedValue(response());
+  show();
+  expect(await screen.findByText('1 Result Found')).toBeInTheDocument();
+});
+it('lists only the ranking weights the API sent as numbers', async () => {
+  fetchMock.mockResolvedValue(
+    response({ ...page, weights: { eligibility: 0.5, research_match: null } as never }),
+  );
+  show();
+  await screen.findByText('ARC Research Grant');
+  expect(screen.getByText('Eligibility: 50%')).toBeInTheDocument();
+  expect(screen.queryByText(/NaN/)).not.toBeInTheDocument();
+  expect(screen.queryByText(/Research match:/)).not.toBeInTheDocument();
+});
+it('mentions the cold start only before the first search succeeds', async () => {
+  const user = userEvent.setup();
+  fetchMock
+    .mockResolvedValueOnce(response({ ...page, total: 2 }))
+    .mockReturnValueOnce(new Promise(() => {}));
+  show();
+  expect(screen.getByRole('status')).toHaveTextContent('waking up');
+  await screen.findByText('2 Results Found');
+
+  await user.click(screen.getByRole('button', { name: 'Show more' }));
+  expect(screen.getByRole('status')).toHaveTextContent('Searching for funding.');
+  expect(screen.getByRole('status')).not.toHaveTextContent('waking up');
+});
+it('keeps one data notice across searches instead of refetching the status', async () => {
+  const user = userEvent.setup();
+  fetchMock.mockResolvedValue(response());
+  show();
+  await screen.findByText('ARC Research Grant');
+  await user.click(screen.getByRole('button', { name: 'Search' }));
+  await screen.findByText('ARC Research Grant');
+  expect(fetchMock).toHaveBeenCalledTimes(2);
+  expect(notice.mounts).toBe(1);
 });

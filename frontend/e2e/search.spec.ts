@@ -50,7 +50,8 @@ test('a search from the home page shows the API ranking in order', async ({ page
     'the corpus in backend/evals/corpus.json should have open opportunities',
   ).toBeGreaterThan(0);
 
-  await expect(page.getByText(`${expected.total} Results Found`)).toBeVisible();
+  const noun = expected.total === 1 ? 'Result' : 'Results';
+  await expect(page.getByText(`${expected.total} ${noun} Found`)).toBeVisible();
   expect(await shownTitles(page)).toEqual(
     expected.results.map((result) => result.opportunity.title),
   );
@@ -105,5 +106,5 @@ test('refining the search on the results page sends the new criteria', async ({ 
   const body = (await sent).postDataJSON() as SearchRequest;
   expect(body.research_description).toBe('quantum computing');
   expect(body.career_stage).not.toBeNull();
-  await expect(page.getByText(/\d+ Results Found/)).toBeVisible();
+  await expect(page.getByText(/\d+ Results? Found/)).toBeVisible();
 });

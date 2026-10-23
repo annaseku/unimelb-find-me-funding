@@ -42,6 +42,8 @@ export default function Results() {
   const [submitted, setSubmitted] = useState(initial);
   const [response, setResponse] = useState<SearchResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  // Only a search before any has succeeded can be waiting on the API's cold start.
+  const [awake, setAwake] = useState(false);
   const [error, setError] = useState('');
   const controller = useRef<AbortController | null>(null);
 
@@ -52,6 +54,7 @@ export default function Results() {
     return fetchResults(query.search, query.filters, offset, request.signal)
       .then((page) => {
         if (request.signal.aborted) return;
+        setAwake(true);
         setResponse((previous) => ({
           ...page,
           results: offset > 0 ? [...(previous?.results ?? []), ...page.results] : page.results,
@@ -86,6 +89,10 @@ export default function Results() {
   };
   // Appended results already include earlier pages, so their length is the next offset.
   const loaded = response?.results.length ?? 0;
+  const weights = (Object.keys(criteria) as CriterionKey[]).flatMap((key) => {
+    const weight: unknown = response?.weights[key];
+    return typeof weight === 'number' && Number.isFinite(weight) ? [{ key, weight }] : [];
+  });
   return (
     <div className={styles.resultsContainer}>
       <h1 className={styles.title}>Search Results</h1>
@@ -111,8 +118,9 @@ export default function Results() {
       </form>
       {loading && (
         <p role="status">
-          Searching for funding. The service may be waking up; the first search can take about a
-          minute.
+          {awake
+            ? 'Searching for funding.'
+            : 'Searching for funding. The service may be waking up; the first search can take about a minute.'}
         </p>
       )}
       {error && (
@@ -123,23 +131,27 @@ export default function Results() {
           </button>
         </div>
       )}
+      <DataNotice />
       {response && (
         <>
-          <DataNotice />
-          <p className={styles.numResults}>{response.total} Results Found</p>
+          <p className={styles.numResults}>
+            {response.total} {response.total === 1 ? 'Result' : 'Results'} Found
+          </p>
           {response.total === 0 && (
             <p>No funding opportunities found. Try changing your filters.</p>
           )}
-          <details>
-            <summary>How results are ranked</summary>
-            <ul>
-              {(Object.keys(criteria) as CriterionKey[]).map((key) => (
-                <li key={key}>
-                  {criteria[key]}: {Math.round(response.weights[key] * 100)}%
-                </li>
-              ))}
-            </ul>
-          </details>
+          {weights.length > 0 && (
+            <details>
+              <summary>How results are ranked</summary>
+              <ul>
+                {weights.map(({ key, weight }) => (
+                  <li key={key}>
+                    {criteria[key]}: {Math.round(weight * 100)}%
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
           {response.results.map((result) => (
             <Result key={result.opportunity.id} result={result} />
           ))}

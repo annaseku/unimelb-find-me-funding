@@ -1,5 +1,5 @@
 interface Window {
-  uom: {
+  uom?: {
     initAllComponents: () => void;
   };
 }
