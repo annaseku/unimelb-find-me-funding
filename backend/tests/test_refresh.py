@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import sqlite3
 import sys
+from contextlib import closing
 from datetime import date
 from types import ModuleType
 
@@ -67,7 +68,7 @@ def test_dry_run_prints_ten_profiles_and_search_budget_without_credentials_or_cr
     monkeypatch.delenv("SERPAPI_API_KEY", raising=False)
     monkeypatch.delenv("FMF_DATABASE_URL", raising=False)
     monkeypatch.setitem(sys.modules, "backend.crawler.crawler", None)
-    monkeypatch.setitem(sys.modules, "backend.crawler.discoverURL", None)
+    monkeypatch.setitem(sys.modules, "backend.crawler.discover_url", None)
 
     assert refresh.main(["--dry-run", "--week", "0"]) == 0
 
@@ -240,11 +241,11 @@ def test_no_llm_normalises_real_crawled_rows(monkeypatch, normalised_sqlite_db, 
     import sqlite3
 
     monkeypatch.setattr(refresh, "extractor_from_env", fail_if_called)
-    with sqlite3.connect(normalised_sqlite_db) as conn:
+    with closing(sqlite3.connect(normalised_sqlite_db)) as conn, conn:
         conn.execute("DELETE FROM normalised_opportunities")
     stats = refresh.normalise(normalised_sqlite_db, today, False)
     assert stats.normalised > 0
-    with sqlite3.connect(normalised_sqlite_db) as conn:
+    with closing(sqlite3.connect(normalised_sqlite_db)) as conn, conn:
         assert len(load_normalised(conn)) == stats.normalised
 
 
@@ -416,7 +417,7 @@ def test_refetch_initialises_then_crawls_each_url_and_counts_sqlite_results(
     monkeypatch.setitem(sys.modules, "backend.crawler.crawler", fake_crawler)
     assert refresh.refetch(urls) == ((0, 0) if empty else (1, 2))
     assert calls == ["init", *((url, "refetch") for url in urls)]
-    with sqlite3.connect(refresh.DB_PATH) as conn:
+    with closing(sqlite3.connect(refresh.DB_PATH)) as conn, conn:
         assert dict(conn.execute("SELECT url, fetch_failed FROM opportunities")) == (
             {} if empty else {urls[0]: 0, urls[1]: 1, urls[2]: 1}
         )
@@ -430,7 +431,7 @@ def test_refetch_reprocesses_cached_pages_and_does_not_publish_failed_cached_rec
 
     monkeypatch.chdir(normalised_sqlite_db.parent)
     monkeypatch.setattr(refresh, "DB_PATH", str(normalised_sqlite_db))
-    with sqlite3.connect(normalised_sqlite_db) as conn:
+    with closing(sqlite3.connect(normalised_sqlite_db)) as conn, conn:
         rows = read_crawled_rows(conn)
     good, failed, blocked = (row.url for row in rows[:3])
     fake_crawler = ModuleType("backend.crawler.crawler")
@@ -438,7 +439,7 @@ def test_refetch_reprocesses_cached_pages_and_does_not_publish_failed_cached_rec
 
     def crawl_url(url, source_query):
         if url == good:
-            with sqlite3.connect(normalised_sqlite_db) as conn:
+            with closing(sqlite3.connect(normalised_sqlite_db)) as conn, conn:
                 conn.execute("UPDATE opportunities SET fetch_failed = 0 WHERE url = ?", (url,))
         elif url == failed:
             mark_fetch_failed(url, str(normalised_sqlite_db))

@@ -12,17 +12,20 @@ https://serpapi.com/manage-api-key, then set it with:
     export SERPAPI_API_KEY=your_key_here
 """
 
+import logging
 import os
 import time
 
 import serpapi
 
-from backend.crawler.config import REQUEST_DELAY_SECONDS, MAX_RESULTS_PER_QUERY
+from backend.crawler.config import MAX_RESULTS_PER_QUERY, REQUEST_DELAY_SECONDS
+
+logger = logging.getLogger(__name__)
 
 SERPAPI_API_KEY = os.environ.get("SERPAPI_API_KEY")
 
 
-def search_google(query: str, max_results: int = MAX_RESULTS_PER_QUERY) -> list:
+def search_google(query: str, max_results: int = MAX_RESULTS_PER_QUERY) -> list[str]:
     """
     Run a query against Google Search via SerpApi and return a list of
     result URLs.
@@ -49,7 +52,7 @@ def search_google(query: str, max_results: int = MAX_RESULTS_PER_QUERY) -> list:
     return [r["link"] for r in organic_results[:max_results] if "link" in r]
 
 
-def discover_candidate_urls(seed_queries: list) -> dict:
+def discover_candidate_urls(seed_queries: list[str]) -> dict[str, str]:
     """
     Run discovery across all seed queries.
 
@@ -62,8 +65,8 @@ def discover_candidate_urls(seed_queries: list) -> dict:
         try:
             for url in search_google(query):
                 candidates.setdefault(url, query)
-        except Exception as e:
-            print(f"[discover] search failed for query {query!r}: {e}")
+        except Exception as e:  # SerpApi raises its own and requests' errors
+            logger.warning("search failed for query %r: %s", query, e)
         time.sleep(REQUEST_DELAY_SECONDS)
 
     return candidates

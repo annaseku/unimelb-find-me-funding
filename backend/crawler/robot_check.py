@@ -1,8 +1,13 @@
 """
 robots.txt compliance checking, with per-domain caching so we don't
 re-fetch the same robots.txt file on every request.
+
+Follows RFC 9309: a robots.txt that does not exist (4xx) means no
+restrictions, but one that cannot be reached (5xx or a network error)
+means do not crawl the site at all.
 """
 
+import logging
 import urllib.robotparser
 from urllib.parse import urlparse
 
@@ -10,9 +15,11 @@ import requests
 
 from backend.crawler.config import HEADERS, REQUEST_TIMEOUT
 
+logger = logging.getLogger(__name__)
+
 # Cache of domain -> RobotFileParser, so each domain's robots.txt is only
 # fetched once per process run.
-_robots_cache: dict = {}
+_robots_cache: dict[str, urllib.robotparser.RobotFileParser] = {}
 
 
 def _get_parser(url: str) -> urllib.robotparser.RobotFileParser:
@@ -34,30 +41,25 @@ def _get_parser(url: str) -> urllib.robotparser.RobotFileParser:
         # feeding the text straight into the parser avoids both problems.
         try:
             resp = requests.get(f"{domain}/robots.txt", headers=HEADERS, timeout=REQUEST_TIMEOUT)
+        except requests.RequestException as e:
+            logger.warning("robots.txt unreachable for %s, not crawling it: %s", domain, e)
+            rp.disallow_all = True
+        else:
             if resp.status_code == 200:
                 rp.parse(resp.text.splitlines())
+            elif 400 <= resp.status_code < 500:
+                rp.allow_all = True
             else:
-                # No robots.txt, or it errored -- treat as permissive,
-                # which matches how most well-behaved crawlers handle a
-                # missing robots.txt.
-                rp.parse([])
-        except requests.RequestException:
-            rp.parse([])
+                logger.warning(
+                    "robots.txt for %s returned %s, not crawling it", domain, resp.status_code
+                )
+                rp.disallow_all = True
 
         _robots_cache[domain] = rp
 
     return _robots_cache[domain]
 
 
-def is_allowed(url: str, user_agent: str = "*") -> bool:
-    """
-    Check whether crawling `url` is permitted by that site's robots.txt.
-
-    Fails open (returns True) if robots.txt can't be read at all, since a
-    missing/unreachable robots.txt conventionally means "no restrictions".
-    """
-    try:
-        parser = _get_parser(url)
-        return parser.can_fetch(user_agent, url)
-    except Exception:
-        return True
+def is_allowed(url: str, user_agent: str = HEADERS["User-Agent"]) -> bool:
+    """Check whether our crawler may fetch `url` under that site's robots.txt."""
+    return _get_parser(url).can_fetch(user_agent, url)

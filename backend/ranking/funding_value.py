@@ -1,6 +1,6 @@
 """Funding value banding (client criterion 3).
 
-Bands are the ones proposed in backend/crawler/README. Most single-project
+Bands are the ones in the root README's ranking table. Most single-project
 grants fall in the bottom band, which the team has flagged for the client;
 change the edges in BANDS if that decision changes.
 """

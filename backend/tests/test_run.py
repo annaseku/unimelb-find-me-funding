@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import sqlite3
 import sys
+from contextlib import closing
 
 import pytest
 
@@ -64,7 +65,7 @@ def test_run_normalises_every_crawled_row_and_reports_it(
     assert summary["llm calls"] == "0"
     assert summary["API data source"] == f"FMF_DATA_SOURCE=sqlite FMF_DB_PATH={crawler_db}"
 
-    with sqlite3.connect(crawler_db) as conn:
+    with closing(sqlite3.connect(crawler_db)) as conn, conn:
         assert len(load_normalised(conn)) == int(summary["normalised"])
 
 

@@ -47,9 +47,9 @@ sqlite3 funding_crawler.db "SELECT title, url, deadline_parsed, funding_amount_r
 
 ## How it works
 
-1. **`queryBuilder.py`**: turns a user's search profile (field of research, type of activity, career stage, funding type, free-text description) into a set of search queries. This is what makes discovery dynamic instead of tied to a fixed list of sites.
-2. **`discoverURL.py`**: runs those queries through SerpApi, a documented search API, to find candidate URLs. Needs `SERPAPI_API_KEY`.
-3. **`robotCheck.py`**: checks each candidate URL against that site's `robots.txt` before we fetch it.
+1. **`query_builder.py`**: turns a user's search profile (field of research, type of activity, career stage, funding type, free-text description) into a set of search queries. This is what makes discovery dynamic instead of tied to a fixed list of sites.
+2. **`discover_url.py`**: runs those queries through SerpApi, a documented search API, to find candidate URLs. Needs `SERPAPI_API_KEY`.
+3. **`robot_check.py`**: checks each candidate URL against that site's `robots.txt`, as our own user agent, before we fetch it. A missing robots.txt allows crawling; one that cannot be reached blocks the site (RFC 9309).
 4. **`extract.py`**: fetches the page and pulls out raw structured signals: title, deadline (raw text + parsed date if possible), funding amount, and an eligibility text snippet. These are *raw* extracted values: classifying eligibility or banding amounts/deadlines into the client's ranking categories is the ranking engine's job, not the crawler's.
 5. **`storage.py`**: upserts everything into SQLite, keyed by URL, with a `fetched_at` timestamp.
 6. **`scheduler.py`**: periodically re-fetches stale entries (older than `STALE_AFTER_DAYS`, see `config.py`) and re-runs discovery for known search profiles, so the index stays current without live-crawling on every user search.

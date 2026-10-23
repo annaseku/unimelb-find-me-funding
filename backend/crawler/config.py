@@ -13,8 +13,8 @@ DB_PATH = "funding_crawler.db"
 HEADERS = {
     "User-Agent": "FindMeFundingCrawler/0.2 (university project; +https://github.com/annaseku/unimelb-find-me-funding)"
 }
-REQUEST_TIMEOUT = 10          # seconds, per HTTP request
-REQUEST_DELAY_SECONDS = 1.5   # pause between outbound requests to any one host
+REQUEST_TIMEOUT = 10  # seconds, per HTTP request
+REQUEST_DELAY_SECONDS = 1.5  # pause between outbound requests to any one host
 
 # --- Discovery ---------------------------------------------------------------
 MAX_RESULTS_PER_QUERY = 10

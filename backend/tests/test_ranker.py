@@ -18,16 +18,16 @@ from backend.tests.conftest import TODAY
 
 
 def make_opportunity(**overrides) -> Opportunity:
-    base = dict(
-        id="o1",
-        title="Machine learning grant",
-        funder="F",
-        url="https://example.org",
-        summary="Funds machine learning research.",
-        amount_aud=100_000,
-        deadline=TODAY + timedelta(days=90),
-        for_codes=["4611"],
-    )
+    base = {
+        "id": "o1",
+        "title": "Machine learning grant",
+        "funder": "F",
+        "url": "https://example.org",
+        "summary": "Funds machine learning research.",
+        "amount_aud": 100_000,
+        "deadline": TODAY + timedelta(days=90),
+        "for_codes": ["4611"],
+    }
     return Opportunity(**{**base, **overrides})
 
 

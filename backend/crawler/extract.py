@@ -10,15 +10,10 @@ matching/ranking engine's job, not the crawler's.
 """
 
 import re
-from datetime import datetime
 
 from bs4 import BeautifulSoup
 
-try:
-    from dateutil import parser as dateutil_parser
-    _HAVE_DATEUTIL = True
-except ImportError:
-    _HAVE_DATEUTIL = False
+from backend.crawler.dates import parse_date_text
 
 # --- Regex patterns ----------------------------------------------------------
 
@@ -31,9 +26,10 @@ _DEADLINE_LABEL_RE = re.compile(
     re.IGNORECASE,
 )
 
-# Matches dollar figures like "$500,000", "$1.2 million", "AUD 2,000,000"
+# Matches dollar figures like "$500,000", "$1.2 million", "AUD 2,000,000". The figure must
+# start with a digit, and the multiplier must end a word so "$500 more" is not $500 million.
 _AMOUNT_RE = re.compile(
-    r"(AUD|A\$|\$)\s?([\d,]+(?:\.\d+)?)\s?(million|m|k)?",
+    r"(AUD|A\$|\$)\s?(\d[\d,]*(?:\.\d+)?)\s?(?:(million|m|k)\b)?",
     re.IGNORECASE,
 )
 
@@ -41,7 +37,7 @@ _AMOUNT_RE = re.compile(
 _ELIGIBILITY_CONTEXT_CHARS = 300
 
 
-def extract_title_and_text(html: str):
+def extract_title_and_text(html: str) -> tuple[str, str]:
     """Extract page title and cleaned, whitespace-collapsed body text."""
     soup = BeautifulSoup(html, "html.parser")
 
@@ -58,7 +54,7 @@ def extract_title_and_text(html: str):
     return title, text
 
 
-def extract_deadline(text: str):
+def extract_deadline(text: str) -> tuple[str | None, str | None]:
     """
     Look for a deadline/closing-date phrase in the page text.
 
@@ -71,21 +67,13 @@ def extract_deadline(text: str):
 
     raw = match.group(2).strip()
 
-    parsed_iso = None
-    if _HAVE_DATEUTIL:
-        try:
-            parsed_date = dateutil_parser.parse(raw, fuzzy=True, default=datetime(1900, 1, 1))
-            # Reject obviously-wrong parses (e.g. dateutil grabbing a
-            # stray number as a year) by requiring a "sane" year range.
-            if 2020 <= parsed_date.year <= 2100:
-                parsed_iso = parsed_date.date().isoformat()
-        except (ValueError, OverflowError):
-            pass
+    parsed = parse_date_text(raw)
+    parsed_iso = parsed.isoformat() if parsed else None
 
     return raw, parsed_iso
 
 
-def extract_funding_amount(text: str):
+def extract_funding_amount(text: str) -> str | None:
     """
     Look for a dollar figure in the page text and return the raw matched
     string (e.g. "$2,000,000", "AUD 500k"). Banding into the client's
@@ -97,7 +85,7 @@ def extract_funding_amount(text: str):
     return match.group(0).strip()
 
 
-def extract_eligibility_snippet(text: str):
+def extract_eligibility_snippet(text: str) -> str | None:
     """
     Find the first mention of "eligib..." in the page text and return a
     window of surrounding context. This raw snippet is what the ranking
@@ -113,7 +101,7 @@ def extract_eligibility_snippet(text: str):
     return text[start:end].strip()
 
 
-def extract_fields(html: str) -> dict:
+def extract_fields(html: str) -> dict[str, str | None]:
     """Run all extraction steps and return a single dict of results."""
     title, text = extract_title_and_text(html)
     deadline_raw, deadline_parsed = extract_deadline(text)

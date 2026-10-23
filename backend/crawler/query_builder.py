@@ -22,8 +22,8 @@ FUNDING_TYPE_TERMS = {
     "salary": "salary funding",
     "consumables": "consumables funding",
     "equipment": "equipment grant",
-    "all": "",   # no extra bias -- user wants any/all types
-    "any": "",   # no extra bias
+    "all": "",  # no extra bias -- user wants any/all types
+    "any": "",  # no extra bias
 }
 
 

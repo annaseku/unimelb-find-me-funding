@@ -10,6 +10,7 @@ the opportunity for a future LLM pass on the ambiguous cases.
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable
 from enum import Enum
 from urllib.parse import urlparse
 
@@ -77,7 +78,7 @@ def _describe(value: str) -> str:
     return labels.get(value, value)
 
 
-def _join(values) -> str:
+def _join(values: Iterable[str]) -> str:
     return ", ".join(_describe(v) for v in values)
 
 

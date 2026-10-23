@@ -2,39 +2,40 @@
 Orchestration: ties query building, discovery, robots.txt checking,
 fetching, extraction, and storage together into a single crawl run.
 
-Usage:
-    python crawler.py                 # run once, using the example profile below
-    python crawler.py --schedule      # run once, then keep re-crawling on a loop
+Run it from the repository root with `python3 main.py`; the weekly crawl
+calls `run_crawl` from `backend/data/refresh.py`.
 """
 
-import argparse
+import logging
 import time
 
 import requests
 
-from backend.crawler.config import HEADERS, REQUEST_TIMEOUT, REQUEST_DELAY_SECONDS
-from backend.crawler.queryBuilder import generate_seed_queries
-from backend.crawler.discoverURL import discover_candidate_urls
-from backend.crawler.robotCheck import is_allowed
+from backend.crawler.config import HEADERS, REQUEST_DELAY_SECONDS, REQUEST_TIMEOUT
+from backend.crawler.discover_url import discover_candidate_urls
 from backend.crawler.extract import extract_fields
-from backend.crawler.storage import init_db, save_opportunity, mark_fetch_failed
+from backend.crawler.query_builder import generate_seed_queries
+from backend.crawler.robot_check import is_allowed
+from backend.crawler.storage import init_db, mark_fetch_failed, save_opportunity
+
+logger = logging.getLogger(__name__)
 
 
-def fetch_page(url: str):
+def fetch_page(url: str) -> str | None:
     """Fetch raw HTML for a URL, returning None on failure."""
     try:
         resp = requests.get(url, headers=HEADERS, timeout=REQUEST_TIMEOUT)
         resp.raise_for_status()
         return resp.text
     except requests.RequestException as e:
-        print(f"[fetch] failed for {url}: {e}")
+        logger.warning("fetch failed for %s: %s", url, e)
         return None
 
 
 def crawl_url(url: str, source_query: str) -> None:
     """Fetch, extract, and store a single URL -- if robots.txt allows it."""
     if not is_allowed(url):
-        print(f"[crawl] skipping (robots.txt disallows): {url}")
+        logger.info("skipping (robots.txt disallows): %s", url)
         return
 
     html = fetch_page(url)
@@ -44,7 +45,7 @@ def crawl_url(url: str, source_query: str) -> None:
 
     fields = extract_fields(html)
     save_opportunity(url, fields, source_query)
-    print(f"[crawl] saved: {fields['title'][:60]!r} ({url})")
+    logger.info("saved: %r (%s)", fields["title"][:60], url)
 
     time.sleep(REQUEST_DELAY_SECONDS)
 
@@ -69,34 +70,10 @@ def run_crawl(
         funding_type=funding_type,
         free_text_description=free_text_description,
     )
-    print(f"[run_crawl] seed queries: {queries}")
+    logger.info("seed queries: %s", queries)
 
     candidates = discover_candidate_urls(queries)
-    print(f"[run_crawl] discovered {len(candidates)} candidate URLs")
+    logger.info("discovered %d candidate URLs", len(candidates))
 
     for url, source_query in candidates.items():
         crawl_url(url, source_query)
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Funding opportunity crawler")
-    parser.add_argument(
-        "--schedule", action="store_true",
-        help="keep re-crawling on a loop after the first run",
-    )
-    args = parser.parse_args()
-
-    # Example manual profile -- replace with real user input once the API layer exists
-    example_profile = {
-        "field_of_research": "marine biology",
-        "type_of_activity": "experimental research",
-        "career_stage": "postdoc_2_5",
-        "funding_type": "equipment",
-        "free_text_description": "coral reef resilience to ocean acidification",
-    }
-
-    run_crawl(**example_profile)
-
-    if args.schedule:
-        from backend.crawler.scheduler import run_scheduler_loop
-        run_scheduler_loop(example_profile)

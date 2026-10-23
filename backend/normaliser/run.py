@@ -8,6 +8,7 @@ Usage, from the repository root:
 from __future__ import annotations
 
 import argparse
+import logging
 from datetime import date
 
 from backend.crawler.config import DB_PATH
@@ -20,6 +21,7 @@ def _parse_date(value: str) -> date:
 
 
 def main() -> None:
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     parser = argparse.ArgumentParser(
         description="Normalise crawled rows into structured funding opportunities."
     )

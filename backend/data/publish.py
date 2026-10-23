@@ -12,6 +12,7 @@ import argparse
 import os
 import sqlite3
 import sys
+from contextlib import closing
 from pathlib import Path
 
 import psycopg
@@ -23,12 +24,12 @@ from backend.normaliser.pipeline import load_latest_run, load_normalised
 
 def records_from_sqlite(db_path: str | Path) -> list[NormalisedRecord]:
     """Every normalised record in a crawler database."""
-    with sqlite3.connect(str(db_path)) as conn:
+    with closing(sqlite3.connect(str(db_path))) as conn, conn:
         return load_normalised(conn)
 
 
 def latest_run_from_sqlite(db_path: str | Path) -> PipelineRun | None:
-    with sqlite3.connect(str(db_path)) as conn:
+    with closing(sqlite3.connect(str(db_path))) as conn, conn:
         return load_latest_run(conn)
 
 

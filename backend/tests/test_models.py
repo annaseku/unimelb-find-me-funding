@@ -4,7 +4,7 @@ vocabulary is tested explicitly."""
 import pytest
 from pydantic import ValidationError
 
-from backend.crawler.queryBuilder import CAREER_STAGE_TERMS, FUNDING_TYPE_TERMS
+from backend.crawler.query_builder import CAREER_STAGE_TERMS, FUNDING_TYPE_TERMS
 from backend.ranking.models import (
     CareerStage,
     FundingType,

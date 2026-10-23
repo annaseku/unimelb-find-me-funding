@@ -5,11 +5,10 @@ from __future__ import annotations
 
 import hashlib
 import re
-from datetime import date, datetime
+from datetime import date
 from urllib.parse import urlparse
 
-from dateutil import parser as dateutil_parser
-
+from backend.crawler.dates import parse_date_text
 from backend.ranking.models import OpportunityStatus
 
 RATES_TO_AUD: dict[str, float] = {
@@ -128,12 +127,7 @@ def parse_deadline(deadline_parsed: str | None, deadline_raw: str | None) -> dat
             return iso_date
 
     if deadline_raw:
-        try:
-            parsed = dateutil_parser.parse(deadline_raw, fuzzy=True, default=datetime(1900, 1, 1))
-        except (ValueError, OverflowError):
-            return None
-        if 2020 <= parsed.year <= 2100:
-            return parsed.date()
+        return parse_date_text(deadline_raw)
 
     return None
 
@@ -243,7 +237,7 @@ def summarise(raw_text: str | None, title: str | None, max_chars: int = 400) -> 
     if title and text.lower().startswith(title.strip().lower()):
         text = text[len(title.strip()) :]
         # Drop the separator left dangling after the title (". ", " - ", etc.)
-        text = re.sub(r"^[\s.,;:!\-–—]+", "", text)
+        text = re.sub(r"^[\s.,;:!\-\u2013\u2014]+", "", text)
 
     text = re.sub(r"\s+", " ", text).strip()
     if not text:

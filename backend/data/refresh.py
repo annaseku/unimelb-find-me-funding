@@ -10,11 +10,13 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import os
 import sqlite3
 import sys
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import closing
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
@@ -24,7 +26,7 @@ import psycopg
 from pydantic import BaseModel
 
 from backend.crawler.config import DB_PATH
-from backend.crawler.queryBuilder import generate_seed_queries
+from backend.crawler.query_builder import generate_seed_queries
 from backend.data.postgres_repository import read_published_urls
 from backend.data.publish import latest_run_from_sqlite, publish, records_from_sqlite
 from backend.normaliser.llm import extractor_from_env
@@ -76,7 +78,7 @@ def refetch(urls: list[str]) -> tuple[int, int]:
     from backend.crawler.crawler import crawl_url, init_db
 
     init_db()
-    with sqlite3.connect(DB_PATH) as conn:
+    with closing(sqlite3.connect(DB_PATH)) as conn, conn:
         # The crawler only marks failures on existing rows. Pending rows also
         # keep robots.txt rejections from reusing a previous successful fetch.
         conn.executemany(
@@ -106,7 +108,7 @@ def refetch(urls: list[str]) -> tuple[int, int]:
     with ThreadPoolExecutor(max_workers=FETCH_WORKERS) as pool:
         list(pool.map(fetch_host, by_host.values()))
 
-    with sqlite3.connect(DB_PATH) as conn:
+    with closing(sqlite3.connect(DB_PATH)) as conn, conn:
         states = dict(conn.execute("SELECT url, fetch_failed FROM opportunities"))
     return sum(states[url] == 0 for url in urls), sum(states[url] != 0 for url in urls)
 
@@ -121,6 +123,7 @@ def publish_to_postgres(db_path: str | Path, database_url: str) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     parser = argparse.ArgumentParser(
         description="Crawl, normalise and publish funding opportunities from the repository root."
     )

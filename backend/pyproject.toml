@@ -17,12 +17,36 @@ omit = ["*/tests/*"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-# crawler/ is Jummana's package and is being rewritten on feature/backend-crawler;
-# lint it once that lands so CI does not force reformatting into her merge.
-extend-exclude = ["crawler"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B"]
+select = [
+    "E", "W",  # pycodestyle
+    "F",       # pyflakes
+    "I",       # import order
+    "N",       # PEP 8 naming
+    "UP",      # modern syntax for our Python version
+    "B",       # likely bugs
+    "SIM",     # simpler equivalents
+    "C4",      # comprehensions
+    "PIE", "RET",
+    "PTH",     # pathlib over os.path
+    "ERA",     # no commented-out code
+    "T20",     # no print outside the command-line tools below
+    "ANN",     # type hints on every function (CONTRIBUTING.md)
+    "RUF",
+]
+# Any is the honest type for third-party clients and JSON values, and
+# "a b c".split() reads better than a long list literal for word lists.
+ignore = ["ANN401", "SIM905"]
+
+[tool.ruff.lint.per-file-ignores]
+# Printing is the interface of these command-line tools.
+"**/data/publish.py" = ["T20"]
+"**/data/refresh.py" = ["T20"]
+"**/evals/*.py" = ["T20"]
+"**/normaliser/run.py" = ["T20"]
+# Tests take pytest fixtures as untyped arguments, and quote real page text.
+"**/tests/*.py" = ["ANN", "RUF001"]
 
 [tool.ruff.lint.isort]
 # Imports are `backend.<pkg>` from the repository root, one level above this file.

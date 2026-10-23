@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "backend/**"
+      - "main.py"
       - ".dockerignore"
       - ".github/workflows/backend-ci.yml"
   # Every PR, unfiltered: these jobs are required status checks on main, and a
@@ -31,8 +32,8 @@ jobs:
           cache: pip
           cache-dependency-path: backend/requirements*.txt
       - run: pip install -r backend/requirements-dev.txt
-      - run: ruff check backend --output-format github
-      - run: ruff format --check backend
+      - run: ruff check backend main.py --config backend/pyproject.toml --output-format github
+      - run: ruff format --check backend main.py --config backend/pyproject.toml
 
   test:
     name: Test (Python ${{ matrix.python-version }})

@@ -15,7 +15,7 @@ from backend.ranking.models import (
 
 
 def make_opportunity(**overrides) -> Opportunity:
-    base = dict(id="o1", title="T", funder="F", url="https://example.org", summary="s")
+    base = {"id": "o1", "title": "T", "funder": "F", "url": "https://example.org", "summary": "s"}
     return Opportunity(**{**base, **overrides})
 
 

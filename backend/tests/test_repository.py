@@ -32,7 +32,7 @@ def test_unset_data_source_reads_sqlite(monkeypatch, corpus_db):
 @pytest.mark.parametrize("source", ["unknown", "mock", ""])
 def test_unknown_data_source_names_the_valid_values(monkeypatch, source):
     monkeypatch.setenv("FMF_DATA_SOURCE", source)
-    with pytest.raises(RuntimeError, match="sqlite.*postgres"):
+    with pytest.raises(RuntimeError, match=r"sqlite.*postgres"):
         get_repository()
 
 

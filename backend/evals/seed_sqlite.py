@@ -9,6 +9,7 @@ import argparse
 import sqlite3
 import sys
 from collections.abc import Iterable
+from contextlib import closing
 from pathlib import Path
 
 from backend.evals.corpus import corpus_records
@@ -17,7 +18,7 @@ from backend.normaliser.pipeline import write_records
 
 
 def seed(db_path: str | Path, records: Iterable[NormalisedRecord] | None = None) -> int:
-    with sqlite3.connect(str(db_path)) as conn:
+    with closing(sqlite3.connect(str(db_path))) as conn, conn:
         return write_records(conn, corpus_records() if records is None else records)
 
 

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from contextlib import closing
 from pathlib import Path
 
 from backend.data.repository import OpportunityRepository
@@ -30,7 +31,7 @@ class SqliteRepository(OpportunityRepository):
                 f"seed one with python -m backend.evals.seed_sqlite {db_path}, "
                 "or set FMF_DATA_SOURCE=postgres"
             )
-        with sqlite3.connect(f"{path.resolve().as_uri()}?mode=ro", uri=True) as conn:
+        with closing(sqlite3.connect(f"{path.resolve().as_uri()}?mode=ro", uri=True)) as conn, conn:
             conn.row_factory = sqlite3.Row
             last_run = load_latest_run(conn)
             try:

@@ -4,7 +4,7 @@ Two packages live here. `crawler/` (Jummana) discovers and stores funding pages;
 
 | Component | Status |
 | --- | --- |
-| Crawler (discovery, fetch, extract, store) | Built, see `crawler/README` |
+| Crawler (discovery, fetch, extract, store) | Built, see `crawler/README.md` |
 | Ranking engine (four criterion scores, weighted overall) | Prototype built; ranks normalised crawler records from SQLite by default or Supabase Postgres in deployment; evals use a separate corpus |
 | FastAPI search endpoint for the frontend | Deployed on Render with Postgres; locally defaults to the crawler SQLite database |
 | Normalising crawler rows into structured opportunities | Prototype built, rules plus optional LLM extractor (OpenRouter), see Normaliser below |
