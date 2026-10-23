@@ -1,5 +1,5 @@
 {
-  "name": "front-end",
+  "name": "find-me-funding-frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,7 +11,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "format": "prettier --write src e2e",
+    "format:check": "prettier --check src e2e"
   },
   "dependencies": {
     "react": "^19.2.8",
@@ -35,6 +37,7 @@
     "eslint-plugin-react-refresh": "^0.5.4",
     "globals": "^17.11.0",
     "jsdom": "^29.1.1",
+    "prettier": "^3.9.10",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.67.0",
     "vite": "^8.3.4",

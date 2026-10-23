@@ -1,111 +1,92 @@
 .hero {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 .hero .title {
-    color: #ffffff;
-    font-weight: 500; 
-    font-size: 56px;
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 56px;
 }
 
 .searchSubmit {
-    width: 100%;
-    margin: 0 !important;
+  width: 100%;
+  margin: 0 !important;
 }
 
 .searchbarContainer {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    height: 50px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 50px;
 }
 
 .hero .searchLabel {
-    color: #ffffff;
-    margin-top: 10px !important;
-    margin-left: 5px !important;
-    margin-bottom: 0 !important;
+  color: #ffffff;
+  margin-top: 10px !important;
+  margin-left: 5px !important;
+  margin-bottom: 0 !important;
 }
 
-.searchbar{
-    min-width: 0;
-    background-color: #ffffff;
-    color: #000f46;
-    width: 100% !important;
-    height: 50px;
-    padding: 0 20px;
+/* The design system makes form labels bold blocks; this one keeps its paragraph's look. */
+.hero .searchLabel label {
+  display: inline;
+  margin: 0;
+  color: inherit;
+  font-weight: inherit;
+}
 
-    border-radius: 20px;
-    border: none;
+.searchbar {
+  min-width: 0;
+  background-color: #ffffff;
+  color: #000f46;
+  width: 100% !important;
+  height: 50px;
+  padding: 0 20px;
 
-    font-family: 'Source Sans 3';
-    font-size: 22px;
+  border-radius: 20px;
+  border: none;
+
+  font-family: 'Source Sans 3';
+  font-size: 22px;
 }
 
 .searchButton {
-    background-color: #0057b8;
-    height: 50px;
-    padding: 0 20px;
-    border: none;
-    border-radius: 20px;
-    color: #ffffff;
-    font-family: 'Source Sans 3';
-    cursor: pointer;
+  background-color: #0057b8;
+  height: 50px;
+  padding: 0 20px;
+  border: none;
+  border-radius: 20px;
+  color: #ffffff;
+  font-family: 'Source Sans 3';
+  cursor: pointer;
 }
 
-.homeContainer{
-    width: min(1400px, calc(100% - 40px));
-    max-width: none;
+.homeContainer {
+  width: min(1400px, calc(100% - 40px));
+  max-width: none;
 
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 
-    margin: 0 auto;
-
-}
-
-.dropdownContainer > div > span {
-    color: #ffffff;
-}
-
-.dropdownContainer {
-    color: #000f46;
+  margin: 0 auto;
 }
 
 .hero :is(button, input, summary):focus-visible {
-    outline: 3px solid #8bd5ff !important;
-    outline-offset: 3px !important;
+  outline: 3px solid #8bd5ff !important;
+  outline-offset: 3px !important;
 }
 
 .searchButton:hover {
-    background-color: #00408a;
-}
-
-.dropdownContainer {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    column-gap: 20px;
-    row-gap: 16px;
-    align-items: center;
-}
-
-@media (max-width: 760px) {
-    .dropdownContainer {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+  background-color: #00408a;
 }
 
 @media (max-width: 560px) {
-    .hero .title {
-        font-size: 40px;
-    }
+  .hero .title {
+    font-size: 40px;
+  }
 
-    .searchbar {
-        font-size: 16px;
-        padding: 0 12px;
-    }
-
-    .dropdownContainer {
-        grid-template-columns: 1fr;
-    }
+  .searchbar {
+    font-size: 16px;
+    padding: 0 12px;
+  }
 }

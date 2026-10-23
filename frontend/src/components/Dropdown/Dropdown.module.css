@@ -1,47 +1,47 @@
 .dropdownWrapper {
-    min-width: 0;
+  min-width: 0;
 }
 
 .dropdown {
-    width: 100% !important;
-    box-sizing: border-box;
-    position: relative !important;
+  width: 100% !important;
+  box-sizing: border-box;
+  position: relative !important;
 }
 
 .dropdown > :global(summary) {
-    box-sizing: border-box;
-    width: 100% !important;
-    border: 1px solid #000f46 !important;
-    box-shadow: none !important;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    list-style: none !important;
+  box-sizing: border-box;
+  width: 100% !important;
+  border: 1px solid #000f46 !important;
+  box-shadow: none !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  list-style: none !important;
 }
 
 .dropdown > :global(summary::marker),
 .dropdown > :global(summary::-webkit-details-marker) {
-    display: none !important;
-    content: "" !important;
+  display: none !important;
+  content: '' !important;
 }
 
 .dropdown > :global(summary:focus-visible) {
-    outline: 2px solid #000f46 !important;
-    outline-offset: 2px !important;
+  outline: 2px solid #000f46 !important;
+  outline-offset: 2px !important;
 }
 
 .dropdown > :global(.dropdown__panel) {
-    box-sizing: border-box !important;
-    left: 0 !important;
-    right: auto !important;
-    width: 100% !important;
-    border: 1px solid #d8d8d8 !important;
-    border-radius: 5px;
-    box-shadow: none !important;
-    margin-top: 5px;
+  box-sizing: border-box !important;
+  left: 0 !important;
+  right: auto !important;
+  width: 100% !important;
+  border: 1px solid #d8d8d8 !important;
+  border-radius: 5px;
+  box-shadow: none !important;
+  margin-top: 5px;
 }
 
 .label {
-    display: block;
-    margin-bottom: 4px;
+  display: block;
+  margin-bottom: 4px;
 }

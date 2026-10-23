@@ -1,160 +1,130 @@
-import { useEffect, useRef, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { filterOptions } from '../../data/filterOptions';
+import { useDismiss } from '../../hooks/useDismiss';
+import menuStyles from '../../styles/menuDropdown.module.css';
 import styles from './CitizenshipDropdown.module.css';
 
 interface CitizenshipDropdownProps {
-    value: string[];
-    onChange: (value: string[]) => void;
+  value: string[];
+  onChange: (value: string[]) => void;
 }
 
-export default function CitizenshipDropdown({
-    value,
-    onChange,
-}: CitizenshipDropdownProps) {
-    const [isOpen, setIsOpen] = useState(false);
-    const [search, setSearch] = useState('');
+export default function CitizenshipDropdown({ value, onChange }: CitizenshipDropdownProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState('');
 
-    const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const id = useId();
+  const menuId = `${id}-menu`;
+  useDismiss({ open: isOpen, onDismiss: () => setIsOpen(false), containerRef, triggerRef });
 
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (
-                containerRef.current &&
-                !containerRef.current.contains(event.target as Node)
-            ) {
-                setIsOpen(false);
-            }
-        };
+  const searchTerm = search.trim().toLowerCase();
 
-        document.addEventListener('mousedown', handleClickOutside);
+  const filteredCountries = filterOptions.citizenship.filter(
+    (country) =>
+      country.label.toLowerCase().includes(searchTerm) ||
+      country.value.toLowerCase().includes(searchTerm),
+  );
 
-        return () => {
-            document.removeEventListener(
-                'mousedown',
-                handleClickOutside
-            );
-        };
-    }, []);
+  const handleToggleCountry = (countryCode: string) => {
+    if (value.includes(countryCode)) {
+      onChange(value.filter((code) => code !== countryCode));
+    } else {
+      onChange([...value, countryCode]);
+    }
+  };
 
-    const searchTerm = search.trim().toLowerCase();
+  const handleClear = () => {
+    onChange([]);
+  };
 
-    const filteredCountries = filterOptions.citizenship.filter(
-        (country) =>
-            country.label.toLowerCase().includes(searchTerm) ||
-            country.value.toLowerCase().includes(searchTerm)
-    );
+  const getDisplayLabel = () => {
+    if (value.length === 0) {
+      return 'Citizenship – Any';
+    }
 
-    const handleToggleCountry = (countryCode: string) => {
-        if (value.includes(countryCode)) {
-            onChange(
-                value.filter((code) => code !== countryCode)
-            );
-        } else {
-            onChange([...value, countryCode]);
-        }
-    };
+    if (value.length === 1) {
+      const selectedCountry = filterOptions.citizenship.find(
+        (country) => country.value === value[0],
+      );
 
-    const handleClear = () => {
-        onChange([]);
-    };
+      return selectedCountry?.label ?? 'Citizenship';
+    }
 
-    const getDisplayLabel = () => {
-        if (value.length === 0) {
-            return 'Citizenship – Any';
-        }
+    return `${value.length} citizenships selected`;
+  };
 
-        if (value.length === 1) {
-            const selectedCountry =
-                filterOptions.citizenship.find(
-                    (country) => country.value === value[0]
-                );
+  return (
+    <div ref={containerRef} className={menuStyles.dropdownWrapper}>
+      <span id={`${id}-label`} className={menuStyles.label}>
+        Citizenship
+      </span>
+      <button
+        ref={triggerRef}
+        type="button"
+        className={menuStyles.trigger}
+        onClick={() => setIsOpen((current) => !current)}
+        aria-expanded={isOpen}
+        aria-controls={isOpen ? menuId : undefined}
+        aria-labelledby={value.length > 0 ? `${id}-label ${id}-value` : `${id}-value`}
+      >
+        <span id={`${id}-value`} className={menuStyles.triggerLabel}>
+          {getDisplayLabel()}
+        </span>
 
-            return selectedCountry?.label ?? 'Citizenship';
-        }
+        <span className={menuStyles.triggerArrow}>
+          <span data-icon="chevron-bottom" data-size="sm" data-hide-label="true" />
+        </span>
+      </button>
 
-        return `${value.length} citizenships selected`;
-    };
+      {isOpen && (
+        <div id={menuId} className={menuStyles.menu}>
+          <input
+            type="text"
+            className={menuStyles.search}
+            placeholder="Search citizenship..."
+            aria-label="Search citizenships"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
 
-    return (
-        <div ref={containerRef} className={styles.dropdownWrapper}>
-            <span className={styles.label}>Citizenship</span>
-            <button
-                type="button"
-                className={styles.trigger}
-                onClick={() => setIsOpen((current) => !current)}
-                aria-expanded={isOpen}
-            >
-                <span className={styles.triggerLabel}>
-                    {getDisplayLabel()}
-                </span>
+          <button type="button" className={styles.anyOption} onClick={handleClear}>
+            Any
+          </button>
 
-                <span className={styles.triggerArrow}>
-                    <span
-                        data-icon="chevron-bottom"
-                        data-size="sm"
-                        data-hide-label="true"
-                    />
-                </span>
-            </button>
+          <div className={menuStyles.options}>
+            {filteredCountries.map((country) => {
+              const checkboxId = `citizenship-${country.value}`;
 
-            {isOpen && (
-                <div className={styles.menu}>
-                    <input
-                        type="text"
-                        className={styles.search}
-                        placeholder="Search citizenship..."
-                        value={search}
-                        onChange={(event) =>
-                            setSearch(event.target.value)
-                        }
-                    />
+              return (
+                <div
+                  key={country.value}
+                  className={`${styles.countryOption} ${
+                    value.includes(country.value) ? styles.selectedCountry : ''
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    id={checkboxId}
+                    className="checkbox"
+                    checked={value.includes(country.value)}
+                    onChange={() => handleToggleCountry(country.value)}
+                  />
 
-                    <button
-                        type="button"
-                        className={styles.anyOption}
-                        onClick={handleClear}
-                    >
-                        Any
-                    </button>
-
-                    <div className={styles.options}>
-                        {filteredCountries.map((country) => {
-                            const checkboxId = `citizenship-${country.value}`;
-
-                            return (
-                                <div
-                                    key={country.value}
-                                    className={`${styles.countryOption} ${
-                                        value.includes(country.value)
-                                            ? styles.selectedCountry
-                                            : ''
-                                    }`}
-                                >
-                                    <input
-                                        type="checkbox"
-                                        id={checkboxId}
-                                        className="checkbox"
-                                        checked={value.includes(country.value)}
-                                        onChange={() =>
-                                            handleToggleCountry(country.value)
-                                        }
-                                    />
-
-                                    <label htmlFor={checkboxId}>
-                                        <span>{country.label}</span>
-                                    </label>
-                                </div>
-                            );
-                        })}
-
-                        {filteredCountries.length === 0 && (
-                            <p className={styles.noResults}>
-                                No countries found.
-                            </p>
-                        )}
-                    </div>
+                  <label htmlFor={checkboxId}>
+                    <span>{country.label}</span>
+                  </label>
                 </div>
+              );
+            })}
+
+            {filteredCountries.length === 0 && (
+              <p className={styles.noResults}>No countries found.</p>
             )}
+          </div>
         </div>
-    );
+      )}
+    </div>
+  );
 }

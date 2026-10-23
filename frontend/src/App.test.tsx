@@ -5,7 +5,9 @@ import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import App from './App';
 
 import { page } from './test/fundingFixture';
-beforeEach(() => { vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => page })); });
+beforeEach(() => {
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => page }));
+});
 afterEach(() => vi.unstubAllGlobals());
 
 const findTimeout = { timeout: 2000 };
@@ -29,7 +31,7 @@ describe('App', () => {
     renderApp('/results');
 
     expect(screen.getByRole('heading', { name: 'Search Results' })).toBeInTheDocument();
-    await screen.findByText(/Results Found/, {}, findTimeout);
+    await screen.findByText(/Results? Found/, {}, findTimeout);
   });
 
   it('renders a nav landmark on the home route', () => {
@@ -41,7 +43,7 @@ describe('App', () => {
   it('renders a nav landmark on the results route', async () => {
     renderApp('/results');
 
-    await screen.findByText(/Results Found/, {}, findTimeout);
+    await screen.findByText(/Results? Found/, {}, findTimeout);
     expect(screen.getByRole('navigation')).toBeInTheDocument();
   });
 
@@ -55,7 +57,7 @@ describe('App', () => {
     );
     await user.click(screen.getByRole('button', { name: 'Search funding' }));
 
-    await screen.findByText('1 Results Found', {}, findTimeout);
+    await screen.findByText('1 Result Found', {}, findTimeout);
     expect(screen.getByText('ARC Research Grant')).toBeInTheDocument();
   });
 });

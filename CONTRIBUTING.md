@@ -26,6 +26,7 @@ Python (`backend/`):
 TypeScript (`frontend/`):
 
 - React 19 function components in TypeScript, type-checked by `npm run build` and ESLint clean (`npm run lint`).
+- Formatted with Prettier (`npm run format`); CI runs `npm run format:check` and rejects unformatted code.
 - One component per folder, with its test beside it (`Result/Result.tsx`, `Result/Result.test.tsx`).
 - Filter labels and API values live only in `src/data/filterOptions.ts` and must match `backend/ranking/models.py`.
 

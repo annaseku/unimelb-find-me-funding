@@ -46,6 +46,14 @@ describe('Home', () => {
     expect(screen.getByPlaceholderText(searchPlaceholder)).toBeInTheDocument();
   });
 
+  it('names the search box with its visible label', () => {
+    renderHome();
+
+    expect(
+      screen.getByRole('textbox', { name: 'Search by description of project or research:' }),
+    ).toHaveAttribute('placeholder', searchPlaceholder);
+  });
+
   it('labels the submit button "Search funding" for assistive tech', () => {
     renderHome();
 
@@ -70,8 +78,7 @@ describe('Home', () => {
     renderHome();
 
     await user.click(screen.getByText('Field of Research – Any'));
-    // await user.click(screen.getByRole('radio', { name: 'Ecology' }));
-    await user.click(screen.getByRole('button', { name: 'Expand Biological Sciences'}));
+    await user.click(screen.getByRole('button', { name: 'Biological Sciences groups' }));
     await user.click(screen.getByRole('button', { name: /3103\s*Ecology/i }));
     await user.click(screen.getByText('Career Stage – Any'));
     await user.click(screen.getByRole('radio', { name: 'Postdoctoral (2-5 years)' }));

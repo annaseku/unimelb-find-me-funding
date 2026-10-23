@@ -1,13 +1,11 @@
-import styles from './Navbar.module.css'
+import styles from './Navbar.module.css';
 
 function Navbar() {
-
   return (
     <>
-        <nav className={styles.navbar}>
-        </nav>
+      <nav className={styles.navbar}></nav>
     </>
-  )
+  );
 }
 
-export default Navbar
+export default Navbar;
