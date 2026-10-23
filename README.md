@@ -1,6 +1,6 @@
 # Find Me Funding
 
-A web tool that finds research funding opportunities for University of Melbourne researchers and returns them ranked by how attractive they are to that researcher. Built by a student team for the UoM Research Office (client: Frank Anastasopoulos) as a 2026 IT Project.
+A web tool that finds research funding opportunities for University of Melbourne researchers and returns them ranked by how attractive they are to that researcher. Built by a student team for a client in the UoM Research Office as a 2026 IT Project.
 
 A researcher fills in a short form: field of research and type of activity (ANZSRC codes), citizenship, employer type, career stage, the kind of funding they need, and a few sentences about the project. The tool searches a continuously refreshed collection of funding pages gathered from across the web, not a fixed list of funders, and returns the top ten with more on request. Every result shows a link and a rating on four criteria: eligibility, match to the research, funding value, and time to deadline.
 
