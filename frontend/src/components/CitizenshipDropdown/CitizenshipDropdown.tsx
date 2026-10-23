@@ -1,6 +1,7 @@
 import { useId, useRef, useState } from 'react';
 import { filterOptions } from '../../data/filterOptions';
 import { useDismiss } from '../../hooks/useDismiss';
+import menuStyles from '../../styles/menuDropdown.module.css';
 import styles from './CitizenshipDropdown.module.css';
 
 interface CitizenshipDropdownProps {
@@ -55,33 +56,33 @@ export default function CitizenshipDropdown({ value, onChange }: CitizenshipDrop
   };
 
   return (
-    <div ref={containerRef} className={styles.dropdownWrapper}>
-      <span id={`${id}-label`} className={styles.label}>
+    <div ref={containerRef} className={menuStyles.dropdownWrapper}>
+      <span id={`${id}-label`} className={menuStyles.label}>
         Citizenship
       </span>
       <button
         ref={triggerRef}
         type="button"
-        className={styles.trigger}
+        className={menuStyles.trigger}
         onClick={() => setIsOpen((current) => !current)}
         aria-expanded={isOpen}
         aria-controls={isOpen ? menuId : undefined}
         aria-labelledby={value.length > 0 ? `${id}-label ${id}-value` : `${id}-value`}
       >
-        <span id={`${id}-value`} className={styles.triggerLabel}>
+        <span id={`${id}-value`} className={menuStyles.triggerLabel}>
           {getDisplayLabel()}
         </span>
 
-        <span className={styles.triggerArrow}>
+        <span className={menuStyles.triggerArrow}>
           <span data-icon="chevron-bottom" data-size="sm" data-hide-label="true" />
         </span>
       </button>
 
       {isOpen && (
-        <div id={menuId} className={styles.menu}>
+        <div id={menuId} className={menuStyles.menu}>
           <input
             type="text"
-            className={styles.search}
+            className={menuStyles.search}
             placeholder="Search citizenship..."
             aria-label="Search citizenships"
             value={search}
@@ -92,7 +93,7 @@ export default function CitizenshipDropdown({ value, onChange }: CitizenshipDrop
             Any
           </button>
 
-          <div className={styles.options}>
+          <div className={menuStyles.options}>
             {filteredCountries.map((country) => {
               const checkboxId = `citizenship-${country.value}`;
 

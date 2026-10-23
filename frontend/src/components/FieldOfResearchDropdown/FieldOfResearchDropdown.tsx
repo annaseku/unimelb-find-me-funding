@@ -1,6 +1,7 @@
 import { useId, useRef, useState } from 'react';
 import { fieldOfResearchOptions } from '../../data/fieldOfResearchOptions';
 import { useDismiss } from '../../hooks/useDismiss';
+import menuStyles from '../../styles/menuDropdown.module.css';
 import styles from './FieldOfResearchDropdown.module.css';
 
 interface FieldOfResearchDropdownProps {
@@ -68,32 +69,32 @@ export default function FieldOfResearchDropdown({ value, onChange }: FieldOfRese
   };
 
   return (
-    <div ref={containerRef} className={styles.dropdownWrapper}>
-      <span id={`${id}-label`} className={styles.label}>
+    <div ref={containerRef} className={menuStyles.dropdownWrapper}>
+      <span id={`${id}-label`} className={menuStyles.label}>
         Field of Research
       </span>
       <button
         ref={triggerRef}
         type="button"
-        className={styles.trigger}
+        className={menuStyles.trigger}
         onClick={() => setIsOpen((current) => !current)}
         aria-expanded={isOpen}
         aria-controls={isOpen ? menuId : undefined}
         aria-labelledby={selectedOption ? `${id}-label ${id}-value` : `${id}-value`}
       >
-        <span id={`${id}-value`} className={styles.triggerLabel}>
+        <span id={`${id}-value`} className={menuStyles.triggerLabel}>
           {selectedOption ? selectedOption.label : 'Field of Research – Any'}
         </span>
 
-        <span className={styles.triggerArrow}>
+        <span className={menuStyles.triggerArrow}>
           <span data-icon="chevron-bottom" data-size="sm" data-hide-label="true" />
         </span>
       </button>
       {isOpen && (
-        <div id={menuId} className={styles.menu}>
+        <div id={menuId} className={menuStyles.menu}>
           <input
             type="text"
-            className={styles.search}
+            className={menuStyles.search}
             placeholder="Search field of research..."
             aria-label="Search fields of research"
             value={search}
@@ -104,7 +105,7 @@ export default function FieldOfResearchDropdown({ value, onChange }: FieldOfRese
             Any
           </button>
 
-          <div className={styles.options}>
+          <div className={menuStyles.options}>
             {filteredDivisions.map((division) => {
               const isExpanded = expandedDivision === division.value;
 
