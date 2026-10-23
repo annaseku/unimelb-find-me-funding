@@ -78,7 +78,6 @@ describe('Home', () => {
     renderHome();
 
     await user.click(screen.getByText('Field of Research – Any'));
-    // await user.click(screen.getByRole('radio', { name: 'Ecology' }));
     await user.click(screen.getByRole('button', { name: 'Biological Sciences groups' }));
     await user.click(screen.getByRole('button', { name: /3103\s*Ecology/i }));
     await user.click(screen.getByText('Career Stage – Any'));

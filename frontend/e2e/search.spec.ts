@@ -8,8 +8,6 @@ const API = 'http://127.0.0.1:8001';
 
 async function searchFromHome(page: Page, description: string, citizenship = '') {
   await page.goto('/');
-  //if (citizenship) {await page.getByText('Citizenship – Any').click();
-  //await page.getByLabel('Citizenship').getByRole('radio').filter({ visible: true }).count()}
   if (citizenship) {
     const citizenshipLabels: Record<string, string> = {
       AU: 'Australia',
@@ -98,9 +96,7 @@ test('refining the search on the results page sends the new criteria', async ({ 
   await searchFromHome(page, 'marine ecology');
   await expect(page.getByRole('article').first()).toBeVisible();
 
-  //await page.getByLabel('Career Stage').selectOption({ index: 1 })
   await page.getByText('Career Stage – Any').click();
-  //await page.getByRole('radio', { name: 'Undergraduate' }).check();
   await page.getByText('Undergraduate', { exact: true }).click();
   await page.getByLabel('Research description').fill('quantum computing');
   const sent = page.waitForRequest((request) => request.url().endsWith('/api/search'));

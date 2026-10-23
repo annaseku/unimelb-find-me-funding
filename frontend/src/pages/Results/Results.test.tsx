@@ -31,8 +31,6 @@ it('explains cold starts and shows the total from the server, not the page count
   show();
   expect(screen.getByRole('status')).toHaveTextContent('first search can take about a minute');
   await screen.findByText('27 Results Found');
-  //expect(screen.getByText('Ecology', { selector: 'summary' })).toBeInTheDocument();
-  //expect(screen.getByRole('button', { name: 'Ecology' })).toBeInTheDocument();
   expect(
     screen.getByRole('button', { name: 'Field of Research Biological Sciences' }),
   ).toBeInTheDocument();
@@ -60,9 +58,6 @@ it('appends pages using the submitted filters, then resets on a new search', asy
   await screen.findByText('2 Results Found');
   await user.clear(screen.getByPlaceholderText('Search by keyword'));
   await user.type(screen.getByPlaceholderText('Search by keyword'), 'new research');
-  //await user.click(screen.getByText('Ecology', { selector: 'summary' }));
-  //await user.click(screen.getByRole('radio', { name: 'Field of Research Biological Sciences' }));
-  //await user.click(screen.getByRole('button', { name: 'Ecology' }));
   await user.click(screen.getByRole('button', { name: 'Field of Research Biological Sciences' }));
   await user.click(screen.getByRole('button', { name: /31\s*Biological Sciences/i }));
   await user.click(screen.getByRole('button', { name: 'Show more' }));

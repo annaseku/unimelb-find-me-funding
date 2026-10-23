@@ -14,20 +14,20 @@ export type DeadlineBand =
   'over_60_days' | 'days_60_to_30' | 'days_30_to_15' | 'under_15_days' | 'closed' | 'unknown';
 export type FundingBand = 'under_1m' | 'from_1m_to_2m' | 'from_2m_to_5m' | 'over_5m' | 'unknown';
 
-export const eligibilityLabels: Record<EligibilityState, string> = {
+type CriterionLabel = EligibilityState | MatchLevel | DeadlineBand | FundingBand;
+
+// The one place criterion labels from the API are worded for researchers.
+const criterionLabels: Record<CriterionLabel, string> = {
   eligible: 'Eligible',
   potentially_eligible: 'Potentially eligible',
-  unknown: 'Unknown',
   likely_ineligible: 'Likely ineligible',
-};
-
-export const matchLabels: Record<MatchLevel, string> = {
   high: 'High',
   medium: 'Medium',
   low: 'Low',
-};
-
-export const deadlineLabels: Record<DeadlineBand, string> = {
+  under_1m: 'Under $1 million',
+  from_1m_to_2m: '$1–2 million',
+  from_2m_to_5m: '$2–5 million',
+  over_5m: '$5 million and over',
   over_60_days: 'Over 60 days',
   days_60_to_30: '30–60 days',
   days_30_to_15: '15–30 days',
@@ -36,13 +36,11 @@ export const deadlineLabels: Record<DeadlineBand, string> = {
   unknown: 'Unknown',
 };
 
-export const fundingLabels: Record<FundingBand, string> = {
-  under_1m: 'Under $1M',
-  from_1m_to_2m: '$1M–$2M',
-  from_2m_to_5m: '$2M–$5M',
-  over_5m: 'Over $5M',
-  unknown: 'Unknown',
-};
+export function criterionLabel(label: string): string {
+  return Object.hasOwn(criterionLabels, label)
+    ? criterionLabels[label as CriterionLabel]
+    : label.replaceAll('_', ' ');
+}
 
 export interface Opportunity {
   id: string;

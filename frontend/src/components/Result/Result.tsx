@@ -1,24 +1,11 @@
 import { useId, useState } from 'react';
 import styles from './Result.module.css';
-import { criteria, type CriterionKey, type RankedOpportunity } from '../../types/funding';
-const labels: Record<string, string> = {
-  eligible: 'Eligible',
-  potentially_eligible: 'Potentially eligible',
-  unknown: 'Unknown',
-  likely_ineligible: 'Likely ineligible',
-  high: 'High',
-  medium: 'Medium',
-  low: 'Low',
-  under_1m: 'Under $1 million',
-  from_1m_to_2m: '$1–2 million',
-  from_2m_to_5m: '$2–5 million',
-  over_5m: '$5 million and over',
-  over_60_days: 'Over 60 days',
-  days_60_to_30: '30–60 days',
-  days_30_to_15: '15–30 days',
-  under_15_days: 'Under 15 days',
-  closed: 'Closed',
-};
+import {
+  criteria,
+  criterionLabel,
+  type CriterionKey,
+  type RankedOpportunity,
+} from '../../types/funding';
 export default function Result({ result }: { result: RankedOpportunity }) {
   const { opportunity } = result;
   const [expanded, setExpanded] = useState(false);
@@ -70,7 +57,7 @@ export default function Result({ result }: { result: RankedOpportunity }) {
             </button>
           </h2>
           <span className={`${styles.eligibilityBadge} ${eligibilityClass}`}>
-            {labels[eligibility] ?? eligibility}
+            {criterionLabel(eligibility)}
           </span>
         </div>
 
@@ -102,7 +89,7 @@ export default function Result({ result }: { result: RankedOpportunity }) {
               <h3>{criteria[key]}</h3>
 
               <p className={styles.criterionScore}>
-                {labels[result[key].label] ?? result[key].label.replaceAll('_', ' ')}
+                {criterionLabel(result[key].label)}
                 {' · '}
                 {Math.round(result[key].score * 100)}%
               </p>
