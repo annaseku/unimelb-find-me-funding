@@ -103,10 +103,11 @@ const day = (iso: string) =>
 const stopMessages: Record<LlmStopReason, (run: PipelineRun) => string> = {
   daily_quota: (run) =>
     `AI summaries are paused: the AI provider's request limit was reached during the last data refresh (${day(run.finished_at)}).`,
+  // Researchers need the effect, not the cause; key and billing detail stays in the server logs.
   plan_error: (run) =>
-    `AI summaries are unavailable: the OpenRouter key was rejected or is out of credits during the last data refresh (${run.llm_stop_detail || day(run.finished_at)}).`,
-  not_configured: () =>
-    'AI summaries are off: the last data refresh ran without an OpenRouter API key.',
+    `AI summaries are temporarily unavailable, so some summaries may be shorter right now (data last refreshed ${day(run.finished_at)}).`,
+  not_configured: (run) =>
+    `AI summaries were not generated in the last data refresh (${day(run.finished_at)}), so some summaries may be shorter right now.`,
 };
 export function statusNotice(status: DataStatus | null): string | null {
   if (!status) return null;
