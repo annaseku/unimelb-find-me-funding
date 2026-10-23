@@ -85,6 +85,7 @@ export default function CitizenshipDropdown({ value, onChange }: CitizenshipDrop
             type="text"
             className={styles.search}
             placeholder="Search citizenship..."
+            aria-label="Search citizenships"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />

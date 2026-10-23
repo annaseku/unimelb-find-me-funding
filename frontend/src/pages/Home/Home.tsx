@@ -1,5 +1,5 @@
 import styles from './Home.module.css';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Dropdown from '../../components/Dropdown/Dropdown';
 import FieldOfResearchDropdown from '../../components/FieldOfResearchDropdown/FieldOfResearchDropdown';
@@ -9,6 +9,7 @@ import { filterOptions, defaultFilterValues, type FilterKey } from '../../data/f
 
 function Home() {
   const [search, setSearch] = useState('');
+  const searchId = useId();
   const [filters, setFilters] = useState(defaultFilterValues);
   const navigate = useNavigate();
 
@@ -69,11 +70,14 @@ function Home() {
             onChange={(value) => handleFilterChange('fundingType', value)}
           />
         </div>
-        <p className={styles.searchLabel}>Search by description of project or research:</p>
+        <label htmlFor={searchId} className={styles.searchLabel}>
+          Search by description of project or research:
+        </label>
 
         <form onSubmit={handleSearch} className={styles.searchSubmit}>
           <div className={styles.searchbarContainer}>
             <input
+              id={searchId}
               className={styles.searchbar}
               type="text"
               placeholder="What kind of research are you searching for funding for?"

@@ -104,6 +104,7 @@ export default function FieldOfResearchDropdown({ value, onChange }: FieldOfRese
             type="text"
             className={styles.search}
             placeholder="Search field of research..."
+            aria-label="Search fields of research"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />

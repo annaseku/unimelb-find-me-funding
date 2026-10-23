@@ -21,6 +21,7 @@
 }
 
 .hero .searchLabel {
+  display: block;
   color: #ffffff;
   margin-top: 10px !important;
   margin-left: 5px !important;

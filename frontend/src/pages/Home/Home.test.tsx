@@ -46,6 +46,14 @@ describe('Home', () => {
     expect(screen.getByPlaceholderText(searchPlaceholder)).toBeInTheDocument();
   });
 
+  it('names the search box with its visible label', () => {
+    renderHome();
+
+    expect(
+      screen.getByRole('textbox', { name: 'Search by description of project or research:' }),
+    ).toHaveAttribute('placeholder', searchPlaceholder);
+  });
+
   it('labels the submit button "Search funding" for assistive tech', () => {
     renderHome();
 

@@ -21,3 +21,14 @@ it('allows selecting multiple citizenships', async () => {
 
   expect(onChange).toHaveBeenLastCalledWith(['AU', 'NZ']);
 }, 15000);
+
+it('names its search box and filters countries by it', async () => {
+  const user = userEvent.setup();
+  render(<CitizenshipDropdown value={[]} onChange={vi.fn()} />);
+
+  await user.click(screen.getByRole('button', { name: 'Citizenship – Any' }));
+  await user.type(screen.getByRole('textbox', { name: 'Search citizenships' }), 'zeal');
+
+  expect(screen.getByRole('checkbox', { name: 'New Zealand' })).toBeInTheDocument();
+  expect(screen.queryByRole('checkbox', { name: 'Australia' })).not.toBeInTheDocument();
+});
