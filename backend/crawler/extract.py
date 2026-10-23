@@ -37,7 +37,7 @@ _AMOUNT_RE = re.compile(
 _ELIGIBILITY_CONTEXT_CHARS = 300
 
 
-def extract_title_and_text(html: str):
+def extract_title_and_text(html: str) -> tuple[str, str]:
     """Extract page title and cleaned, whitespace-collapsed body text."""
     soup = BeautifulSoup(html, "html.parser")
 
@@ -54,7 +54,7 @@ def extract_title_and_text(html: str):
     return title, text
 
 
-def extract_deadline(text: str):
+def extract_deadline(text: str) -> tuple[str | None, str | None]:
     """
     Look for a deadline/closing-date phrase in the page text.
 
@@ -73,7 +73,7 @@ def extract_deadline(text: str):
     return raw, parsed_iso
 
 
-def extract_funding_amount(text: str):
+def extract_funding_amount(text: str) -> str | None:
     """
     Look for a dollar figure in the page text and return the raw matched
     string (e.g. "$2,000,000", "AUD 500k"). Banding into the client's
@@ -85,7 +85,7 @@ def extract_funding_amount(text: str):
     return match.group(0).strip()
 
 
-def extract_eligibility_snippet(text: str):
+def extract_eligibility_snippet(text: str) -> str | None:
     """
     Find the first mention of "eligib..." in the page text and return a
     window of surrounding context. This raw snippet is what the ranking
@@ -101,7 +101,7 @@ def extract_eligibility_snippet(text: str):
     return text[start:end].strip()
 
 
-def extract_fields(html: str) -> dict:
+def extract_fields(html: str) -> dict[str, str | None]:
     """Run all extraction steps and return a single dict of results."""
     title, text = extract_title_and_text(html)
     deadline_raw, deadline_parsed = extract_deadline(text)

@@ -30,7 +30,9 @@ def init_db(db_path: str = DB_PATH) -> None:
         )
 
 
-def save_opportunity(url: str, fields: dict, source_query: str, db_path: str = DB_PATH) -> None:
+def save_opportunity(
+    url: str, fields: dict[str, str | None], source_query: str, db_path: str = DB_PATH
+) -> None:
     """
     Insert or update a crawled opportunity.
 
@@ -84,7 +86,7 @@ def mark_fetch_failed(url: str, db_path: str = DB_PATH) -> None:
         )
 
 
-def get_stale_urls(stale_after_days: int, db_path: str = DB_PATH) -> list:
+def get_stale_urls(stale_after_days: int, db_path: str = DB_PATH) -> list[str]:
     """Return URLs whose stored data is older than `stale_after_days`."""
     with sqlite3.connect(db_path) as conn:
         cursor = conn.execute(
@@ -97,7 +99,7 @@ def get_stale_urls(stale_after_days: int, db_path: str = DB_PATH) -> list:
         return [row[0] for row in cursor.fetchall()]
 
 
-def get_all_opportunities(db_path: str = DB_PATH) -> list:
+def get_all_opportunities(db_path: str = DB_PATH) -> list[dict[str, object]]:
     """Return all stored (non-failed) opportunities as a list of dicts."""
     with sqlite3.connect(db_path) as conn:
         conn.row_factory = sqlite3.Row

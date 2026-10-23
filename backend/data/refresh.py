@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import os
 import sqlite3
 import sys
@@ -121,6 +122,7 @@ def publish_to_postgres(db_path: str | Path, database_url: str) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     parser = argparse.ArgumentParser(
         description="Crawl, normalise and publish funding opportunities from the repository root."
     )
