@@ -1,5 +1,7 @@
 # Ranking engine and search API: design spec
 
+> Historical design spec, written before implementation with an AI coding agent. File paths reflect the repository at the time. Current design: `docs/09-architectural-design/`.
+
 Date: 2026-09-06. Owner: Anna Sekulic (Ranker prototype, per Sprint Description). Status: approved in conversation, ready for an implementation plan.
 
 ## 1. Purpose
@@ -24,7 +26,7 @@ Source pages are in the Confluence space Crawlers unless stated.
 
 These were not settled on Confluence. Each is implemented as below and listed in the discussion-points document for the team and client to confirm or change. Changing any of them is a constant or a weight, not a rewrite.
 
-1. Deadline direction: more lead time scores higher. Over 60 days 1.0, 60 to 30 days 0.8, 30 to 15 days 0.5, under 15 days 0.2, no deadline 0.5. Rationale: Frank said a deadline six months out is far more useful than one due next week. The literal phrase "deadline urgency" on the architecture page reads the other way, so this needs confirming.
+1. Deadline direction: more lead time scores higher. Over 60 days 1.0, 60 to 30 days 0.8, 30 to 15 days 0.5, under 15 days 0.2, no deadline 0.5. Rationale: the client said a deadline six months out is far more useful than one due next week. The literal phrase "deadline urgency" on the architecture page reads the other way, so this needs confirming.
 2. Likely-ineligible results are shown and de-ranked, not hidden. The API accepts `hide_ineligible` (default false) so the frontend can offer a toggle.
 3. Default weights: eligibility 0.4, research match 0.3, funding value 0.15, deadline 0.15. Placeholder values chosen to honour "eligibility is the top priority". Callers may override per request.
 4. Funding bands follow the backend README proposal: under $1M AUD 0.25, $1M to under $2M 0.5, $2M to under $5M 0.75, $5M and over 1.0, unknown 0.5. Most individual grants land in the bottom band, so the client may prefer finer bands.
@@ -152,7 +154,7 @@ Band from `amount_aud` using the bands in section 3, item 4. Reason states the a
 1. Drop `status == closed` and past-deadline opportunities unless `include_closed`.
 2. Score every remaining opportunity.
 3. Drop likely_ineligible results if `hide_ineligible`.
-4. Sort likely-ineligible results after everything else, then by overall descending, then eligibility score descending, then id ascending. The tier rule was added after the first eval run showed a high-match ineligible opportunity landing at position 7 for the philanthropic-sector profile; Frank called that outcome "pointless", so de-ranked means "below every result you could apply for", not merely "penalised".
+4. Sort likely-ineligible results after everything else, then by overall descending, then eligibility score descending, then id ascending. The tier rule was added after the first eval run showed a high-match ineligible opportunity landing at position 7 for the philanthropic-sector profile; the client called that outcome "pointless", so de-ranked means "below every result you could apply for", not merely "penalised".
 
 Paging is applied by the API, not the ranker, so the ranker returns the full ordered list and the API reports its length as `total`.
 

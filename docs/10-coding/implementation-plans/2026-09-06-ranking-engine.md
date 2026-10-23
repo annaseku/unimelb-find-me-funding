@@ -1,6 +1,6 @@
 # Ranking Engine and Search API Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> Historical plan, kept as a record of GenAI use: it was executed with an AI coding agent, and its file paths and steps reflect the repository at the time. Current design: `docs/09-architectural-design/`.
 
 **Goal:** A prototype ranking engine that scores structured funding opportunities against a researcher's search inputs on four criteria, plus the FastAPI endpoint the React frontend calls, with mock data, tests and a golden-set eval.
 

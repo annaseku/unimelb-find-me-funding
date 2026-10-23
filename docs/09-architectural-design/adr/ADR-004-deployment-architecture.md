@@ -4,7 +4,7 @@
 | --- | --- |
 | Decision ID | ADR-004 |
 | Decision | Host the FastAPI service on Render as a Docker web service built from `backend/Dockerfile`, keep structured opportunity data in Supabase Postgres, and keep the frontend on GitHub Pages. Schedule a weekly rotating crawl through GitHub Actions: ten research areas cost 40 SerpApi searches per run, about 175 per month within the free plan's 250 a month and 50 an hour (serpapi.com/pricing, 2026-10-18), so weekly replaces daily to fit the free-tier budget. |
-| Status | 🟢 Runtime and data store implemented (not yet ratified with the client); weekly crawl workflow built, first production run pending secrets |
+| Status | 🟢 Implemented (not yet ratified with the client) |
 | Owner | Anna Sekulic |
 | Date | 2026-09-07, updated 2026-10-05, updated 2026-10-18 |
 
@@ -29,12 +29,12 @@ This record was first written as ADR-003 on 2026-09-07, when nothing was deploye
 | --- | --- | --- |
 | Where the API runs | Render web service `find-me-funding-api`, Singapore, free plan, `render.yaml` | Live since 2026-09-07 |
 | Where data lives | Supabase Postgres, project in ap-southeast-1, table `normalised_opportunities` | Live since PR #19 (2026-09-15) |
-| What runs the crawl | Decided: weekly GitHub Actions rotation in `.github/workflows/crawl.yml`, Sunday 20:00 UTC | Built; first production run pending secrets |
+| What runs the crawl | Decided: weekly GitHub Actions rotation in `.github/workflows/crawl.yml`, Sunday 20:00 UTC | Live since 2026-10-19 |
 | Where the frontend is served | GitHub Pages via `frontend-cd.yml` | Live |
 
 The API connects through Supabase's Supavisor session-mode pooler on port 5432. Supabase's direct endpoint is IPv6-only on the free plan and Render is IPv4-only, and transaction mode (port 6543) does not support the prepared statements psycopg uses. Render has no Australian region, so the API runs in Singapore, and the Supabase project is in Singapore too so the API and database sit in the same region.
 
-Records reach Postgres through the `Crawl and publish` GitHub Actions workflow, which runs `python -m backend.data.refresh` to crawl, normalise and publish to the shared store. The mock seed path is removed; until the first successful workflow run with production secrets, the deployed table still holds the 30-record evals corpus.
+Records reach Postgres through the `Crawl and publish` GitHub Actions workflow, which runs `python -m backend.data.refresh` to crawl, normalise and publish to the shared store. The mock seed path is removed.
 
 ## Consequences
 

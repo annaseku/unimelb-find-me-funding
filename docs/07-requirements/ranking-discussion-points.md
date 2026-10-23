@@ -1,12 +1,12 @@
 # Ranking: decisions that need team and client confirmation
 
-Owner: Anna Sekulic. Date: 2026-09-06. These six behaviours are implemented in the ranking prototype but were never settled on Confluence or with Frank. Each is a constant, a weight or a flag default, so changing any of them is a small edit, not a rewrite. Bring this list to the next client check-in.
+Owner: Anna Sekulic. Date: 2026-09-06. These six behaviours are implemented in the ranking prototype but were never settled on Confluence or with the client. Each is a constant, a weight or a flag default, so changing any of them is a small edit, not a rewrite. Bring this list to the next client check-in.
 
 ## 1. Deadline direction: more lead time scores higher
 
 Implemented: over 60 days 1.0, 60 to 30 days 0.8, 30 to 15 days 0.5, under 15 days 0.2, no deadline 0.5.
 
-Evidence: in the 20/08 meeting Frank said a grant deadline six months out is far more useful than one due next week with no lead time. The architecture page's phrase "deadline urgency" reads the opposite way.
+Evidence: in the 20/08 meeting the client said a grant deadline six months out is far more useful than one due next week with no lead time. The architecture page's phrase "deadline urgency" reads the opposite way.
 
 Question for the client: should a grant closing in ten days ever rank above an equivalent one closing in three months? If yes, we flip the table in `backend/ranking/deadline.py`.
 
@@ -16,7 +16,7 @@ Implemented: they stay in the list, always after every result the researcher cou
 
 Why "always after": the first eval run scored ineligible results purely by the weighted average, and a high-match ineligible grant landed at position 7 for the philanthropic-sector profile, above weaker but applicable ones. With only 30 mock records, a UK industry engineer or a philanthropic-sector researcher has just five applicable opportunities, so ineligible ones fill the rest of the top 10 either way; the tier rule at least guarantees the applicable ones come first.
 
-Evidence: Frank said a great match the researcher cannot apply for is "pointless", but also that uncertain ones must stay in. Confluence lists hidden versus de-ranked as unresolved. The Sprint Description floats a per-input "Mandatory vs Preferred" tick box.
+Evidence: the client said a great match the researcher cannot apply for is "pointless", but also that uncertain ones must stay in. Confluence lists hidden versus de-ranked as unresolved. The Sprint Description floats a per-input "Mandatory vs Preferred" tick box.
 
 Question for the client: default on or off for hiding? If the per-input Mandatory flag is wanted, the request shape gains one boolean per input and a mandatory mismatch becomes a filter.
 
@@ -44,10 +44,10 @@ Evidence: none from the client; chosen so an unknown never outranks a confirmed 
 
 Question for the team: with the tier rule in point 2, the 0.1 only orders ineligible results among themselves. If the team prefers pure weighted ordering instead of the tier rule, 0.1 is not low enough: a perfect match with a large amount reaches about 0.64 and outranks an applicable result with a weak match at about 0.47.
 
-## 6. Country and institution-location restrictions are stored but not checked
+## 6. Institution location defaults to Australia
 
-Implemented: `Opportunity.countries` records where the applicant's institution must be based (for example ERC grants need an EU host). Nothing compares it to the researcher because the frontend collects no country or institution input; citizenship is the only proxy.
+Implemented: `Opportunity.countries` records where the applicant's institution must be based (for example ERC grants need an EU host), and `SearchRequest.institution_country` (default `AU`) is checked against it. With no stated countries, the funder's domain stands in: a local funder or one that mentions Australia passes, an overseas one is marked unknown. The form has no country input, so every search uses the default.
 
 Evidence: the architecture page lists "country restrictions" as a deterministic check, but the brief's input list has no country field.
 
-Question for the team and client: add an "institution country" drop-down (defaulting to Australia) so this becomes a real check? Cheap on both sides.
+Question for the client: is defaulting to Australia right, or should the form offer an "institution country" drop-down?
