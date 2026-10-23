@@ -71,14 +71,6 @@
   margin: 0 auto;
 }
 
-.dropdownContainer > div > span {
-  color: #ffffff;
-}
-
-.dropdownContainer {
-  color: #000f46;
-}
-
 .hero :is(button, input, summary):focus-visible {
   outline: 3px solid #8bd5ff !important;
   outline-offset: 3px !important;
@@ -86,20 +78,6 @@
 
 .searchButton:hover {
   background-color: #00408a;
-}
-
-.dropdownContainer {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  column-gap: 20px;
-  row-gap: 16px;
-  align-items: center;
-}
-
-@media (max-width: 760px) {
-  .dropdownContainer {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 @media (max-width: 560px) {
@@ -110,9 +88,5 @@
   .searchbar {
     font-size: 16px;
     padding: 0 12px;
-  }
-
-  .dropdownContainer {
-    grid-template-columns: 1fr;
   }
 }

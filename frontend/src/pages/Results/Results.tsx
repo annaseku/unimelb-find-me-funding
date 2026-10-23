@@ -1,19 +1,12 @@
 import styles from './Results.module.css';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import Dropdown from '../../components/Dropdown/Dropdown';
+import FilterPanel from '../../components/FilterPanel/FilterPanel';
 import Result from '../../components/Result/Result';
 import DataNotice from '../../components/DataNotice/DataNotice';
 import { fetchResults } from '../../services/fundingService';
-import {
-  defaultFilterValues,
-  filterOptions,
-  type FilterKey,
-  type FilterValues,
-} from '../../data/filterOptions';
+import { defaultFilterValues, type FilterValues } from '../../data/filterOptions';
 import { criteria, type CriterionKey, type SearchResponse } from '../../types/funding';
-import FieldOfResearchDropdown from '../../components/FieldOfResearchDropdown/FieldOfResearchDropdown';
-import CitizenshipDropdown from '../../components/CitizenshipDropdown/CitizenshipDropdown';
 
 type Query = { search: string; filters: FilterValues };
 
@@ -86,12 +79,6 @@ export default function Results() {
     void load(query, offset);
   }
 
-  const handleFilterChange = (key: FilterKey, value: string | string[]) => {
-    setFilters((current) => ({
-      ...current,
-      [key]: value,
-    }));
-  };
   const runSearch = () => {
     const query = { search, filters: { ...filters } };
     setSubmitted(query);
@@ -102,40 +89,7 @@ export default function Results() {
   return (
     <div className={styles.resultsContainer}>
       <h1 className={styles.title}>Search Results</h1>
-      <div className={styles.dropdownContainer}>
-        <FieldOfResearchDropdown
-          value={filters.fieldOfResearch}
-          onChange={(value) => handleFilterChange('fieldOfResearch', value)}
-        />
-        <Dropdown
-          label="Type of Activity"
-          options={filterOptions.typeOfActivity}
-          value={filters.typeOfActivity}
-          onChange={(value) => handleFilterChange('typeOfActivity', value)}
-        />
-        <CitizenshipDropdown
-          value={filters.citizenship}
-          onChange={(value) => handleFilterChange('citizenship', value)}
-        />
-        <Dropdown
-          label="Employer Type"
-          options={filterOptions.employerType}
-          value={filters.employerType}
-          onChange={(value) => handleFilterChange('employerType', value)}
-        />
-        <Dropdown
-          label="Career Stage"
-          options={filterOptions.careerStage}
-          value={filters.careerStage}
-          onChange={(value) => handleFilterChange('careerStage', value)}
-        />
-        <Dropdown
-          label="Funding Type"
-          options={filterOptions.fundingType}
-          value={filters.fundingType}
-          onChange={(value) => handleFilterChange('fundingType', value)}
-        />
-      </div>
+      <FilterPanel filters={filters} onChange={setFilters} />
 
       <form
         className={styles.searchControls}
