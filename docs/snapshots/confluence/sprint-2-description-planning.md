@@ -95,8 +95,8 @@ _(Image not included in this snapshot; see the live Confluence page.)_
 
 | **Question** | **Answer** | **Date Answered** |
 | --- | --- | --- |
-| What functionality should the search/filter components support? | Ability to select up to as many search criteria in one search. Many selections will lead to broader selection of results, but autonomy lies with user to decide how selective to be | 8/31/2026 |
-| What information should be displayed for each funding opportunity? | Brief funding description, relevant selection criteria (i.e. show user what corresponding search lead to the result being shown), eligibility ranking (likely eligible, somewhat eligible, unlikely eligible) | 8/31/2026   |
+| What functionality should the search/filter components support? | Ability to select up to as many search criteria in one search. Many selections will lead to broader selection of results, but autonomy lies with user to decide how selective to be | 31 Aug 2026 |
+| What information should be displayed for each funding opportunity? | Brief funding description, relevant selection criteria (i.e. show user what corresponding search lead to the result being shown), eligibility ranking (likely eligible, somewhat eligible, unlikely eligible) | 31 Aug 2026   |
 | Is current UI consistent with client vision? | TBC  Storyboards to demonstrate intended front end relevant to user stories in next **Sprint Review** with client. | TBC |
 
 ## Reference Links
