@@ -2,7 +2,7 @@
 
 A read-only copy of the team's Jira project KAN, taken 25 October 2026, so the board can be read without an Atlassian login. Jira remains the source of truth: [live board](https://annaseku01.atlassian.net/jira/software/projects/KAN/boards). The client is referred to by role, not by name.
 
-69 work items: 47 Done, 19 To Do, 2 In Review, 1 In Progress.
+69 work items: 48 Done, 18 To Do, 2 In Review, 1 In Progress.
 
 ## KAN-12: Crawler and Discovery
 
@@ -68,7 +68,7 @@ A read-only copy of the team's Jira project KAN, taken 25 October 2026, so the b
 
 ## KAN-17: Project Governance and Delivery
 
-10 of 21 items done.
+11 of 21 items done.
 
 | Key | Type | Status | Assignee | Summary |
 | --- | --- | --- | --- | --- |
@@ -82,7 +82,7 @@ A read-only copy of the team's Jira project KAN, taken 25 October 2026, so the b
 | [KAN-42](#kan-42) | Task | To Do | Unassigned | Establish a regular client meeting cadence with the client |
 | [KAN-43](#kan-43) | Task | Done | Anna Sekulic | Document coding standards, testing strategy and deployment in Confluence |
 | [KAN-44](#kan-44) | Task | Done | Unassigned | Publish ADR-002, ADR-003 and ADR-004 to Confluence |
-| [KAN-45](#kan-45) | Task | To Do | Unassigned | Fix the use case diagram (Week 9 tutor feedback) |
+| [KAN-45](#kan-45) | Task | Done | Anna Sekulic | Fix the use case diagram (Week 9 tutor feedback) |
 | [KAN-46](#kan-46) | Task | To Do | Unassigned | Review the draft user stories and acceptance criteria |
 | [KAN-47](#kan-47) | Task | To Do | Unassigned | Estimate user stories with planning poker and turn on Jira estimation |
 | [KAN-48](#kan-48) | Task | To Do | Unassigned | Run acceptance test cases TC07 to TC09 and record the Sprint 3 test report |
@@ -691,7 +691,7 @@ Two architecture decisions exist only in the repository, so anyone reading Confl
 
 **Fix the use case diagram (Week 9 tutor feedback)**
 
-Task · To Do · Unassigned · epic KAN-17 · labels: requirements, tutor-feedback · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-45)
+Task · Done · Anna Sekulic · epic KAN-17 · labels: requirements, tutor-feedback · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-45)
 
 Week 9 tutor feedback: the use case diagram is incorrect; check it against the notation taught in SMD (actors outside the system boundary, use cases as verbs, include/extend used correctly).
 
@@ -820,7 +820,7 @@ Feature · To Do · Unassigned · [open in Jira](https://annaseku01.atlassian.ne
 
 **Add Playwright end-to-end tests and cover untested backend and frontend modules**
 
-Task · Done · Anna Sekulic · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-58)
+Task · Done · Anna Sekulic · labels: US01, testing · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-58)
 
 ## Why
 
@@ -846,7 +846,7 @@ Coverage reporting is KAN-50; both ship in the same PR.
 
 **Fix "? Any" in filter dropdowns (regression of #23)**
 
-Task · Done · Anna Sekulic · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-59)
+Task · Done · Anna Sekulic · labels: US01, frontend · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-59)
 
 Every filter dropdown's blank option reads "Field of Research ? Any" on the live site instead of "Field of Research – Any".
 
@@ -860,7 +860,7 @@ Rest of the app was checked end to end (local and live Pages + Render API): sear
 
 **Filter options: FoR divisions, citizenship, career stage and funding labels**
 
-Task · Done · Anna Sekulic · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-60)
+Task · Done · Anna Sekulic · labels: US01, backend, frontend · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-60)
 
 Replace the 3 placeholder Field of Research options in frontend/src/data/filterOptions.ts with the full 23 ANZSRC 2020 FoR divisions (2-digit codes 30-52), taken from the ABS anzsrc2020_for.xlsx. The ranker scores an exact code match (full) and a same-division match (half), and opportunities carry division codes, so division picks score as exact matches.
 
@@ -926,7 +926,7 @@ Improve the results page visual hierarchy by replacing the current oversized inf
 
 **Retire the illustrative mock data set and schedule the crawl, normalise and publish pipeline**
 
-Task · In Progress · Anna Sekulic · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-64)
+Task · In Progress · Anna Sekulic · labels: US06, US07, backend, data · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-64)
 
 The deployed API still serves the 30 hand-written records from backend/data/mock_opportunities.json, and the backend defaults to that set whenever FMF_DATA_SOURCE is unset. For delivery the product must serve crawled data only.
 
@@ -945,7 +945,7 @@ Blocked on credentials for the production run: a SerpApi key, and the Supabase s
 
 **Tailor results to Australian opportunities and fix card summaries showing menu text**
 
-Task · Done · Anna Sekulic · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-65)
+Task · Done · Anna Sekulic · labels: US02, backend, ranking · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-65)
 
 Demo feedback (client requirement): results are mostly American and selecting Australian citizenship changes nothing; result card summaries show site menu text instead of body text.
 
@@ -960,7 +960,7 @@ Fix: Google Australia locale and "Australia" in every query; institution-locatio
 
 **Foreign funders show 100% eligible once any filter is applied**
 
-Task · Done · Anna Sekulic · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-66)
+Task · Done · Anna Sekulic · labels: US02, backend, ranking · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-66)
 
 Reported by Andrew from testing: with no filters the top results are mostly Australian, but applying any filter brings American and other foreign sites into the list at 100% eligibility.
 
@@ -972,7 +972,7 @@ Fix: an unconfirmed location caps eligibility at "potentially eligible" (0.7), w
 
 **AI summaries on every card, and show Gemini quota problems on screen**
 
-Task · Done · Anna Sekulic · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-67)
+Task · Done · Anna Sekulic · labels: US04, backend, frontend · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-67)
 
 Cards still show menu text ("Skip to content ...") as the summary after KAN-65.
 
@@ -988,7 +988,7 @@ Scope:
 
 **Stale menu-text summaries on 468 live cards; rule summaries cut proper nouns ("(NESP) is...")**
 
-Task · Done · Anna Sekulic · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-68)
+Task · Done · Anna Sekulic · labels: US04, backend, data · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-68)
 
 Reported 2026-10-18 after KAN-65 shipped: cards still show "Skip to main content Home ..." as the summary.
 
@@ -1007,7 +1007,7 @@ Not a ranking bug: "eligibility out of order" is the weighted overall (eligibili
 
 **Move the normaliser's LLM extractor from Gemini to OpenRouter with a small open-weight model**
 
-Task · Done · Anna Sekulic · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-69)
+Task · Done · Anna Sekulic · labels: US07, backend, crawler · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-69)
 
 Gemini's free tier (5 requests a minute on gemini-2.5-flash, see KAN-67) throttles every crawl. Swap the extractor to OpenRouter (OpenAI-compatible API, pay-as-you-go credits) and default to a small open-weight model that supports structured JSON output.
 
@@ -1022,7 +1022,7 @@ Scope:
 
 **Cap the LLM reply length so a runaway generation cannot stall the crawl**
 
-Task · Done · Anna Sekulic · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-70)
+Task · Done · Anna Sekulic · labels: US07, backend, crawler · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-70)
 
 Refetch run 39157596776 (first OpenRouter run) never finished: it was cancelled at 5h28m. Log shows four pages where the model degenerated into an unbounded reply (790,360 / 519,028 / 21,843 lines / 775,754 characters) before failing as invalid JSON, each taking 20 to 90 minutes. The request sets no max_tokens, so nothing stops a runaway generation; the 60s client timeout never fires because tokens keep arriving.
 
@@ -1032,7 +1032,7 @@ Fix: set max_tokens on the OpenRouter request so a runaway fails in seconds and 
 
 **Fetch sites and call the LLM in parallel during a refresh**
 
-Task · Done · Anna Sekulic · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-71)
+Task · Done · Anna Sekulic · labels: US07, backend, crawler · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-71)
 
 A serial refetch of 668 pages took about 1.5 hours, too slow to land AI summaries before the demo. PR #53 (https://github.com/annaseku/unimelb-find-me-funding/pull/53, merged 14b190f): refetch fetches up to 8 hosts at once (each host stays sequential, keeping the per-request delay per site) and the normaliser makes up to 8 extractor calls at once, results applied in row order, stop reasons still halting new calls. Refetch run 39186180456 started on the merged commit. The stuck scheduled crawl 39171202167 (pre-KAN-70 code) was cancelled to unblock it.
 
@@ -1040,7 +1040,7 @@ A serial refetch of 668 pages took about 1.5 hours, too slow to land AI summarie
 
 **Frontend quality pass: enforce Prettier and typed lint, keyboard-accessible dropdowns**
 
-Task · Done · Anna Sekulic · epic KAN-16 · labels: accessibility, frontend, tech-debt · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-72)
+Task · Done · Anna Sekulic · epic KAN-16 · labels: US01, accessibility, frontend, tech-debt · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-72)
 
 A review of the frontend before marking found that the coding standards in CONTRIBUTING.md were not enforced: there was no formatter, and ESLint was the bare Vite template. It also found accessibility gaps and template leftovers.
 
