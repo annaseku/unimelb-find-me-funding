@@ -176,3 +176,26 @@ def test_closed_opportunities_do_not_change_open_corpus_weights(closed_fields):
     )
     common = next(r for r in included if r.opportunity.id == "common")
     assert common.research_match.score != baseline[0].research_match.score
+
+
+@pytest.mark.parametrize("include_closed", [False, True])
+def test_non_funding_is_excluded_before_scoring_even_when_closed_are_included(
+    include_closed, monkeypatch
+):
+    opportunities = [
+        make_opportunity(id="funding"),
+        make_opportunity(id="not-funding", status=OpportunityStatus.NOT_FUNDING),
+    ]
+    from backend.ranking import ranker
+
+    original = ranker.score_opportunity
+
+    def score_funding_only(opportunity, *args):
+        assert opportunity.status != OpportunityStatus.NOT_FUNDING
+        return original(opportunity, *args)
+
+    monkeypatch.setattr(ranker, "score_opportunity", score_funding_only)
+    ranked = rank(
+        opportunities, SearchRequest(include_closed=include_closed), DEFAULT_WEIGHTS, TODAY
+    )
+    assert [result.opportunity.id for result in ranked] == ["funding"]

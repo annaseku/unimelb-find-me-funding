@@ -59,7 +59,12 @@ def score_opportunity(
 def rank(
     opportunities: list[Opportunity], request: SearchRequest, weights: Weights, today: date
 ) -> list[RankedOpportunity]:
-    opportunities = [o for o in opportunities if request.include_closed or _is_open(o, today)]
+    opportunities = [
+        o
+        for o in opportunities
+        if o.status != OpportunityStatus.NOT_FUNDING
+        and (request.include_closed or _is_open(o, today))
+    ]
     term_weights = TermWeights.from_opportunities(opportunities)
     ranked = [score_opportunity(o, request, weights, today, term_weights) for o in opportunities]
 

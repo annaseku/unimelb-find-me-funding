@@ -24,7 +24,7 @@ function queryFromState(state: unknown): Query {
     search: text(query.search),
     filters: {
       ...defaultFilterValues,
-      fieldOfResearch: text(filters.fieldOfResearch),
+      fieldOfResearch: textList(filters.fieldOfResearch),
       typeOfActivity: text(filters.typeOfActivity),
       citizenship: textList(filters.citizenship),
       employerType: text(filters.employerType),

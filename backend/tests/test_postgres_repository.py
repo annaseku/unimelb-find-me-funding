@@ -32,6 +32,7 @@ from backend.data.repository import get_repository
 from backend.evals.corpus import corpus_records
 from backend.normaliser.models import PipelineRun
 from backend.normaliser.pipeline import NORMALISED_TABLE, RUNS_TABLE
+from backend.ranking.models import OpportunityStatus
 
 DATABASE_URL = os.environ.get("FMF_TEST_DATABASE_URL")
 
@@ -178,3 +179,21 @@ def test_publish_records_the_run_and_the_latest_one_is_served(database_url):
     assert repo.last_run.llm_stop_reason == "daily_quota"
     # The corpus records carry no "llm" summary provenance.
     assert repo.rule_only_summaries == len(repo.all())
+
+
+def test_non_funding_round_trips_but_is_excluded_from_repository_counts(database_url):
+    records = corpus_records()[:5]
+    for record in records:
+        record.opportunity.status = OpportunityStatus.ACTIVE
+        record.provenance["summary"] = "rule"
+    records[0].opportunity.status = OpportunityStatus.NOT_FUNDING
+    records[1].opportunity.status = OpportunityStatus.NOT_FUNDING
+    records[0].provenance["summary"] = "llm"
+    records[2].provenance["summary"] = "llm"
+    records[3].opportunity.status = OpportunityStatus.CLOSED
+    publish(database_url, records)
+    repo = PostgresRepository(database_url)
+    assert len(repo.all()) == 5
+    assert repo.funding_count == 3
+    assert repo.rule_only_summaries == 2
+    assert repo.get(records[0].opportunity.id).status == OpportunityStatus.NOT_FUNDING

@@ -175,3 +175,35 @@ def test_status_reports_the_last_run_and_rule_only_summaries(
     assert body["last_run"]["llm_stop_reason"] == "not_configured"
     assert body["opportunities"] > 0
     assert body["rule_only_summaries"] == body["opportunities"]
+
+
+def test_status_excludes_non_funding_from_both_counts_but_keeps_direct_lookup(
+    client, sqlite_data_source
+):
+    import sqlite3
+    from contextlib import closing
+
+    from backend.normaliser.pipeline import load_normalised, write_records
+    from backend.ranking.models import OpportunityStatus
+
+    with closing(sqlite3.connect(str(sqlite_data_source))) as conn, conn:
+        records = load_normalised(conn)
+        assert len(records) == 5
+        for record in records:
+            record.opportunity.status = OpportunityStatus.ACTIVE
+            record.provenance["summary"] = "rule"
+        records[0].opportunity.status = OpportunityStatus.NOT_FUNDING
+        records[1].opportunity.status = OpportunityStatus.NOT_FUNDING
+        records[0].provenance["summary"] = "llm"
+        records[2].provenance["summary"] = "llm"
+        records[3].opportunity.status = OpportunityStatus.CLOSED
+        write_records(conn, records)
+    get_repository.cache_clear()
+    body = client.get("/api/status").json()
+    assert body["opportunities"] == 3
+    assert body["rule_only_summaries"] == 2
+    for record in records[:2]:
+        response = client.get(f"/api/opportunities/{record.opportunity.id}")
+        assert response.status_code == 200
+        assert response.json()["status"] == "not_funding"
+    assert len(get_repository().all()) == 5
