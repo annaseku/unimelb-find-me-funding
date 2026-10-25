@@ -14,7 +14,7 @@ it('sends backend codes, pagination and default visibility rules as JSON', async
   await fetchResults(
     ' coral ',
     {
-      fieldOfResearch: '3103',
+      fieldOfResearch: ['3103', '31'],
       typeOfActivity: '3',
       citizenship: ['AU'],
       employerType: 'research_institute',
@@ -29,7 +29,7 @@ it('sends backend codes, pagination and default visibility rules as JSON', async
   );
   expect(JSON.parse(fetch.mock.calls[0]?.[1].body)).toEqual({
     research_description: 'coral',
-    for_codes: ['3103'],
+    for_codes: ['3103', '31'],
     toa_codes: ['3'],
     citizenships: ['AU'],
     employer_type: 'research_institute',
@@ -42,16 +42,16 @@ it('sends backend codes, pagination and default visibility rules as JSON', async
   });
 });
 it('rejects a selection that is no longer an option, including a stale citizenship code', () => {
-  expect(() => buildSearchRequest('', { ...defaultFilterValues, fieldOfResearch: '99' })).toThrow(
-    /no longer available/,
-  );
+  expect(() =>
+    buildSearchRequest('', { ...defaultFilterValues, fieldOfResearch: ['3103', '99'] }),
+  ).toThrow(/no longer available/);
   expect(() =>
     buildSearchRequest('', { ...defaultFilterValues, citizenship: ['AU', 'XX'] }),
   ).toThrow(/no longer available/);
   expect(() =>
     buildSearchRequest('', {
       ...defaultFilterValues,
-      fieldOfResearch: '3103',
+      fieldOfResearch: ['3103', '31'],
       citizenship: ['AU', 'NZ'],
     }),
   ).not.toThrow();
@@ -60,6 +60,7 @@ it('leaves unselected filters unrestricted', () => {
   expect(buildSearchRequest('', defaultFilterValues)).toMatchObject({
     employer_type: null,
     career_stage: null,
+    for_codes: [],
     citizenships: [],
     funding_types: [],
   });
