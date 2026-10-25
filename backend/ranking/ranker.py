@@ -22,15 +22,19 @@ from backend.ranking.models import (
     RankedOpportunity,
     SearchRequest,
 )
-from backend.ranking.research_match import score_research_match
+from backend.ranking.research_match import TermWeights, score_research_match
 from backend.ranking.weights import Weights
 
 
 def score_opportunity(
-    opportunity: Opportunity, request: SearchRequest, weights: Weights, today: date
+    opportunity: Opportunity,
+    request: SearchRequest,
+    weights: Weights,
+    today: date,
+    term_weights: TermWeights | None = None,
 ) -> RankedOpportunity:
     eligibility = score_eligibility(opportunity, request)
-    research_match = score_research_match(opportunity, request)
+    research_match = score_research_match(opportunity, request, term_weights)
     funding_value = score_funding_value(opportunity)
     deadline = score_deadline(opportunity, today)
 
@@ -55,11 +59,9 @@ def score_opportunity(
 def rank(
     opportunities: list[Opportunity], request: SearchRequest, weights: Weights, today: date
 ) -> list[RankedOpportunity]:
-    ranked = [
-        score_opportunity(o, request, weights, today)
-        for o in opportunities
-        if request.include_closed or _is_open(o, today)
-    ]
+    opportunities = [o for o in opportunities if request.include_closed or _is_open(o, today)]
+    term_weights = TermWeights.from_opportunities(opportunities)
+    ranked = [score_opportunity(o, request, weights, today, term_weights) for o in opportunities]
 
     if request.hide_ineligible:
         # Discussion point 2: shown and de-ranked by default, hidden on request.

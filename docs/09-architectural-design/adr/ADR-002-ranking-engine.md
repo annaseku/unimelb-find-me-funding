@@ -28,7 +28,7 @@ Scores per criterion, all in the range 0.0 to 1.0:
 | Criterion | Labels and scores |
 | --- | --- |
 | Eligibility | eligible 1.0, potentially eligible 0.7, unknown 0.5, likely ineligible 0.1 |
-| Research match | high (0.6 and above), medium (0.3 and above), low; from FoR code overlap (weight 0.5), free-text keyword overlap (0.4), ToA overlap (0.1), renormalised over the signals available |
+| Research match | high (0.75 and above), medium (0.4 and above), low; from FoR code overlap (weight 0.5), free-text coverage (0.4), ToA overlap (0.1), renormalised over the signals available. Text uses Porter2 English stemming (snowballstemmer), stop words matched on stems, funding and career vocabulary (fellowship, early career, scholarship and so on) ignored by the text match because other filters cover it, and corpus IDF weights log((N + 1) / (df + 1)) + 1 over open/closed-filtered opportunities; half of the description's term weight present gives a full text score. Single-call scoring without corpus weights uses uniform term weights; reasons show the researcher's words, highest weight first |
 | Funding value | under $1M 0.25, $1M to $2M 0.5, $2M to $5M 0.75, $5M and over 1.0, unknown 0.5 |
 | Deadline | over 60 days 1.0, 60 to 30 days 0.8, 30 to 15 days 0.5, under 15 days 0.2, unknown 0.5, closed 0.0 |
 
