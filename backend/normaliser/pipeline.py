@@ -25,7 +25,7 @@ from backend.normaliser.llm import ExtractedFields, Extractor, merge
 from backend.normaliser.models import CrawledRow, LlmStopReason, NormalisedRecord, PipelineRun
 from backend.normaliser.parsers import derive_status
 from backend.normaliser.rules import content_hash, normalise_row
-from backend.ranking.models import Opportunity
+from backend.ranking.models import Opportunity, OpportunityStatus
 
 logger = logging.getLogger(__name__)
 
@@ -325,7 +325,8 @@ def normalise_database(
                 # A model-supplied deadline can turn a rule-only "active"
                 # record into a closed one (or vice versa); re-derive
                 # status so the two never disagree.
-                record.opportunity.status = derive_status(record.opportunity.deadline, today)
+                if record.opportunity.status != OpportunityStatus.NOT_FUNDING:
+                    record.opportunity.status = derive_status(record.opportunity.deadline, today)
                 stats.llm_calls += 1
 
             stats.normalised += write_records(conn, [record])

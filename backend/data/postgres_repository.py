@@ -125,11 +125,13 @@ class PostgresRepository(OpportunityRepository):
     than raising, so a fresh deployment serves zero results instead of 500s."""
 
     def __init__(self, database_url: str) -> None:
-        opportunities, last_run, rule_only = self._load(database_url)
-        super().__init__(opportunities, last_run, rule_only)
+        opportunities, last_run, provenance = self._load(database_url)
+        super().__init__(opportunities, last_run, provenance)
 
     @staticmethod
-    def _load(database_url: str) -> tuple[list[Opportunity], PipelineRun | None, int]:
+    def _load(
+        database_url: str,
+    ) -> tuple[list[Opportunity], PipelineRun | None, dict[str, dict[str, str]]]:
         with psycopg.connect(database_url) as conn:
             try:
                 row = conn.execute(
@@ -141,11 +143,14 @@ class PostgresRepository(OpportunityRepository):
                 last_run = None
             try:
                 cursor = conn.execute(
-                    f"SELECT opportunity_json, provenance_json->>'summary' FROM {NORMALISED_TABLE}"
+                    f"SELECT opportunity_json, provenance_json FROM {NORMALISED_TABLE}"
                 )
             except errors.UndefinedTable:
-                return [], last_run, 0
+                return [], last_run, {}
             rows = cursor.fetchall()
             # JSONB comes back already decoded, so there is no json.loads here.
             opportunities = [Opportunity(**row[0]) for row in rows]
-            return opportunities, last_run, sum(row[1] != "llm" for row in rows)
+            provenance = {
+                opportunity.id: row[1] for opportunity, row in zip(opportunities, rows, strict=True)
+            }
+            return opportunities, last_run, provenance
