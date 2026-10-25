@@ -1,6 +1,6 @@
 # 🤖 Crawler & LLM
 
-> Snapshot of the Confluence page [🤖 Crawler & LLM](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/10715137), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [🤖 Crawler & LLM](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/10715137), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 # Crawler & LLM
 

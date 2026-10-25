@@ -1,6 +1,6 @@
 # Sprint 2 Review
 
-> Snapshot of the Confluence page [Sprint 2 Review](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/25853953), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [Sprint 2 Review](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/25853953), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 #### **Sprint dates:** \[24/08 - 14/09\]
 

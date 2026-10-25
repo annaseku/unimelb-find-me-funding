@@ -1,6 +1,6 @@
 # Ranking Activity Diagram
 
-> Snapshot of the Confluence page [Ranking Activity Diagram](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/30867479), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [Ranking Activity Diagram](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/30867479), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 How one POST /api/search becomes an ordered page of results.
 

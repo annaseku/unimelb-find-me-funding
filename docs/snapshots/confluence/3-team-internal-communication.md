@@ -1,6 +1,6 @@
 # 3. Team Internal Communication
 
-> Snapshot of the Confluence page [3. Team Internal Communication](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/10616834), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [3. Team Internal Communication](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/10616834), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 **Progress Checklist item 3 (Process).** How the team talks to itself: which channel carries what, how fast we respond, and how blockers surface. The Week 1 lecture: communicate regularly, and document all team meetings and decisions.
 

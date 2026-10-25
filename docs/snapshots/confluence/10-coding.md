@@ -1,6 +1,6 @@
 # 10. Coding
 
-> Snapshot of the Confluence page [10. Coding](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/10747905), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [10. Coding](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/10747905), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 **Progress Checklist item 10 (Artefacts).** The Week 7 lecture covers coding standards and linters, repository setup (README, licensing, branch protection, integrations), development through pull requests, meaningful PRs, releases, pair programming and code review.
 

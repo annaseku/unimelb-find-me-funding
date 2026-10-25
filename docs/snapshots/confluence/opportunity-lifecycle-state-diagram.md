@@ -1,6 +1,6 @@
 # Opportunity Lifecycle (State Diagram)
 
-> Snapshot of the Confluence page [Opportunity Lifecycle (State Diagram)](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/31522837), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [Opportunity Lifecycle (State Diagram)](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/31522837), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 The states one opportunity passes through, from discovery to soft-deleted closure.
 

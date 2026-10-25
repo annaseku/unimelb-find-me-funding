@@ -1,23 +1,23 @@
 # Jira board snapshot (KAN)
 
-A read-only copy of the team's Jira project KAN, taken 23 October 2026, so the board can be read without an Atlassian login. Jira remains the source of truth: [live board](https://annaseku01.atlassian.net/jira/software/projects/KAN/boards). The client is referred to by role, not by name.
+A read-only copy of the team's Jira project KAN, taken 25 October 2026, so the board can be read without an Atlassian login. Jira remains the source of truth: [live board](https://annaseku01.atlassian.net/jira/software/projects/KAN/boards). The client is referred to by role, not by name.
 
-68 work items: 39 Done, 25 To Do, 3 In Review, 1 In Progress.
+69 work items: 47 Done, 19 To Do, 2 In Review, 1 In Progress.
 
 ## KAN-12: Crawler and Discovery
 
-6 of 8 items done.
+8 of 8 items done.
 
 | Key | Type | Status | Assignee | Summary |
 | --- | --- | --- | --- | --- |
 | [KAN-4](#kan-4) | Story | Done | jummana alshimary | Dynamic web crawling/discovery rather than a fixed curated list of funding sites |
 | [KAN-9](#kan-9) | Story | Done | jummana alshimary | Back End Team prototype model |
-| [KAN-18](#kan-18) | Story | Done | Unassigned | Discover candidate funding pages from a search profile |
-| [KAN-19](#kan-19) | Story | Done | Unassigned | Gate every fetch on robots.txt |
-| [KAN-20](#kan-20) | Story | Done | Unassigned | Fetch funding pages and extract raw fields |
-| [KAN-21](#kan-21) | Story | Done | Unassigned | Re-crawl opportunities once their data goes stale |
-| [KAN-22](#kan-22) | Story | In Review | Anna Sekulic | Identify our crawler with a descriptive User-Agent and contact URL |
-| [KAN-49](#kan-49) | Task | To Do | Unassigned | Add an automated test for the robots.txt gate |
+| [KAN-18](#kan-18) | Story | Done | jummana alshimary | Discover candidate funding pages from a search profile |
+| [KAN-19](#kan-19) | Story | Done | jummana alshimary | Gate every fetch on robots.txt |
+| [KAN-20](#kan-20) | Story | Done | jummana alshimary | Fetch funding pages and extract raw fields |
+| [KAN-21](#kan-21) | Story | Done | jummana alshimary | Re-crawl opportunities once their data goes stale |
+| [KAN-22](#kan-22) | Story | Done | Anna Sekulic | Identify our crawler with a descriptive User-Agent and contact URL |
+| [KAN-49](#kan-49) | Task | Done | Anna Sekulic | Add an automated test for the robots.txt gate |
 
 ## KAN-13: Normalisation and LLM Extraction
 
@@ -25,10 +25,10 @@ A read-only copy of the team's Jira project KAN, taken 23 October 2026, so the b
 
 | Key | Type | Status | Assignee | Summary |
 | --- | --- | --- | --- | --- |
-| [KAN-23](#kan-23) | Story | Done | Unassigned | Parse dates and funding amounts with deterministic rules |
-| [KAN-24](#kan-24) | Story | Done | Unassigned | Use Gemini to fill the prose fields rules cannot reach |
-| [KAN-25](#kan-25) | Story | Done | Unassigned | Record provenance for every extracted field |
-| [KAN-26](#kan-26) | Story | Done | Unassigned | Skip normalisation when a page has not changed |
+| [KAN-23](#kan-23) | Story | Done | Anna Sekulic | Parse dates and funding amounts with deterministic rules |
+| [KAN-24](#kan-24) | Story | Done | Anna Sekulic | Use Gemini to fill the prose fields rules cannot reach |
+| [KAN-25](#kan-25) | Story | Done | Anna Sekulic | Record provenance for every extracted field |
+| [KAN-26](#kan-26) | Story | Done | Anna Sekulic | Skip normalisation when a page has not changed |
 
 ## KAN-14: Ranking Engine
 
@@ -36,10 +36,10 @@ A read-only copy of the team's Jira project KAN, taken 23 October 2026, so the b
 
 | Key | Type | Status | Assignee | Summary |
 | --- | --- | --- | --- | --- |
-| [KAN-27](#kan-27) | Story | Done | Unassigned | Score eligibility as four states, never a yes or no |
-| [KAN-28](#kan-28) | Story | Done | Unassigned | Score research match, funding value and deadline |
-| [KAN-29](#kan-29) | Story | Done | Unassigned | Combine the four scores with configurable weights |
-| [KAN-30](#kan-30) | Story | Done | Unassigned | Guard ranking quality with a golden-set eval harness in CI |
+| [KAN-27](#kan-27) | Story | Done | Anna Sekulic | Score eligibility as four states, never a yes or no |
+| [KAN-28](#kan-28) | Story | Done | Anna Sekulic | Score research match, funding value and deadline |
+| [KAN-29](#kan-29) | Story | Done | Anna Sekulic | Combine the four scores with configurable weights |
+| [KAN-30](#kan-30) | Story | Done | Anna Sekulic | Guard ranking quality with a golden-set eval harness in CI |
 | [KAN-31](#kan-31) | Story | To Do | Unassigned | Agree the final ranking weights with the client |
 
 ## KAN-15: Data and Persistence
@@ -48,26 +48,27 @@ A read-only copy of the team's Jira project KAN, taken 23 October 2026, so the b
 
 | Key | Type | Status | Assignee | Summary |
 | --- | --- | --- | --- | --- |
-| [KAN-32](#kan-32) | Story | Done | Unassigned | Define the repository seam so the data store can be swapped |
-| [KAN-33](#kan-33) | Story | Done | Unassigned | Serve ranked results from Supabase Postgres |
-| [KAN-34](#kan-34) | Story | Done | Unassigned | Soft-delete closed opportunities instead of removing them |
+| [KAN-32](#kan-32) | Story | Done | Anna Sekulic | Define the repository seam so the data store can be swapped |
+| [KAN-33](#kan-33) | Story | Done | Anna Sekulic | Serve ranked results from Supabase Postgres |
+| [KAN-34](#kan-34) | Story | Done | Anna Sekulic | Soft-delete closed opportunities instead of removing them |
 
 ## KAN-16: API and Frontend
 
-4 of 6 items done.
+5 of 7 items done.
 
 | Key | Type | Status | Assignee | Summary |
 | --- | --- | --- | --- | --- |
 | [KAN-8](#kan-8) | Story | Done | Andrew Rosen | Front end Demo |
 | [KAN-11](#kan-11) | Story | In Review | Unassigned | Agree the API contract between front end and back end |
-| [KAN-35](#kan-35) | Story | Done | Unassigned | Serve ranked search results from POST /api/search |
-| [KAN-36](#kan-36) | Story | Done | Unassigned | Build the search form with dropdowns matching the backend vocabulary |
-| [KAN-37](#kan-37) | Story | Done | Unassigned | Integrate the frontend with the deployed API |
+| [KAN-35](#kan-35) | Story | Done | Anna Sekulic | Serve ranked search results from POST /api/search |
+| [KAN-36](#kan-36) | Story | Done | Andrew Rosen | Build the search form with dropdowns matching the backend vocabulary |
+| [KAN-37](#kan-37) | Story | Done | Andrew Rosen | Integrate the frontend with the deployed API |
 | [KAN-38](#kan-38) | Story | To Do | Unassigned | Show why each opportunity ranked where it did |
+| [KAN-72](#kan-72) | Task | Done | Anna Sekulic | Frontend quality pass: enforce Prettier and typed lint, keyboard-accessible dropdowns |
 
 ## KAN-17: Project Governance and Delivery
 
-8 of 21 items done.
+10 of 21 items done.
 
 | Key | Type | Status | Assignee | Summary |
 | --- | --- | --- | --- | --- |
@@ -76,18 +77,18 @@ A read-only copy of the team's Jira project KAN, taken 23 October 2026, so the b
 | [KAN-7](#kan-7) | Task | Done | Paige Varney | Motivational Models |
 | [KAN-10](#kan-10) | Task | Done | Unassigned | Email client to confirm complete user cases and requirements |
 | [KAN-39](#kan-39) | Task | To Do | Unassigned | Complete the terms-of-service and legal review |
-| [KAN-40](#kan-40) | Task | Done | Unassigned | Set up CI and CD pipelines with branch protection |
-| [KAN-41](#kan-41) | Task | Done | Unassigned | Produce the system design and UML diagram set |
+| [KAN-40](#kan-40) | Task | Done | Anna Sekulic | Set up CI and CD pipelines with branch protection |
+| [KAN-41](#kan-41) | Task | Done | Anna Sekulic | Produce the system design and UML diagram set |
 | [KAN-42](#kan-42) | Task | To Do | Unassigned | Establish a regular client meeting cadence with the client |
 | [KAN-43](#kan-43) | Task | Done | Anna Sekulic | Document coding standards, testing strategy and deployment in Confluence |
-| [KAN-44](#kan-44) | Task | To Do | Unassigned | Publish ADR-002, ADR-003 and ADR-004 to Confluence |
+| [KAN-44](#kan-44) | Task | Done | Unassigned | Publish ADR-002, ADR-003 and ADR-004 to Confluence |
 | [KAN-45](#kan-45) | Task | To Do | Unassigned | Fix the use case diagram (Week 9 tutor feedback) |
 | [KAN-46](#kan-46) | Task | To Do | Unassigned | Review the draft user stories and acceptance criteria |
 | [KAN-47](#kan-47) | Task | To Do | Unassigned | Estimate user stories with planning poker and turn on Jira estimation |
 | [KAN-48](#kan-48) | Task | To Do | Unassigned | Run acceptance test cases TC07 to TC09 and record the Sprint 3 test report |
 | [KAN-50](#kan-50) | Task | Done | Anna Sekulic | Add a code coverage report to Backend CI |
 | [KAN-51](#kan-51) | Task | To Do | Unassigned | Log every client contact since 20/08 on the Client Communication Log |
-| [KAN-52](#kan-52) | Task | To Do | Unassigned | Close Sprint 3: client review, retrospective and v0.3.0 release (28/09) |
+| [KAN-52](#kan-52) | Task | Done | Unassigned | Close Sprint 3: client review, retrospective and v0.3.0 release (28/09) |
 | [KAN-53](#kan-53) | Task | To Do | Unassigned | Everyone: add your GenAI use to the GenAI Usage Log |
 | [KAN-54](#kan-54) | Task | To Do | Unassigned | Choose a repository licence after checking the IP agreement |
 | [KAN-55](#kan-55) | Task | To Do | Unassigned | Write one or two researcher personas |
@@ -167,7 +168,7 @@ Story · In Review · Unassigned · epic KAN-16 · labels: backend, frontend · 
 
 **Crawler and Discovery**
 
-Epic · To Do · Unassigned · labels: backend, crawler · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-12)
+Epic · Done · Unassigned · labels: backend, crawler · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-12)
 
 Finding funding pages and fetching them politely.
 
@@ -181,7 +182,7 @@ Covers URL discovery from search profiles, the robots.txt permission gate, page 
 
 **Normalisation and LLM Extraction**
 
-Epic · To Do · Unassigned · labels: backend, crawler · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-13)
+Epic · Done · Unassigned · labels: backend, crawler · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-13)
 
 Turning a raw funding page into a structured, comparable record.
 
@@ -209,7 +210,7 @@ Four criteria are scored independently — eligibility, research match, funding 
 
 **Data and Persistence**
 
-Epic · To Do · Unassigned · labels: backend, data · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-15)
+Epic · Done · Unassigned · labels: backend, data · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-15)
 
 Storing opportunities behind one interface so the store can change without the search path noticing.
 
@@ -247,7 +248,7 @@ Everything that is not product code: client liaison, requirements, documentation
 
 **Discover candidate funding pages from a search profile**
 
-Story · Done · Unassigned · epic KAN-12 · labels: US07, backend, crawler · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-18)
+Story · Done · jummana alshimary · epic KAN-12 · labels: US07, backend, crawler · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-18)
 
 As the system, I want to build search queries from a researcher profile and turn them into candidate URLs, so that we find funding pages without maintaining a hand-curated list of sites.
 
@@ -263,7 +264,7 @@ As the system, I want to build search queries from a researcher profile and turn
 
 **Gate every fetch on robots.txt**
 
-Story · Done · Unassigned · epic KAN-12 · labels: US08, backend, crawler · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-19)
+Story · Done · jummana alshimary · epic KAN-12 · labels: US08, backend, crawler · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-19)
 
 As a funder whose site we crawl, I want my robots.txt honoured, so that our crawler does not fetch pages I have asked automated clients to leave alone.
 
@@ -281,7 +282,7 @@ As a funder whose site we crawl, I want my robots.txt honoured, so that our craw
 
 **Fetch funding pages and extract raw fields**
 
-Story · Done · Unassigned · epic KAN-12 · labels: US05, backend, crawler · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-20)
+Story · Done · jummana alshimary · epic KAN-12 · labels: US05, backend, crawler · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-20)
 
 As the system, I want to fetch an allowed page and pull out the raw text and obvious fields, so that the normaliser has something to work with.
 
@@ -297,7 +298,7 @@ As the system, I want to fetch an allowed page and pull out the raw text and obv
 
 **Re-crawl opportunities once their data goes stale**
 
-Story · Done · Unassigned · epic KAN-12 · labels: US06, backend, crawler · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-21)
+Story · Done · jummana alshimary · epic KAN-12 · labels: US06, backend, crawler · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-21)
 
 As a researcher, I want the index kept current, so that a deadline I see has not already moved.
 
@@ -315,7 +316,7 @@ As a researcher, I want the index kept current, so that a deadline I see has not
 
 **Identify our crawler with a descriptive User-Agent and contact URL**
 
-Story · In Review · Anna Sekulic · epic KAN-12 · labels: US08, backend, crawler, tech-debt · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-22)
+Story · Done · Anna Sekulic · epic KAN-12 · labels: US08, backend, crawler, tech-debt · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-22)
 
 As a funder whose site we crawl, I want to know who is crawling me and how to reach them, so that I can contact the team rather than simply blocking the traffic.
 
@@ -332,7 +333,7 @@ As a funder whose site we crawl, I want to know who is crawling me and how to re
 
 **Parse dates and funding amounts with deterministic rules**
 
-Story · Done · Unassigned · epic KAN-13 · labels: backend, crawler · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-23)
+Story · Done · Anna Sekulic · epic KAN-13 · labels: backend, crawler · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-23)
 
 As the system, I want dates and amounts parsed by rules rather than by the model, so that the numbers a researcher acts on are reproducible and not subject to model drift.
 
@@ -348,7 +349,7 @@ As the system, I want dates and amounts parsed by rules rather than by the model
 
 **Use Gemini to fill the prose fields rules cannot reach**
 
-Story · Done · Unassigned · epic KAN-13 · labels: backend, crawler · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-24)
+Story · Done · Anna Sekulic · epic KAN-13 · labels: backend, crawler · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-24)
 
 As the system, I want the model to read the wording a funder uses, so that funder name, summary and eligibility paraphrase are populated without hand-writing a parser per site.
 
@@ -364,7 +365,7 @@ As the system, I want the model to read the wording a funder uses, so that funde
 
 **Record provenance for every extracted field**
 
-Story · Done · Unassigned · epic KAN-13 · labels: backend, crawler · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-25)
+Story · Done · Anna Sekulic · epic KAN-13 · labels: backend, crawler · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-25)
 
 As a developer debugging a wrong result, I want to know which stage set each field, so that I can tell a bad rule from a bad model output without re-running the pipeline.
 
@@ -379,7 +380,7 @@ As a developer debugging a wrong result, I want to know which stage set each fie
 
 **Skip normalisation when a page has not changed**
 
-Story · Done · Unassigned · epic KAN-13 · labels: backend, crawler · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-26)
+Story · Done · Anna Sekulic · epic KAN-13 · labels: backend, crawler · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-26)
 
 As the team, I want unchanged pages to cost nothing beyond the fetch, so that re-crawling does not burn LLM quota on identical content.
 
@@ -394,7 +395,7 @@ As the team, I want unchanged pages to cost nothing beyond the fetch, so that re
 
 **Score eligibility as four states, never a yes or no**
 
-Story · Done · Unassigned · epic KAN-14 · labels: US02, backend, ranking · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-27)
+Story · Done · Anna Sekulic · epic KAN-14 · labels: US02, backend, ranking · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-27)
 
 As a researcher, I want to see when I am _possibly_ eligible rather than being filtered out, so that I do not miss a scheme because the funder's wording was ambiguous.
 
@@ -410,7 +411,7 @@ As a researcher, I want to see when I am _possibly_ eligible rather than being f
 
 **Score research match, funding value and deadline**
 
-Story · Done · Unassigned · epic KAN-14 · labels: US04, backend, ranking · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-28)
+Story · Done · Anna Sekulic · epic KAN-14 · labels: US04, backend, ranking · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-28)
 
 As a researcher, I want opportunities rated on fit, money and urgency, so that the top of the list is worth my time.
 
@@ -426,7 +427,7 @@ As a researcher, I want opportunities rated on fit, money and urgency, so that t
 
 **Combine the four scores with configurable weights**
 
-Story · Done · Unassigned · epic KAN-14 · labels: US02, backend, ranking · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-29)
+Story · Done · Anna Sekulic · epic KAN-14 · labels: US02, backend, ranking · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-29)
 
 As the team, I want the weighting to be a parameter rather than hard-coded, so that we can tune ranking after client feedback without changing the scorers.
 
@@ -443,7 +444,7 @@ As the team, I want the weighting to be a parameter rather than hard-coded, so t
 
 **Guard ranking quality with a golden-set eval harness in CI**
 
-Story · Done · Unassigned · epic KAN-14 · labels: backend, ranking, testing · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-30)
+Story · Done · Anna Sekulic · epic KAN-14 · labels: backend, ranking, testing · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-30)
 
 As the team, I want ranking regressions to fail the build, so that a weight tweak cannot quietly make results worse.
 
@@ -475,7 +476,7 @@ As the team, I want the weighting signed off rather than assumed, so that the or
 
 **Define the repository seam so the data store can be swapped**
 
-Story · Done · Unassigned · epic KAN-15 · labels: backend, data · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-32)
+Story · Done · Anna Sekulic · epic KAN-15 · labels: backend, data · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-32)
 
 As a developer, I want the search path to depend on one small interface, so that changing where data lives does not ripple through the codebase.
 
@@ -491,7 +492,7 @@ As a developer, I want the search path to depend on one small interface, so that
 
 **Serve ranked results from Supabase Postgres**
 
-Story · Done · Unassigned · epic KAN-15 · labels: backend, data · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-33)
+Story · Done · Anna Sekulic · epic KAN-15 · labels: backend, data · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-33)
 
 As a researcher, I want to search real crawled data rather than a fixture, so that the results mean something.
 
@@ -509,7 +510,7 @@ As a researcher, I want to search real crawled data rather than a fixture, so th
 
 **Soft-delete closed opportunities instead of removing them**
 
-Story · Done · Unassigned · epic KAN-15 · labels: US06, backend, data · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-34)
+Story · Done · Anna Sekulic · epic KAN-15 · labels: US06, backend, data · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-34)
 
 As the team, I want a passed deadline to hide an opportunity rather than destroy it, so that we keep the history and can show closed schemes on request.
 
@@ -525,7 +526,7 @@ As the team, I want a passed deadline to hide an opportunity rather than destroy
 
 **Serve ranked search results from POST /api/search**
 
-Story · Done · Unassigned · epic KAN-16 · labels: US01, US03, backend · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-35)
+Story · Done · Anna Sekulic · epic KAN-16 · labels: US01, US03, backend · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-35)
 
 As the frontend, I want one endpoint that takes search criteria and returns a ranked page, so that the UI holds no ranking logic.
 
@@ -542,7 +543,7 @@ As the frontend, I want one endpoint that takes search criteria and returns a ra
 
 **Build the search form with dropdowns matching the backend vocabulary**
 
-Story · Done · Unassigned · epic KAN-16 · labels: US01, frontend · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-36)
+Story · Done · Andrew Rosen · epic KAN-16 · labels: US01, frontend · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-36)
 
 As a researcher, I want to describe myself with a few dropdowns rather than free text, so that the system can match me accurately without me guessing its vocabulary.
 
@@ -558,7 +559,7 @@ As a researcher, I want to describe myself with a few dropdowns rather than free
 
 **Integrate the frontend with the deployed API**
 
-Story · Done · Unassigned · epic KAN-16 · labels: US03, backend, frontend · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-37)
+Story · Done · Andrew Rosen · epic KAN-16 · labels: US03, backend, frontend · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-37)
 
 As a researcher, I want the site to show real ranked results, so that the prototype does something rather than demonstrating a mock.
 
@@ -608,7 +609,7 @@ Requested directly by our supervisor. robots.txt is honoured in code, but we hav
 
 **Set up CI and CD pipelines with branch protection**
 
-Task · Done · Unassigned · epic KAN-17 · labels: backend, frontend, testing · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-40)
+Task · Done · Anna Sekulic · epic KAN-17 · labels: backend, frontend, testing · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-40)
 
 **Acceptance criteria**
 
@@ -623,7 +624,7 @@ Task · Done · Unassigned · epic KAN-17 · labels: backend, frontend, testing 
 
 **Produce the system design and UML diagram set**
 
-Task · Done · Unassigned · epic KAN-17 · labels: architecture, docs · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-41)
+Task · Done · Anna Sekulic · epic KAN-17 · labels: architecture, docs · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-41)
 
 Requested by our supervisor: "one overall system design diagram (better documentation)".
 
@@ -674,7 +675,7 @@ Three items on the COMP30022 progress checklist currently have no Confluence pag
 
 **Publish ADR-002, ADR-003 and ADR-004 to Confluence**
 
-Task · To Do · Unassigned · epic KAN-17 · labels: architecture, docs · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-44)
+Task · Done · Unassigned · epic KAN-17 · labels: architecture, docs · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-44)
 
 Two architecture decisions exist only in the repository, so anyone reading Confluence cannot see them. ADR-001 is on the wiki but is a pros-and-cons table rather than an ADR.
 
@@ -737,7 +738,7 @@ TC07 (discovery beyond seed list), TC08 (robots.txt gate) and TC09 (end-to-end o
 
 **Add an automated test for the robots.txt gate**
 
-Task · To Do · Unassigned · epic KAN-12 · labels: US08, crawler, testing · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-49)
+Task · Done · Anna Sekulic · epic KAN-12 · labels: US08, crawler, testing · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-49)
 
 US08 AC1 (a URL disallowed by robots.txt is never fetched) is only covered by the manual test TC08; `backend/tests/` has no crawler tests. Add a test for `backend/crawler/robotCheck.py` with a fake robots.txt: disallowed path is rejected, allowed path passes, unreachable robots.txt is recorded rather than treated as permission (KAN-19's third criterion).
 
@@ -763,7 +764,7 @@ Task · To Do · Unassigned · epic KAN-17 · labels: client · [open in Jira](h
 
 **Close Sprint 3: client review, retrospective and v0.3.0 release (28/09)**
 
-Task · To Do · Unassigned · epic KAN-17 · labels: agile · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-52)
+Task · Done · Unassigned · epic KAN-17 · labels: agile · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-52)
 
 1. Sprint 3 review with the client (product): demo the integrated prototype, capture feedback on the Client Communication Log.
 2. Sprint 3 retrospective (process): what we achieved, what we did not, what went well, what to improve. Carry actions into Sprint 4.
@@ -1034,3 +1035,20 @@ Fix: set max_tokens on the OpenRouter request so a runaway fails in seconds and 
 Task · Done · Anna Sekulic · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-71)
 
 A serial refetch of 668 pages took about 1.5 hours, too slow to land AI summaries before the demo. PR #53 (https://github.com/annaseku/unimelb-find-me-funding/pull/53, merged 14b190f): refetch fetches up to 8 hosts at once (each host stays sequential, keeping the per-request delay per site) and the normaliser makes up to 8 extractor calls at once, results applied in row order, stop reasons still halting new calls. Refetch run 39186180456 started on the merged commit. The stuck scheduled crawl 39171202167 (pre-KAN-70 code) was cancelled to unblock it.
+
+### KAN-72
+
+**Frontend quality pass: enforce Prettier and typed lint, keyboard-accessible dropdowns**
+
+Task · Done · Anna Sekulic · epic KAN-16 · labels: accessibility, frontend, tech-debt · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-72)
+
+A review of the frontend before marking found that the coding standards in CONTRIBUTING.md were not enforced: there was no formatter, and ESLint was the bare Vite template. It also found accessibility gaps and template leftovers.
+
+PR: https://github.com/annaseku/unimelb-find-me-funding/pull/57
+
+**Acceptance criteria**
+
+* Given a pull request, when frontend CI runs, then Prettier `format:check` and typed ESLint (`recommendedTypeChecked`) must pass.
+* Given an open dropdown, when the user presses Escape or tabs out of it, then it closes, and Escape returns focus to the trigger.
+* Given a result card, when a screen reader reads its toggle, then it announces the title only.
+* Given tags and link hover text, when contrast is measured, then both meet WCAG AA (4.5:1).

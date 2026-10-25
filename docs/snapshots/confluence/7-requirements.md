@@ -1,6 +1,6 @@
 # 7. Requirements
 
-> Snapshot of the Confluence page [7. Requirements](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/10682369), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [7. Requirements](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/10682369), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 **Progress Checklist item 7 (Artefacts).** The Week 3 lecture expects a requirements document covering functional and quality (non-functional) requirements, user stories organised into epics, prioritisation, a motivational model agreed with the client, and a check each sprint that the model still matches our understanding. Requirements must be approved by the client.
 

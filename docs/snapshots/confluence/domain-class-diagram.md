@@ -1,6 +1,6 @@
 # Domain Class Diagram
 
-> Snapshot of the Confluence page [Domain Class Diagram](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/31326250), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [Domain Class Diagram](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/31326250), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 Pydantic models across the crawl, normalise, rank and serve pipeline.
 

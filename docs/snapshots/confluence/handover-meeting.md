@@ -1,6 +1,6 @@
 # Handover Meeting
 
-> Snapshot of the Confluence page [Handover Meeting](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/40763393), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [Handover Meeting](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/40763393), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 _From Lecture Slides_: 
 

@@ -1,6 +1,6 @@
 # 12. Deployment
 
-> Snapshot of the Confluence page [12. Deployment](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/33193985), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [12. Deployment](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/33193985), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 **Progress Checklist item 12 (Artefacts).** The Week 9 lecture expects, for web apps, an automated pipeline that deploys stable releases from main to production without manual steps. We have one for both halves of the system, plus a scheduled pipeline that refreshes the data.
 

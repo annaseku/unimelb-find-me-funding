@@ -1,6 +1,6 @@
 # Database ER Diagram
 
-> Snapshot of the Confluence page [Database ER Diagram](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/31621141), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [Database ER Diagram](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/31621141), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 Physical schema on the left; the logical model stored inside opportunity_json on the right.
 

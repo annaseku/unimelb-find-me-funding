@@ -1,6 +1,6 @@
 # Confluence snapshot
 
-A read-only copy of the team's Confluence space (Crawlers), taken 23 October 2026, so the pages can be read without an Atlassian login. Confluence remains the source of truth; each page links back to the live version. Checklist pages (1 to 12) come first.
+A read-only copy of the team's Confluence space (Crawlers), taken 25 October 2026, so the pages can be read without an Atlassian login. Confluence remains the source of truth; each page links back to the live version. Checklist pages (1 to 12) come first.
 
 | Page | Live page |
 | --- | --- |
@@ -17,6 +17,7 @@ A read-only copy of the team's Confluence space (Crawlers), taken 23 October 202
 | [11. Testing](11-testing.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/10780673) |
 | [12. Deployment](12-deployment.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/33193985) |
 | [ADR-001: Technology Decisions](adr-001-technology-decisions.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/13598721) |
+| [ADR-002 to ADR-004: Ranking, Normaliser and Deployment](adr-002-to-adr-004-ranking-normaliser-and-deployment.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/46825514) |
 | [API Contract](api-contract.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/20742145) |
 | [Architecture Overview — Find Me Funding](architecture-overview-find-me-funding.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/30834690) |
 | [Backend — Web Crawler (Progress Report)](backend-web-crawler-progress-report.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/21626920) |
@@ -56,9 +57,16 @@ A read-only copy of the team's Confluence space (Crawlers), taken 23 October 202
 | [Sprint 2 Retrospective](sprint-2-retrospective.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/25559042) |
 | [Sprint 2 Review](sprint-2-review.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/25853953) |
 | [Sprint 3 Description + Planning](sprint-3-description-planning.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/24969238) |
+| [Sprint 3 Retrospective](sprint-3-retrospective.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/47022088) |
+| [Sprint 3 Review](sprint-3-review.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/46727169) |
 | [Sprint 4 Description + Planning](sprint-4-description-planning.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/37453834) |
+| [Sprint 4 Retrospective](sprint-4-retrospective.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/46727204) |
+| [Sprint 4 Review](sprint-4-review.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/46759937) |
+| [Sprint 5 Retrospective (final sprint)](sprint-5-retrospective-final-sprint.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/46923804) |
+| [Sprint 5 Review (final sprint)](sprint-5-review-final-sprint.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/46792705) |
 | [Standup Notes 14/09](standup-notes-1409.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/26378243) |
 | [Standup Summaries](standup-summaries.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/21331973) |
+| [Supervisor Feedback Log](supervisor-feedback-log.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/46825473) |
 | [System Architecture (Layered)](system-architecture-layered.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/31522817) |
 | [Team Structure](team-structure.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/22773767) |
 | [Test Cases and Reports](test-cases-and-reports.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/33456129) |

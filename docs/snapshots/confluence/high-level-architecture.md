@@ -1,6 +1,6 @@
 # High Level Architecture
 
-> Snapshot of the Confluence page [High Level Architecture](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/31490049), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [High Level Architecture](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/31490049), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 One page: what the system does and what it talks to. The two halves meet only at the Funding Index, so a search never sets off a crawl.
 

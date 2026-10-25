@@ -1,6 +1,6 @@
 # Presentation
 
-> Snapshot of the Confluence page [Presentation](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/42106882), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [Presentation](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/42106882), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 ### Canva Link
 
