@@ -62,6 +62,7 @@ A read-only copy of the team's Confluence space (Crawlers), taken 25 October 202
 | [Sprint 4 Description + Planning](sprint-4-description-planning.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/37453834) |
 | [Sprint 4 Retrospective](sprint-4-retrospective.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/46727204) |
 | [Sprint 4 Review](sprint-4-review.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/46759937) |
+| [Sprint 5 Description + Planning (final sprint)](sprint-5-description-planning-final-sprint.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/46891027) |
 | [Sprint 5 Retrospective (final sprint)](sprint-5-retrospective-final-sprint.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/46923804) |
 | [Sprint 5 Review (final sprint)](sprint-5-review-final-sprint.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/46792705) |
 | [Standup Notes 14/09](standup-notes-1409.md) | [Confluence](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/26378243) |
