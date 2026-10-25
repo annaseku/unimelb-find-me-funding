@@ -2,9 +2,9 @@
 
 > Snapshot of the Confluence page [User Stories and Acceptance Criteria](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/33423361), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
-**Status: Draft, 24/09. Sophia, please check these against the original** [**User Story Board**](user-story-board-original-2408.md) **and correct anything that drifted (KAN-46).** Written as text so each story has an ID that Jira cards and test cases can point to. This answers the Week 9 tutor feedback that it was hard to connect Jira tasks to user stories: every related Jira card now carries a label with its story ID, so searching the board for `labels = US04` lists that story's work.
+**Status: Reviewed by Anna Sekulic, 25/10/2026 (KAN-46).** Written as text so each story has an ID that Jira cards and test cases can point to. The original board is the [User Story Board](user-story-board-original-2408.md). This answers the Week 9 tutor feedback that it was hard to connect Jira tasks to user stories: every related Jira card now carries a label with its story ID, so searching the board for `labels = US04` lists that story's work.
 
-Format from the Week 3 lecture: _As a \[type of user\], I want \[goal\] so that \[reason\]._ Acceptance criteria from the Week 7 lecture: one to three per story, written before implementation, independently testable, with a clear pass or fail.
+Format from the Week 3 lecture: *As a \[type of user\], I want \[goal\] so that \[reason\].* Acceptance criteria from the Week 7 lecture: one to three per story, written before implementation, independently testable, with a clear pass or fail.
 
 ## Traceability and estimates
 
@@ -92,4 +92,4 @@ As the Research Office, I want the crawler to obey robots.txt and identify itsel
 | # | Given | When | Then |
 | --- | --- | --- | --- |
 | AC1 | A URL disallowed by the site's robots.txt | The crawler reaches it | It is never fetched |
-| AC2 | Any request the crawler makes | It is sent | It carries a descriptive User-Agent with a contact URL (KAN-22, open) |
+| AC2 | Any request the crawler makes | It is sent | It carries a descriptive User-Agent with a contact URL (KAN-22, done 23/10) |
