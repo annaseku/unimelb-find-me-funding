@@ -1,6 +1,6 @@
 # Client Meeting 20/08: Post-Meeting Notes
 
-> Snapshot of the Confluence page [Client Meeting 20/08: Post-Meeting Notes](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/9469953), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [Client Meeting 20/08: Post-Meeting Notes](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/9469953), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 ‌
 

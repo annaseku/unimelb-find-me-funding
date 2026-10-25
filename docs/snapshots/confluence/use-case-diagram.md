@@ -1,6 +1,6 @@
 # Use Case Diagram
 
-> Snapshot of the Confluence page [Use Case Diagram](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/31883265), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [Use Case Diagram](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/31883265), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 Scope for the Weeks 1–6 prototype.
 

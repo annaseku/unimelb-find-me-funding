@@ -1,6 +1,6 @@
 # System Architecture (Layered)
 
-> Snapshot of the Confluence page [System Architecture (Layered)](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/31522817), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [System Architecture (Layered)](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/31522817), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 Layered, module-level view. Two independent entry points reach the data layer: a user search, and the scheduled crawler.
 

@@ -1,6 +1,6 @@
 # Client Brief: Project Description (UoM Research Office)
 
-> Snapshot of the Confluence page [Client Brief: Project Description (UoM Research Office)](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/2621441), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [Client Brief: Project Description (UoM Research Office)](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/2621441), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 **Web crawler – Find me funding!**
 

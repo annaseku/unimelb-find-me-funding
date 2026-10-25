@@ -1,6 +1,6 @@
 # Sequence Diagram — Search for Funding
 
-> Snapshot of the Confluence page [Sequence Diagram — Search for Funding](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/31784961), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [Sequence Diagram — Search for Funding](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/31784961), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 A user search, end to end. A search never triggers a crawl.
 

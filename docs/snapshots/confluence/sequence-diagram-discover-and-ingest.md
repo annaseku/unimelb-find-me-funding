@@ -1,6 +1,6 @@
 # Sequence Diagram — Discover and Ingest
 
-> Snapshot of the Confluence page [Sequence Diagram — Discover and Ingest](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/31391755), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [Sequence Diagram — Discover and Ingest](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/31391755), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 The scheduled crawl. robotCheck gates every fetch, and deterministic rules win over the LLM on dates and amounts.
 

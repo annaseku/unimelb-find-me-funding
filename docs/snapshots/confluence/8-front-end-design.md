@@ -1,6 +1,6 @@
 # 8. Front-end Design
 
-> Snapshot of the Confluence page [8. Front-end Design](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/33161217), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [8. Front-end Design](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/33161217), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 **Progress Checklist item 8 (Artefacts).** The Week 4 lecture asks for low-fidelity prototypes to check the interface is fit for purpose, then high-fidelity prototypes once the design is understood, tested with users.
 

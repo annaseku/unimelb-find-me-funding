@@ -1,6 +1,6 @@
 # User Stories and Acceptance Criteria
 
-> Snapshot of the Confluence page [User Stories and Acceptance Criteria](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/33423361), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [User Stories and Acceptance Criteria](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/33423361), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 **Status: Draft, 24/09. Sophia, please check these against the original** [**User Story Board**](user-story-board-original-2408.md) **and correct anything that drifted (KAN-46).** Written as text so each story has an ID that Jira cards and test cases can point to. This answers the Week 9 tutor feedback that it was hard to connect Jira tasks to user stories: every related Jira card now carries a label with its story ID, so searching the board for `labels = US04` lists that story's work.
 

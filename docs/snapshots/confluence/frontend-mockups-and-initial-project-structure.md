@@ -1,6 +1,6 @@
 # Frontend - Mockups and Initial Project Structure
 
-> Snapshot of the Confluence page [Frontend - Mockups and Initial Project Structure](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/15597569), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [Frontend - Mockups and Initial Project Structure](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/15597569), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 ### 1. Overview 
 

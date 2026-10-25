@@ -1,6 +1,6 @@
 # Functional and Non-Functional Requirements
 
-> Snapshot of the Confluence page [Functional and Non-Functional Requirements](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/5373953), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [Functional and Non-Functional Requirements](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/5373953), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 # Requirements Diagram — Web Crawlers / Find Me Funding
 

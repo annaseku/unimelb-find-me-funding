@@ -1,6 +1,6 @@
 # Sprint 1 Retrospective
 
-> Snapshot of the Confluence page [Sprint 1 Retrospective](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/22708225), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [Sprint 1 Retrospective](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/22708225), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 **Sprint dates:** \[10/08 - 24/08\]
 

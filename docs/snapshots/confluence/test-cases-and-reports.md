@@ -1,6 +1,6 @@
 # Test Cases and Reports
 
-> Snapshot of the Confluence page [Test Cases and Reports](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/33456129), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [Test Cases and Reports](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/33456129), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 Test cases are written from the acceptance criteria on [User Stories and Acceptance Criteria](user-stories-and-acceptance-criteria.md), following the Week 7 lecture's chain: user story, then acceptance criteria, then test cases. Automated cases name the test that covers them; manual cases are run on the deployed site by someone other than the author before each sprint review.
 
@@ -15,8 +15,8 @@ Test cases are written from the acceptance criteria on [User Stories and Accepta
 | TC05 | US04 AC1, US05 AC1 | Functional, UI and API | Automated | `test_api.py`: `test_every_result_has_four_scores_labels_and_reasons`; `Result.test.tsx`: renders all four criteria, reasons, labels and the funder link | Four labelled criteria with reasons, and a link |
 | TC06 | US06 AC1, AC2 | Functional, API | Automated | `test_ranker.py`: `test_closed_status_is_hidden_even_with_a_future_deadline`; `test_api.py`: `test_include_closed_adds_the_soft_deleted_records` | Closed hidden by default, shown on request |
 | TC07 | US07 AC1 | Functional, crawler | Manual | Run `python3 main.py` with a test profile; list discovered domains; compare with the seed list | At least one discovered funder is not in the seed list |
-| TC08 | US08 AC1 | Functional, crawler | Manual (no automated test yet) | Point the crawler at a page disallowed by robots.txt | The page is not fetched; the log records the skip |
-| TC09 | US01 to US05 end to end | Acceptance | Manual | On the live site: open it, wait for the API to wake, search as a health researcher (Australian citizen, university, early career), open the first result's link, load more | Ten ranked results with four ratings each; link opens the funder; more results load |
+| TC08 | US08 AC1, AC2 | Functional, crawler | Automated | `test_robot_check.py`: `test_a_path_disallowed_for_every_crawler_is_not_fetched`, `test_rules_aimed_at_our_crawler_override_the_wildcard`, `test_an_unreachable_robots_txt_blocks_the_site`; `test_crawler.py`: `test_a_url_robots_txt_disallows_is_never_fetched`; `test_crawler_config.py` (user agent with contact URL) | Disallowed pages are never fetched; requests carry our user agent |
+| TC09 | US01 to US05 end to end | Acceptance | Automated in CI, plus manual | Playwright `e2e/search.spec.ts` runs the search flow against the real API on every pull request. Manual run on the live site: open it, wait for the API to wake, search as a health researcher (Australian citizen, university, early career), open the first result's link, load more | Ten ranked results with four ratings each; link opens the funder; more results load |
 
 ## Manual test case template
 
@@ -38,10 +38,11 @@ From the Week 7 lecture:
 
 | Date | Build | Automated suite | Acceptance cases | Bugs opened / closed | Notes |
 | --- | --- | --- | --- | --- | --- |
-| 24/09 (Sprint 3, mid-sprint) | main at d4d8470 | All seven CI jobs green on the latest main run: [Actions](https://github.com/annaseku/unimelb-find-me-funding/actions) | Not yet run | 0 / 0 logged in Jira | Baseline. TC07 to TC09 to be run before the Sprint 3 review |
+| 24/09 (Sprint 3, mid-sprint) | main at d4d8470 | All seven CI jobs green on the latest main run: [Actions](https://github.com/annaseku/unimelb-find-me-funding/actions) | Not yet run | 0 / 0 logged in Jira | Baseline |
+| 25/10 (Sprint 5, final) | main at 2555d3b | All CI jobs green on main. Backend: 392 passed, 14 skipped locally (the Postgres suite, which CI runs against a real database); backend coverage 93%. Frontend: 55 Vitest tests passed. Playwright end-to-end search flow passed against the real API. Ranking evals passed. | TC08 now automated and passing; TC09 covered by the Playwright suite; TC07 manual run not recorded | Bugs found and fixed with regression tests: robots.txt ignored rules for our crawler (KAN-49), day-first dates, amounts like "$500 more" read as millions, the dropdown label regression (KAN-59) | [Actions](https://github.com/annaseku/unimelb-find-me-funding/actions); PRs #56, #57 |
 
 ## Gaps
 
-- [ ] No automated test for the robots.txt gate (TC08): add one with the crawler test suite
-- [ ] No code coverage report: add one to Backend CI
-- [ ] Run TC07 to TC09 before the Sprint 3 review and record the results above
+- [x] No automated test for the robots.txt gate (TC08): added in `test_robot_check.py` (KAN-49)
+- [x] No code coverage report: added to Backend and Frontend CI (KAN-50)
+- [ ] Record a manual run of TC07 and the manual half of TC09 (KAN-48)

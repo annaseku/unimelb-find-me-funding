@@ -1,6 +1,6 @@
 # 9. Architectural Design
 
-> Snapshot of the Confluence page [9. Architectural Design](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/10682389), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [9. Architectural Design](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/10682389), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 **Progress Checklist item 9 (Artefacts).** The Week 4 lecture uses Kruchten's 4+1 model: logical, process, development and physical views, tied together by scenarios. Start with the [Architecture Overview](architecture-overview-find-me-funding.md) and the [High Level Architecture](high-level-architecture.md) diagram (the one overall diagram the supervisor asked for). Every diagram's editable draw.io source is in the repo under `docs/09-architectural-design/diagrams/`.
 

@@ -1,6 +1,6 @@
 # Legal, Ethics and Data Handling
 
-> Snapshot of the Confluence page [Legal, Ethics and Data Handling](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/30867457), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [Legal, Ethics and Data Handling](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/30867457), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 **Status** Draft — team review needed  ·  **Owner** Anna Sekulic  ·  **Last reviewed** 9/21/2026
 

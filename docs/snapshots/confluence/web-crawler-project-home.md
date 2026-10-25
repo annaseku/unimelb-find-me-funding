@@ -1,6 +1,6 @@
 # 🏠 Web Crawler — Project Home
 
-> Snapshot of the Confluence page [🏠 Web Crawler — Project Home](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/10649601), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [🏠 Web Crawler — Project Home](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/10649601), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 # Web Crawler — Project Home
 

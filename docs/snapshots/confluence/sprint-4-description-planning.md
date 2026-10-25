@@ -1,6 +1,6 @@
 # Sprint 4 Description + Planning
 
-> Snapshot of the Confluence page [Sprint 4 Description + Planning](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/37453834), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [Sprint 4 Description + Planning](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/37453834), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 | **Product overview** |
 | --- |

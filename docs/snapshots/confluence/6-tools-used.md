@@ -1,6 +1,6 @@
 # 6. Tools Used
 
-> Snapshot of the Confluence page [6. Tools Used](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/33128449), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [6. Tools Used](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/33128449), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 **Progress Checklist item 6 (Process).** The Week 1 lecture asks for professional tools that the mentor can access. Our supervisor, Kerr Yuan, has access to the Confluence space, the KAN Jira project and the GitHub repository.
 

@@ -1,6 +1,6 @@
 # GenAI Usage Log
 
-> Snapshot of the Confluence page [GenAI Usage Log](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/33488897), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [GenAI Usage Log](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/33488897), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 The Week 1 lecture: COMP30022 is neither for nor against GenAI, but any use must be transparent and documented, including summaries, code and test plans, and the team is responsible for everything it submits. Week 2 suggests the Scrum Master track what is AI-produced and what is manual, and the risk profile of each.
 

@@ -1,6 +1,6 @@
 # Component Diagram
 
-> Snapshot of the Confluence page [Component Diagram](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/31621121), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [Component Diagram](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/31621121), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 Modules and the interfaces between them. Nothing points from the API to the Crawler; the two halves meet only at Data Access.
 

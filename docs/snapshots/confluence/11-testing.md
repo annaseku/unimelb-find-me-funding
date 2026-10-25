@@ -1,6 +1,6 @@
 # 11. Testing
 
-> Snapshot of the Confluence page [11. Testing](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/10780673), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [11. Testing](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/10780673), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 **Progress Checklist item 11 (Artefacts).** The Week 7 testing lecture asks for four things: a test plan, acceptance criteria that guide test cases, test cases, and test reports. This page is the test plan. Test cases and reports: [Test Cases and Reports](test-cases-and-reports.md). Acceptance criteria: [User Stories and Acceptance Criteria](user-stories-and-acceptance-criteria.md). How to run each suite: `docs/11-testing/README.md` in the repo.
 

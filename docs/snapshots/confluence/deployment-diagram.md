@@ -1,6 +1,6 @@
 # Deployment Diagram
 
-> Snapshot of the Confluence page [Deployment Diagram](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/31653889), taken 23 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
+> Snapshot of the Confluence page [Deployment Diagram](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/31653889), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
 Where each artefact runs and over what protocol the nodes talk: GitHub Pages, Render, Supabase, Gemini and GitHub Actions.
 
