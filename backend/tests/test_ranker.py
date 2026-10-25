@@ -138,6 +138,46 @@ def test_best_first():
     assert [r.opportunity.id for r in results] == ["strong", "weak"]
 
 
+def test_a_rare_shared_term_ranks_above_a_ubiquitous_term():
+    opportunities = [
+        make_opportunity(id=f"common-{i}", title="Learning", summary="", for_codes=[])
+        for i in range(20)
+    ]
+    opportunities.append(make_opportunity(id="rare", title="Coral", summary="", for_codes=[]))
+    request = SearchRequest(research_description="learning coral reef ecology")
+    results = rank(opportunities, request, DEFAULT_WEIGHTS, TODAY)
+    assert results[0].opportunity.id == "rare"
+    assert results[0].research_match.score > results[1].research_match.score
+
+
+@pytest.mark.parametrize(
+    "closed_fields",
+    [{"status": OpportunityStatus.CLOSED}, {"deadline": TODAY - timedelta(days=1)}],
+)
+def test_closed_opportunities_do_not_change_open_corpus_weights(closed_fields):
+    opportunities = [
+        make_opportunity(id="common", title="Learning", summary="", for_codes=[]),
+        make_opportunity(id="rare", title="Coral", summary="", for_codes=[]),
+    ]
+    closed = [
+        make_opportunity(
+            id=f"closed-{i}", title="Learning", summary="", for_codes=[], **closed_fields
+        )
+        for i in range(20)
+    ]
+    request = SearchRequest(research_description="learning coral reef ecology")
+    baseline = rank(opportunities, request, DEFAULT_WEIGHTS, TODAY)
+    assert rank(opportunities + closed, request, DEFAULT_WEIGHTS, TODAY) == baseline
+    included = rank(
+        opportunities + closed,
+        request.model_copy(update={"include_closed": True}),
+        DEFAULT_WEIGHTS,
+        TODAY,
+    )
+    common = next(r for r in included if r.opportunity.id == "common")
+    assert common.research_match.score != baseline[0].research_match.score
+
+
 @pytest.mark.parametrize("include_closed", [False, True])
 def test_non_funding_is_excluded_before_scoring_even_when_closed_are_included(
     include_closed, monkeypatch

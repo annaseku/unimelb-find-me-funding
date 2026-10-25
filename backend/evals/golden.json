@@ -47,7 +47,7 @@
         "ian-potter-science-2027": "likely_ineligible"
       },
       "must_be_in_top_5": ["innovate-uk-energy-catalyst", "ukri-future-leaders-2026"],
-      "must_not_be_in_top_10": ["csiro-early-career-postdoc", "arc-decra-2028", "uom-summer-research-2026"]
+      "must_not_be_in_top_10": ["csiro-early-career-postdoc", "uom-summer-research-2026"]
     },
     "philanthropic-health-ecr": {
       "expected_eligibility": {
@@ -61,7 +61,7 @@
         "nih-k99-r00": "likely_ineligible"
       },
       "must_be_in_top_5": ["mrff-indigenous-health", "gates-grand-challenges-health"],
-      "must_not_be_in_top_10": ["nih-k99-r00", "csiro-early-career-postdoc", "uom-summer-research-2026"]
+      "must_not_be_in_top_10": ["csiro-early-career-postdoc", "uom-summer-research-2026"]
     },
     "undergrad-physics": {
       "expected_eligibility": {

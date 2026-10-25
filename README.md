@@ -25,7 +25,7 @@ Each ranked result carries four scores between 0 and 1, each with a label and re
 | Criterion | What it checks | Labels |
 | --- | --- | --- |
 | Eligibility | citizenship, employer type, career stage, funding type against the funder's stated rules | eligible, potentially eligible, unknown, likely ineligible |
-| Research match | ANZSRC code overlap plus keyword overlap between the description and the funder's text | high, medium, low |
+| Research match | ANZSRC code overlap plus corpus-IDF-weighted description coverage with Porter2 stemming (full text match at 50% coverage); funding and career vocabulary (fellowship, early career, scholarship and so on) is ignored by the text match because other filters cover it; available FoR/text/ToA signals renormalised at 0.5/0.4/0.1 | high (≥0.75), medium (≥0.4), low |
 | Funding value | amount in AUD, banded | under $1M, $1M to $2M, $2M to $5M, $5M and over, unknown |
 | Deadline | days remaining, banded; more lead time scores higher | over 60 days, 60 to 30, 30 to 15, under 15, closed, unknown |
 
