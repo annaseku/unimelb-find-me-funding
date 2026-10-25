@@ -234,7 +234,7 @@ export const filterOptions = {
 };
 
 export const defaultFilterValues = {
-  fieldOfResearch: '',
+  fieldOfResearch: [] as string[],
   typeOfActivity: '',
   citizenship: [] as string[],
   employerType: '',

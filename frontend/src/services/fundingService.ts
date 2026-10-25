@@ -44,7 +44,7 @@ export function buildSearchRequest(
   }
   return {
     research_description: search.trim(),
-    for_codes: list(filters.fieldOfResearch),
+    for_codes: filters.fieldOfResearch,
     toa_codes: list(filters.typeOfActivity),
     citizenships: filters.citizenship,
     employer_type: (filters.employerType || null) as EmployerType | null,

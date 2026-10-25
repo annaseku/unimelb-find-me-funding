@@ -29,7 +29,7 @@ afterEach(() => vi.unstubAllGlobals());
 function show(
   state: unknown = {
     search: 'coral',
-    filters: { ...defaultFilterValues, fieldOfResearch: '31' },
+    filters: { ...defaultFilterValues, fieldOfResearch: ['31'] },
   },
 ) {
   return render(
@@ -71,7 +71,7 @@ it('appends pages using the submitted filters, then resets on a new search', asy
   await user.clear(screen.getByPlaceholderText('Search by keyword'));
   await user.type(screen.getByPlaceholderText('Search by keyword'), 'new research');
   await user.click(screen.getByRole('button', { name: 'Field of Research Biological Sciences' }));
-  await user.click(screen.getByRole('button', { name: /31\s*Biological Sciences/i }));
+  await user.click(screen.getByRole('checkbox', { name: /31\s*Biological Sciences/i }));
   await user.click(screen.getByRole('button', { name: 'Show more' }));
   await screen.findByText('Wellcome Grant');
   expect(screen.getByText('ARC Research Grant')).toBeInTheDocument();
@@ -86,7 +86,7 @@ it('appends pages using the submitted filters, then resets on a new search', asy
   expect(JSON.parse(fetchMock.mock.calls[2]?.[1].body)).toMatchObject({
     offset: 0,
     research_description: 'new research',
-    for_codes: ['31'],
+    for_codes: [],
   });
   expect(screen.queryByText('ARC Research Grant')).not.toBeInTheDocument();
 });
@@ -171,4 +171,15 @@ it('keeps one data notice across searches instead of refetching the status', asy
   await screen.findByText('ARC Research Grant');
   expect(fetchMock).toHaveBeenCalledTimes(2);
   expect(notice.mounts).toBe(1);
+});
+
+it('ignores a legacy string field of research and searches with an empty list', async () => {
+  fetchMock.mockResolvedValue(response());
+  show({ search: 'coral', filters: { ...defaultFilterValues, fieldOfResearch: '3103' } });
+  await screen.findByText('ARC Research Grant');
+  expect(screen.getByRole('button', { name: 'Field of Research – Any' })).toBeInTheDocument();
+  expect(JSON.parse(fetchMock.mock.calls[0]?.[1].body)).toMatchObject({
+    research_description: 'coral',
+    for_codes: [],
+  });
 });
