@@ -19,7 +19,7 @@ from backend.normaliser.llm import (
     merge,
 )
 from backend.normaliser.models import NormalisedRecord
-from backend.ranking.models import CareerStage, EmployerType, Opportunity
+from backend.ranking.models import CareerStage, EmployerType, Opportunity, OpportunityStatus
 
 
 def make_record(**overrides) -> NormalisedRecord:
@@ -281,3 +281,38 @@ def test_client_targets_openrouter_with_the_key_and_a_request_timeout(monkeypatc
         "api_key": "test-key",
         "timeout": llm_module.REQUEST_TIMEOUT_S,
     }
+
+
+def test_extractor_schema_includes_nullable_funding_classification():
+    client = StubClient("{}")
+    OpenRouterExtractor(client=client).extract("T", "https://example.org", "text")
+    schema = client.calls[0]["response_format"]["json_schema"]["schema"]
+    field = schema["properties"]["is_funding_opportunity"]
+    assert {"type": "boolean"} in field["anyOf"]
+    assert {"type": "null"} in field["anyOf"]
+    assert field["default"] is None
+
+
+def test_merge_soft_deletes_non_funding_and_records_llm_provenance_without_mutating_input():
+    record = make_record()
+    before = record.model_copy(deep=True)
+    merged = merge(record, ExtractedFields(is_funding_opportunity=False))
+    assert merged.opportunity.status == OpportunityStatus.NOT_FUNDING
+    assert merged.provenance["status"] == "llm"
+    assert record == before
+
+
+@pytest.mark.parametrize("classification", [True, None])
+@pytest.mark.parametrize("status", list(OpportunityStatus))
+def test_merge_positive_or_unknown_classification_preserves_status_and_provenance(
+    classification, status
+):
+    record = make_record(status=status)
+    record.provenance["status"] = "rule"
+    merged = merge(record, ExtractedFields(is_funding_opportunity=classification))
+    assert merged.opportunity.status == status
+    assert merged.provenance["status"] == "rule"
+
+
+def test_funding_classification_is_not_a_prose_field():
+    assert "is_funding_opportunity" not in PROSE_FIELDS

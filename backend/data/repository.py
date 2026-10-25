@@ -6,7 +6,7 @@ import os
 from functools import lru_cache
 
 from backend.normaliser.models import PipelineRun
-from backend.ranking.models import Opportunity
+from backend.ranking.models import Opportunity, OpportunityStatus
 
 DATA_SOURCES = ("sqlite", "postgres")
 
@@ -16,13 +16,17 @@ class OpportunityRepository:
         self,
         opportunities: list[Opportunity],
         last_run: PipelineRun | None = None,
-        rule_only_summaries: int = 0,
+        provenance: dict[str, dict[str, str]] | None = None,
     ) -> None:
         self._by_id = {o.id: o for o in opportunities}
         self.last_run = last_run
-        # Records whose summary did not come from the LLM, so the frontend
-        # can say how many cards show the shorter rule-built summary.
-        self.rule_only_summaries = rule_only_summaries
+        funding = [o for o in self._by_id.values() if o.status != OpportunityStatus.NOT_FUNDING]
+        self.funding_count = len(funding)
+        provenance = provenance or {}
+        # Count summaries only among funding records, including closed schemes.
+        self.rule_only_summaries = sum(
+            provenance.get(o.id, {}).get("summary") != "llm" for o in funding
+        )
 
     def all(self) -> list[Opportunity]:
         return list(self._by_id.values())

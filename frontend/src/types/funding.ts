@@ -62,7 +62,7 @@ export interface Opportunity {
   toa_codes: string[];
   keywords: string[];
   eligibility_text: string;
-  status: 'active' | 'closed';
+  status: 'active' | 'closed' | 'not_funding';
 }
 
 export interface CriterionResult {

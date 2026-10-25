@@ -75,6 +75,7 @@ class FundingBand(StrEnum):
 class OpportunityStatus(StrEnum):
     ACTIVE = "active"
     CLOSED = "closed"  # soft-deleted, decision 9
+    NOT_FUNDING = "not_funding"  # soft-deleted: not research funding, decision 9
 
 
 class Opportunity(BaseModel):

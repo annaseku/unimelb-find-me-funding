@@ -49,7 +49,7 @@ def status() -> DataStatus:
     repository = get_repository()
     return DataStatus(
         last_run=repository.last_run,
-        opportunities=len(repository.all()),
+        opportunities=repository.funding_count,
         rule_only_summaries=repository.rule_only_summaries,
     )
 
@@ -70,7 +70,7 @@ def search(request: SearchRequest) -> SearchResponse:
 
 @app.get("/api/opportunities/{opportunity_id}", response_model=Opportunity)
 def get_opportunity(opportunity_id: str) -> Opportunity:
-    # Closed records are returned too: they are soft-deleted, not gone (decision 9).
+    # Soft-deleted records are returned too, preserving the audit trail (decision 9).
     opportunity = get_repository().get(opportunity_id)
     if opportunity is None:
         raise HTTPException(status_code=404, detail="opportunity not found")

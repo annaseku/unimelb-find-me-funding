@@ -58,7 +58,8 @@ def rank(
     ranked = [
         score_opportunity(o, request, weights, today)
         for o in opportunities
-        if request.include_closed or _is_open(o, today)
+        if o.status != OpportunityStatus.NOT_FUNDING
+        and (request.include_closed or _is_open(o, today))
     ]
 
     if request.hide_ineligible:

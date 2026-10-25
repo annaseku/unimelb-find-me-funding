@@ -19,7 +19,7 @@ from openai import OpenAI
 from pydantic import BaseModel
 
 from backend.normaliser.models import NormalisedRecord
-from backend.ranking.models import CareerStage, EmployerType, FundingType
+from backend.ranking.models import CareerStage, EmployerType, FundingType, OpportunityStatus
 
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 # Apache-2.0 open-weight, non-reasoning, supports structured outputs, and costs
@@ -78,13 +78,22 @@ rules, not a copy of the whole page.
 
 `summary` is two to three plain sentences describing what the scheme funds.
 
+`is_funding_opportunity` is true when the page describes one or more grants, fellowships,
+scholarships, awards, prizes or funding programmes that researchers or students can apply
+for, or a funder's listing or index of such schemes. It is false for dictionary entries,
+encyclopaedia articles, software or technical documentation, news articles that announce no
+scheme, videos, shops and commercial product pages, generic organisation home pages that
+name no scheme, job adverts, journal home pages, search-engine, login or CAPTCHA pages.
+Leave it null only when the page text is too short or garbled to tell.
+
 Dates are ISO 8601 (YYYY-MM-DD)."""
 
 
 class ExtractedFields(BaseModel):
-    """Everything the model may contribute, one field per Opportunity field
-    it is allowed to touch. Defaults are all "not stated"."""
+    """The funding classification and fields the model may contribute.
+    Defaults are all "not stated"."""
 
+    is_funding_opportunity: bool | None = None
     funder: str | None = None
     summary: str | None = None
     amount_aud: int | None = None
@@ -183,6 +192,10 @@ def merge(record: NormalisedRecord, extracted: ExtractedFields) -> NormalisedRec
 
     opportunity = record.opportunity.model_copy(deep=True)
     provenance = dict(record.provenance)
+
+    if extracted.is_funding_opportunity is False:
+        opportunity.status = OpportunityStatus.NOT_FUNDING
+        provenance["status"] = "llm"
 
     for field in PROSE_FIELDS:
         value = getattr(extracted, field)

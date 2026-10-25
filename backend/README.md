@@ -53,6 +53,8 @@ curl -s -X POST localhost:8000/api/search -H 'content-type: application/json' \
 
 `normaliser/` turns the crawler's raw rows (page text, a parsed deadline, a raw dollar string, an eligibility snippet) into the structured `Opportunity` records the ranker scores. Deterministic rules run first and stamp every field with where it came from; if `OPENROUTER_API_KEY` is set, an LLM extractor fills the prose-derived fields (citizenship, career stage, research codes, funder name, summary) and never overrides a rule-parsed date or amount. Results land in a `normalised_opportunities` table in the same SQLite file; the crawler's own table is never written.
 
+Pages the extractor classifies as non-funding are soft-deleted with status `not_funding`, retained for direct lookup and excluded from search and funding counts.
+
 ```bash
 python -m backend.normaliser.run --db funding_crawler.db            # rules, plus the model if a key is set
 python -m backend.normaliser.run --db funding_crawler.db --no-llm   # rules only

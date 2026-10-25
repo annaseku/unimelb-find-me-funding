@@ -30,6 +30,7 @@ from backend.normaliser.pipeline import (
     normalise_database,
 )
 from backend.normaliser.rules import load_fixture_rows
+from backend.ranking.models import OpportunityStatus
 from backend.tests.conftest import TODAY
 
 NEWS_URL = "https://www.example-news.org/2026/07/university-announces-new-lab"
@@ -337,3 +338,19 @@ def test_a_run_without_an_extractor_is_recorded_as_not_configured(crawler_db):
 def _load(db):
     with closing(sqlite3.connect(str(db))) as conn, conn:
         return load_normalised(conn)
+
+
+@pytest.mark.parametrize("deadline", [date(2027, 1, 1), date(2026, 1, 1), None])
+def test_non_funding_status_survives_deadline_derivation_and_database_reload(tmp_path, deadline):
+    row = next(r for r in load_fixture_rows() if r.url == NEWS_URL)
+    db = tmp_path / "non-funding.db"
+    init_db(str(db))
+    save_opportunity(row.url, _row_fields(row), row.source_query or "", db_path=str(db))
+    extractor = FakeExtractor(ExtractedFields(is_funding_opportunity=False, deadline=deadline))
+    stats = normalise_database(db, TODAY, extractor=extractor)
+    assert stats.normalised == stats.llm_calls == 1
+    record = _load(db)[0]
+    assert record.opportunity.deadline == deadline
+    assert record.opportunity.status == OpportunityStatus.NOT_FUNDING
+    assert record.provenance["status"] == "llm"
+    assert record.used_llm

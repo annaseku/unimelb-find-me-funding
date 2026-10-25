@@ -19,11 +19,13 @@ class SqliteRepository(OpportunityRepository):
     exist) yields an empty repository rather than raising."""
 
     def __init__(self, db_path: str | Path) -> None:
-        opportunities, last_run, rule_only = self._load(db_path)
-        super().__init__(opportunities, last_run, rule_only)
+        opportunities, last_run, provenance = self._load(db_path)
+        super().__init__(opportunities, last_run, provenance)
 
     @staticmethod
-    def _load(db_path: str | Path) -> tuple[list[Opportunity], PipelineRun | None, int]:
+    def _load(
+        db_path: str | Path,
+    ) -> tuple[list[Opportunity], PipelineRun | None, dict[str, dict[str, str]]]:
         path = Path(db_path)
         if not path.is_file():
             raise FileNotFoundError(
@@ -40,10 +42,11 @@ class SqliteRepository(OpportunityRepository):
                 )
             except sqlite3.OperationalError:
                 # Table doesn't exist: nothing has been normalised yet.
-                return [], last_run, 0
+                return [], last_run, {}
             rows = cursor.fetchall()
             opportunities = [Opportunity(**json.loads(row["opportunity_json"])) for row in rows]
-            rule_only = sum(
-                json.loads(row["provenance_json"]).get("summary") != "llm" for row in rows
-            )
-            return opportunities, last_run, rule_only
+            provenance = {
+                opportunity.id: json.loads(row["provenance_json"])
+                for opportunity, row in zip(opportunities, rows, strict=True)
+            }
+            return opportunities, last_run, provenance
