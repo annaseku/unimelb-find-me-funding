@@ -2,7 +2,7 @@
 
 > Snapshot of the Confluence page [Communication Plan](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/30932993), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
-**Status** Draft — team to confirm channels  ·  **Owner** Anna Sekulic  ·  **Last reviewed** 9/21/2026
+**Status** Draft — team to confirm channels  ·  **Owner** Anna Sekulic  ·  **Last reviewed** 21 Sep 2026
 
 Created in response to supervisor feedback asking the team to _use a Kanban board and Slack for comms_. This page is the answer to "Team internal communication" on the progress checklist.
 

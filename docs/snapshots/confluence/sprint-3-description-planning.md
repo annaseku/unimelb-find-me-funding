@@ -4,7 +4,7 @@
 
 | **Product overview** |
 | --- |
-| **Target date** | 9/28/2026 |
+| **Target date** | 28 Sep 2026 |
 | --- | --- |
 | **Document status** | in progress |
 | --- | --- |
@@ -19,7 +19,7 @@
 
 ## Objective
 
-**Retraction —** 9/21/2026**.** An earlier version of this page announced that the team would switch from Jira to GitHub for delegating tasks. **That decision is withdrawn.**
+**Retraction —** 21 Sep 2026**.** An earlier version of this page announced that the team would switch from Jira to GitHub for delegating tasks. **That decision is withdrawn.**
 
 Our supervisor's feedback asked us to use a Kanban board and Slack for communication. The [KAN Kanban board](https://annaseku01.atlassian.net/jira/software/projects/KAN/boards) is therefore the source of truth for task assignment and status from this point on. GitHub remains where the code and pull requests live; the two are linked by issue key, so a branch named `KAN-42-short-description` and commits referencing `KAN-42` surface on the Jira issue automatically.
 

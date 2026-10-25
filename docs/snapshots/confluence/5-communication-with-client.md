@@ -9,6 +9,7 @@
 | Date | Meeting | Notes |
 | --- | --- | --- |
 | 20/08 | Client check-in | [Questions and answers](client-meeting-2008-questions-and-answers.md), [post-meeting notes](client-meeting-2008-post-meeting-notes.md) |
+| 17/09 | Progress check-in on Zoom (Anna, with the client and the leads of the other teams on this project): our initial prototype shown | The client's feedback wasn't written up at the time. [Client Communication Log](client-communication-log.md) |
 | 19/10 | Final presentation with a live demo of the integrated product | Feedback pending. [Client Communication Log](client-communication-log.md) |
 
 Every email, meeting and demo is logged on the [Client Communication Log](client-communication-log.md), with the outcome and the Jira card it produced.
@@ -25,6 +26,6 @@ Every email, meeting and demo is logged on the [Client Communication Log](client
 
 ## Still to do
 
-- [ ] Log the client's feedback on the 19/10 demo, with an owner and a card for each item (KAN-51)
-- [ ] Take the six open ranking decisions to the client (KAN-31)
-- [ ] Agree a regular check-in rhythm for any further work (KAN-42)
+* [ ] Log the client's feedback on the 19/10 demo, with an owner and a card for each item (KAN-51)
+* [ ] Take the six open ranking decisions to the client (KAN-31)
+* [ ] Agree a regular check-in rhythm for any further work (KAN-42)

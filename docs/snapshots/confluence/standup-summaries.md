@@ -92,7 +92,7 @@ Feedback notes
 
 ### Weeks 10 to 12: activity record (reconstructed)
 
-**Reconstructed on 25/10/2026, not written at the time.** No standup or tutorial notes were taken in weeks 10 to 12. This record was put together afterwards from Slack #all-student, the GitHub pull requests and the Jira KAN board. It lists only what those records show, with dates. It is not meeting minutes: attendance and what was said in calls were not recorded, so they are not listed here. The missing notes are named as a gap in the Sprint 3 to 5 retrospectives.
+**Reconstructed on 25/10/2026, not written at the time.** No standup or tutorial notes were taken in weeks 10 to 12. This record was put together afterwards from Slack #all-student, the GitHub pull requests and the Jira KAN board. It lists only what those records show, with dates. It is not meeting minutes: attendance and what was said in calls were not recorded, so they are not listed here. The one exception is the 18/10 call, which is summarised from notes Anna took during it. The missing notes are named as a gap in the Sprint 3 to 5 retrospectives.
 
 ### Week 10 (05/10 to 11/10): Sprint 4 starts
 
@@ -110,6 +110,14 @@ Feedback notes
 - 13/10: The 10am Zoom ran until about 10:46, when the free plan's 40-minute limit ended it. During it Sophia asked Kerr whether to include all of our diagrams and models, and Paige shared the Canva deck. At 11:04 Jummana posted the [Presentation](presentation.md) page with the part allocation: parts due Friday 16/10, then a run-through on Sunday.
 - 17/10: PR #39 (Paige, citizenship and FoR dropdowns) and PR #41 (Paige, search result card UI) merged after Anna's reviews.
 - 18/10: The run-through was set for 5pm and moved to 6pm; Andrew posted the Zoom link at 6:06pm and shared the presentation rubric. The team looked at an example presentation and agreed to simplify the slides around the decisions made and why.
+- 18/10, 6pm call (from Anna's notes taken during the call):
+    - Slide order confirmed from the Presentation page. Anna took over CI/CD, Git and branching, the task board and merge handling (part 3A) from Paige.
+    - Every decision on the slides needs what was chosen, what was rejected and why. User stories cite the client's own words as their source. Slides show only the chosen option; rejected options are covered verbally.
+    - The challenges and lessons learned section needs to be longer: everyone writes one or two challenges, and the backend team adds more.
+    - A few more diagrams to be included, pulled from the architecture pages on Confluence.
+    - Timing: 15 minutes, with about 10 minutes planned so there is room to breathe. A final run-through on Monday 19/10 at 11am.
+    - Someone to confirm the client had actually been invited to the presentation.
+    - Actions: Anna adds the CI/CD and deployment section to her script and sends her script to the team; add a justification column to the user stories; everyone adds challenges; compile the diagrams into a shared folder; confirm the client's invite.
 - 18/10, 7:21pm and 7:45pm: Andrew tested the live site before the demo and reported that results were mostly American, choosing Australian citizenship changed nothing, card summaries came from menu bars, and foreign funders showed 100% eligible once a filter was applied. Anna fixed these that evening (KAN-65 to KAN-68, PRs #46 to #50; "fixed!" at 8:42pm). These PRs merged without a teammate review.
 - 18/10, 9:06pm: Jummana raised an ethics point for the presentation: funder sites do not block the crawler, but they have not explicitly given permission to be crawled either.
 

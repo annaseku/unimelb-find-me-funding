@@ -2,7 +2,7 @@
 
 > Snapshot of the Confluence page [Architecture Overview — Find Me Funding](https://annaseku01.atlassian.net/wiki/spaces/Crawlers/pages/30834690), taken 25 October 2026. The live page needs an Atlassian login. The client is referred to by role, not by name.
 
-**Status** Current  ·  **Owner** Anna Sekulic  ·  **Last reviewed** 9/21/2026
+**Status** Current  ·  **Owner** Anna Sekulic  ·  **Last reviewed** 21 Sep 2026
 
 Created in response to supervisor feedback asking for _one overall system design diagram_. This page is the single answer to the "Architectural Design" item on the progress checklist.
 
