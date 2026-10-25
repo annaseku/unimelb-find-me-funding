@@ -14,6 +14,7 @@ from datetime import date
 import httpx
 import openai
 import pytest
+from pydantic import ValidationError
 
 from backend.crawler.storage import (
     get_all_opportunities,
@@ -24,6 +25,7 @@ from backend.crawler.storage import (
 from backend.normaliser.llm import ExtractedFields, FakeExtractor
 from backend.normaliser.pipeline import (
     DEFAULT_RATE_LIMIT_WAIT_S,
+    MAX_INVALID_REPLY_RETRIES,
     MAX_RATE_LIMIT_RETRIES,
     load_latest_run,
     load_normalised,
@@ -272,6 +274,35 @@ def test_a_bad_key_or_empty_credit_stops_llm_use_for_the_run(crawler_db, status,
     assert stats.llm_stop_reason == "plan_error"
     assert stats.llm_stop_detail == f"{status} {message}"
     assert all(not r.used_llm for r in _load(crawler_db))
+
+
+def _truncated_reply():
+    """The error a reply cut mid-string by the token cap raises on validation."""
+    try:
+        ExtractedFields.model_validate_json('{"summary": "The scheme funds')
+    except ValidationError as exc:
+        return exc
+    raise AssertionError("a truncated reply must fail validation")
+
+
+def test_a_truncated_reply_is_asked_again_and_the_row_still_gets_the_llm(crawler_db):
+    """Regression (refetch run 40176487216): 217 of 614 replies came back cut
+    mid-string and every one of those rows fell back to rules."""
+    extractor = _ScriptedExtractor([_truncated_reply(), _truncated_reply()])
+    stats = normalise_database(crawler_db, TODAY, extractor=extractor, sleep=pytest.fail)
+    assert stats.llm_failures == 0
+    assert stats.invalid_reply_retries == 2
+    assert stats.llm_calls == stats.rows_read
+    assert all(r.used_llm for r in _load(crawler_db))
+
+
+def test_a_reply_that_stays_truncated_past_the_retries_falls_back_to_rules(crawler_db):
+    extractor = _ScriptedExtractor([_truncated_reply()] * (MAX_INVALID_REPLY_RETRIES + 1))
+    stats = normalise_database(crawler_db, TODAY, extractor=extractor, sleep=pytest.fail)
+    assert stats.llm_failures == 1
+    assert stats.invalid_reply_retries == MAX_INVALID_REPLY_RETRIES
+    assert stats.llm_stop_reason is None
+    assert stats.llm_calls == stats.rows_read - 1
 
 
 @pytest.mark.parametrize(

@@ -21,6 +21,8 @@ from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Literal
 
+from pydantic import ValidationError
+
 from backend.normaliser.llm import ExtractedFields, Extractor, merge
 from backend.normaliser.models import CrawledRow, LlmStopReason, NormalisedRecord, PipelineRun
 from backend.normaliser.parsers import derive_status
@@ -42,7 +44,12 @@ MAX_RATE_LIMIT_WAIT_S = 120.0
 # 401 invalid or disabled key, 402 out of credits.
 PLAN_ERROR_CODES = frozenset({401, 402})
 
-LlmErrorKind = Literal["rate_limit", "daily_quota", "plan_error", "row_error"]
+# A reply cut mid-string by the token cap fails validation; 217 of 614 calls
+# did on refetch run 40176487216 and only 18 of those pages had failed the run
+# before, so the truncation is mostly per call, not per page (KAN-81).
+MAX_INVALID_REPLY_RETRIES = 2
+
+LlmErrorKind = Literal["rate_limit", "daily_quota", "plan_error", "invalid_reply", "row_error"]
 
 
 @dataclass
@@ -53,6 +60,7 @@ class PipelineStats:
     llm_calls: int = 0
     llm_failures: int = 0
     rate_limit_waits: int = 0
+    invalid_reply_retries: int = 0
     llm_stop_reason: LlmStopReason | None = None
     llm_stop_detail: str = ""
 
@@ -114,6 +122,8 @@ def classify_llm_error(exc: BaseException) -> tuple[LlmErrorKind, float]:
         return "rate_limit", _retry_delay(exc)
     if code in PLAN_ERROR_CODES:
         return "plan_error", 0
+    if isinstance(exc, ValidationError):
+        return "invalid_reply", 0
     return "row_error", 0
 
 
@@ -130,19 +140,27 @@ def _extract_with_retries(
     stats: PipelineStats,
     sleep: Callable[[float], None],
 ) -> ExtractedFields:
-    """One extractor call, waiting out rate limits. Any other error (or a rate
-    limit that outlasts the retries) propagates."""
-    for attempt in range(MAX_RATE_LIMIT_RETRIES + 1):
+    """One extractor call, waiting out rate limits and asking again when the
+    reply failed validation. Any other error, or a limit that outlasts its
+    retries, propagates."""
+    rate_limits = invalid_replies = 0
+    while True:
         try:
             return extractor.extract(row.title or "", row.url, row.raw_text or "")
         except Exception as exc:
             kind, wait = classify_llm_error(exc)
-            if kind != "rate_limit" or attempt == MAX_RATE_LIMIT_RETRIES:
-                raise
-            stats.rate_limit_waits += 1
-            logger.info("LLM rate limit hit; waiting %.0fs", wait)
-            sleep(wait)
-    raise AssertionError("unreachable")
+            if kind == "rate_limit" and rate_limits < MAX_RATE_LIMIT_RETRIES:
+                rate_limits += 1
+                stats.rate_limit_waits += 1
+                logger.info("LLM rate limit hit; waiting %.0fs", wait)
+                sleep(wait)
+                continue
+            if kind == "invalid_reply" and invalid_replies < MAX_INVALID_REPLY_RETRIES:
+                invalid_replies += 1
+                stats.invalid_reply_retries += 1
+                logger.info("LLM reply failed validation for %s; asking again", row.url)
+                continue
+            raise
 
 
 def load_normalised(conn: sqlite3.Connection) -> list[NormalisedRecord]:
@@ -266,6 +284,7 @@ def _extract_all(
         finally:
             with lock:
                 stats.rate_limit_waits += local.rate_limit_waits
+                stats.invalid_reply_retries += local.invalid_reply_retries
 
     with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
         return list(pool.map(one, rows))
