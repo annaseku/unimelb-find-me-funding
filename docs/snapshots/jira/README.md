@@ -2,7 +2,7 @@
 
 A read-only copy of the team's Jira project KAN, taken 25 October 2026, so the board can be read without an Atlassian login. Jira remains the source of truth: [live board](https://annaseku01.atlassian.net/jira/software/projects/KAN/boards). The client is referred to by role, not by name.
 
-69 work items: 48 Done, 18 To Do, 2 In Review, 1 In Progress.
+69 work items: 49 Done, 17 To Do, 2 In Review, 1 In Progress.
 
 ## KAN-12: Crawler and Discovery
 
@@ -68,7 +68,7 @@ A read-only copy of the team's Jira project KAN, taken 25 October 2026, so the b
 
 ## KAN-17: Project Governance and Delivery
 
-11 of 21 items done.
+12 of 21 items done.
 
 | Key | Type | Status | Assignee | Summary |
 | --- | --- | --- | --- | --- |
@@ -83,7 +83,7 @@ A read-only copy of the team's Jira project KAN, taken 25 October 2026, so the b
 | [KAN-43](#kan-43) | Task | Done | Anna Sekulic | Document coding standards, testing strategy and deployment in Confluence |
 | [KAN-44](#kan-44) | Task | Done | Unassigned | Publish ADR-002, ADR-003 and ADR-004 to Confluence |
 | [KAN-45](#kan-45) | Task | Done | Anna Sekulic | Fix the use case diagram (Week 9 tutor feedback) |
-| [KAN-46](#kan-46) | Task | To Do | Unassigned | Review the draft user stories and acceptance criteria |
+| [KAN-46](#kan-46) | Task | Done | Unassigned | Review the draft user stories and acceptance criteria |
 | [KAN-47](#kan-47) | Task | To Do | Unassigned | Estimate user stories with planning poker and turn on Jira estimation |
 | [KAN-48](#kan-48) | Task | To Do | Unassigned | Run acceptance test cases TC07 to TC09 and record the Sprint 3 test report |
 | [KAN-50](#kan-50) | Task | Done | Anna Sekulic | Add a code coverage report to Backend CI |
@@ -701,7 +701,7 @@ Week 9 tutor feedback: the use case diagram is incorrect; check it against the n
 
 **Review the draft user stories and acceptance criteria**
 
-Task · To Do · Unassigned · epic KAN-17 · labels: requirements, tutor-feedback · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-46)
+Task · Done · Unassigned · epic KAN-17 · labels: requirements, tutor-feedback · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-46)
 
 [User Stories and Acceptance Criteria](../confluence/user-stories-and-acceptance-criteria.md) was drafted on 24/09 from the requirements (FR-01 to FR-19) and the existing Jira stories, so each story has an ID (US01 to US10) that Jira cards (labelled `US01` etc.) and test cases can reference. This answers the Week 9 feedback that Jira tasks were hard to connect to user stories.
 
