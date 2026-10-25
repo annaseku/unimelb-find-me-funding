@@ -2,7 +2,7 @@
 
 A read-only copy of the team's Jira project KAN, taken 25 October 2026, so the board can be read without an Atlassian login. Jira remains the source of truth: [live board](https://annaseku01.atlassian.net/jira/software/projects/KAN/boards). The client is referred to by role, not by name.
 
-69 work items: 49 Done, 17 To Do, 2 In Review, 1 In Progress.
+74 work items: 53 Done, 18 To Do, 2 In Review, 1 In Progress.
 
 ## KAN-12: Crawler and Discovery
 
@@ -54,7 +54,7 @@ A read-only copy of the team's Jira project KAN, taken 25 October 2026, so the b
 
 ## KAN-16: API and Frontend
 
-5 of 7 items done.
+8 of 10 items done.
 
 | Key | Type | Status | Assignee | Summary |
 | --- | --- | --- | --- | --- |
@@ -65,10 +65,13 @@ A read-only copy of the team's Jira project KAN, taken 25 October 2026, so the b
 | [KAN-37](#kan-37) | Story | Done | Andrew Rosen | Integrate the frontend with the deployed API |
 | [KAN-38](#kan-38) | Story | To Do | Unassigned | Show why each opportunity ranked where it did |
 | [KAN-72](#kan-72) | Task | Done | Anna Sekulic | Frontend quality pass: enforce Prettier and typed lint, keyboard-accessible dropdowns |
+| [KAN-73](#kan-73) | Task | Done | Sophia Kondos | Frontend format fixes (PR #33) |
+| [KAN-74](#kan-74) | Task | Done | Andrew Rosen | Remove the duplicate logo (PR #40) |
+| [KAN-75](#kan-75) | Task | Done | Andrew Rosen | Add the site background image (PR #45) |
 
 ## KAN-17: Project Governance and Delivery
 
-12 of 21 items done.
+13 of 23 items done.
 
 | Key | Type | Status | Assignee | Summary |
 | --- | --- | --- | --- | --- |
@@ -93,6 +96,8 @@ A read-only copy of the team's Jira project KAN, taken 25 October 2026, so the b
 | [KAN-54](#kan-54) | Task | To Do | Unassigned | Choose a repository licence after checking the IP agreement |
 | [KAN-55](#kan-55) | Task | To Do | Unassigned | Write one or two researcher personas |
 | [KAN-56](#kan-56) | Task | To Do | Unassigned | Finish the Confluence tidy-up (folder moves the API cannot do) |
+| [KAN-76](#kan-76) | Task | Done | Anna Sekulic | Publish read-only Confluence and Jira snapshots in the repository |
+| [KAN-77](#kan-77) | Task | To Do | Unassigned | Review PRs #43 to #57 after merge (merged without a teammate review, 18/10 to 23/10) |
 
 ## Not under an epic
 
@@ -1052,3 +1057,57 @@ PR: https://github.com/annaseku/unimelb-find-me-funding/pull/57
 * Given an open dropdown, when the user presses Escape or tabs out of it, then it closes, and Escape returns focus to the trigger.
 * Given a result card, when a screen reader reads its toggle, then it announces the title only.
 * Given tags and link hover text, when contrast is measured, then both meet WCAG AA (4.5:1).
+
+### KAN-73
+
+**Frontend format fixes (PR #33)**
+
+Task · Done · Sophia Kondos · epic KAN-16 · labels: backfilled, frontend · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-73)
+
+**Backfilled on 25/10/2026** so this merged work has a card. It was done without one at the time.
+
+Sophia's formatting fixes for the frontend merged in PR #33 on 06/10, after Andrew's approving review: https://github.com/annaseku/unimelb-find-me-funding/pull/33
+
+### KAN-74
+
+**Remove the duplicate logo (PR #40)**
+
+Task · Done · Andrew Rosen · epic KAN-16 · labels: backfilled, frontend · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-74)
+
+**Backfilled on 25/10/2026** so this merged work has a card. It was done without one at the time.
+
+Andrew removed a duplicate logo from the frontend in PR #40, merged on 12/10 after Paige's approving review: https://github.com/annaseku/unimelb-find-me-funding/pull/40
+
+### KAN-75
+
+**Add the site background image (PR #45)**
+
+Task · Done · Andrew Rosen · epic KAN-16 · labels: backfilled, frontend · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-75)
+
+**Backfilled on 25/10/2026** so this merged work has a card. It was done without one at the time.
+
+Andrew added the background image in PR #45, merged on 18/10 after Sophia's approving review: https://github.com/annaseku/unimelb-find-me-funding/pull/45
+
+### KAN-76
+
+**Publish read-only Confluence and Jira snapshots in the repository**
+
+Task · Done · Anna Sekulic · epic KAN-17 · labels: backfilled, docs · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-76)
+
+**Backfilled on 25/10/2026** so this merged work has a card. It was done without one at the time.
+
+Our supervisor couldn't open the Progress Report 1 links (Slack, 17/09). For Progress Report 2 the repository went public, and read-only copies of every Confluence page and the KAN board are kept in `docs/snapshots/` so every checklist link opens without a login.
+
+PRs: #54 (pre-publish review, 23/10), #55 (restore 10 pages exported empty, 23/10), #58 (refresh to 25/10), #60 (Standup Summaries weeks 10 to 12), #61 (client log and reviewed user stories). All of them were merged by Anna with the admin bypass and no teammate review.
+
+### KAN-77
+
+**Review PRs #43 to #57 after merge (merged without a teammate review, 18/10 to 23/10)**
+
+Task · To Do · Unassigned · epic KAN-17 · labels: code-review · [open in Jira](https://annaseku01.atlassian.net/browse/KAN-77)
+
+Before the final presentation and Progress Report 2, Anna merged 14 pull requests with the admin bypass and no teammate review: #43, #44 and #46 to #57. The ruleset normally requires one approving review. This gap is recorded in the Sprint 5 retrospective.
+
+A teammate (not Anna, since an author can't review their own PR) opens each PR on GitHub and leaves a review comment saying what they checked. Anything they find becomes a new card.
+
+**Done when:** every PR in the range has a teammate's review comment.
