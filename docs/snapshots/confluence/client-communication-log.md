@@ -4,11 +4,11 @@
 
 One row per contact with the client (UoM Research Office): meetings, emails and demos. The [Communication Plan](communication-plan.md) and the [Sprint 3 success metrics](sprint-3-description-planning.md) both depend on this page. **Log it the same day.**
 
-Three student teams work on the UoM Research Office projects, so some contact with the client was arranged jointly. Emails sent by our supervisor or another team's lead, with our team copied, are logged here because they set up our meetings with the client. The email rows were added on 25/10 from screenshots of Andrew's inbox.
+Three student teams work on the UoM Research Office projects, so some contact with the client was arranged jointly. Emails to the client about our project, with our team copied, are logged here because they set up our meetings with the client. The email rows were added on 25/10 from screenshots of Andrew's inbox.
 
 | Date | Type | Who from our team | Summary | Decisions or feedback | Follow-up (Jira) |
 | --- | --- | --- | --- | --- | --- |
-| 06/08 | Email (supervisor introduction) | Andrew (named as our contact) | Our supervisor emailed the client introducing the teams joining the UoM Research projects, with Andrew named as Team Crawlers' contact | Our team became the client's contact for this project | None needed |
+| 06/08 | Email (introduction) | Andrew (named as our contact) | The client was informed that our team would do the project, with Andrew named as Team Crawlers' contact | Our team became the client's contact for this project | None needed |
 | 17/08 | Email (meeting scheduling) | Andrew (copied) | A lead from another team cancelled the calendar invite for a joint check-in on Thu 20/08 at 12pm | The check-in went ahead on 20/08 (next row) | None needed |
 | 20/08 | Meeting (client check-in) | Team | Walked through the brief and our questions | Eligibility is the top priority; uncertain results stay in; longer lead time to a deadline is better. [Q&A](client-meeting-2008-questions-and-answers.md), [notes](client-meeting-2008-post-meeting-notes.md) | KAN-10 |
 | 07/09 | Email (meeting scheduling) | Andrew (copied) | A lead from another team proposed a joint meeting with the client on Thu 17/09, 11:30 to 12:30, and sent a calendar invite | The meeting went ahead on 17/09 (next row) | None needed |
