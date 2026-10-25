@@ -119,3 +119,13 @@ Feedback notes
 - 22/10: Kerr asked whether we had the client's consent to use his photo in AI-generated images. Andrew posted the client's emailed approval at 2:56pm, and Kerr confirmed at 4:12pm.
 - 23/10: Repository made public, with read-only copies of Confluence and Jira (PRs #54, #55), and code quality passes on the backend and frontend (PRs #56, #57; KAN-49, KAN-72).
 - 25/10: Sprint 3 to 5 reviews and retrospectives, the Supervisor Feedback Log and the ADR-002 to 004 summary published; use case diagram redrawn (KAN-45, PR #59).
+
+---
+
+### Supervisor feedback outside the workshops
+
+Our supervisor, Kerr Yuan, also gave feedback outside the workshop standups. Each item is in the [Supervisor Feedback Log](supervisor-feedback-log.md) with what we changed in response and the evidence.
+
+- **Progress Report 1, written feedback on Canvas (11.25/15).** Went well: good documentation habits, with a summary at the top of each Confluence page; good internal communication; brainstorming recorded; ADRs, as used in industry. To improve: link each Jira task to its user story; fix the use case diagram so it shows actors, use cases, the system boundary and their relationships; estimate each user story; add a high-level architecture diagram; add more detailed technical diagrams showing the models, layers or design patterns. These match the week 9 tutorial notes above.
+- **17/09, Slack.** The Progress Report 1 links did not open for Kerr, the draw.io files were empty, and Kerr had no access to the GitHub repository. The same day we added Kerr to the Confluence workspace and the repository. For Progress Report 2 the repository is public, with read-only copies of Confluence and Jira so every link opens without a login.
+- **22/10, Slack.** Kerr asked whether we had the client's consent to use his photo in AI-generated images. Andrew showed the client's emailed approval the same afternoon, and Kerr replied "yeah that's great!".
