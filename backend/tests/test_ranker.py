@@ -178,6 +178,21 @@ def test_closed_opportunities_do_not_change_open_corpus_weights(closed_fields):
     assert common.research_match.score != baseline[0].research_match.score
 
 
+def test_awarded_grant_records_and_library_guides_never_appear_in_results():
+    opportunities = [
+        make_opportunity(id="scheme"),
+        make_opportunity(
+            id="awarded", url="https://dataportal.arc.gov.au/NCGP/Web/Grant/Grant/DP210100001"
+        ),
+        make_opportunity(id="guide", url="https://libguides.lib.umt.edu/c.php?g=275437"),
+    ]
+    for include_closed in (False, True):
+        ranked = rank(
+            opportunities, SearchRequest(include_closed=include_closed), DEFAULT_WEIGHTS, TODAY
+        )
+        assert [r.opportunity.id for r in ranked] == ["scheme"]
+
+
 @pytest.mark.parametrize("include_closed", [False, True])
 def test_non_funding_is_excluded_before_scoring_even_when_closed_are_included(
     include_closed, monkeypatch

@@ -6,7 +6,8 @@ import os
 from functools import lru_cache
 
 from backend.normaliser.models import PipelineRun
-from backend.ranking.models import Opportunity, OpportunityStatus
+from backend.ranking.models import Opportunity
+from backend.ranking.page_filter import is_funding_record
 
 DATA_SOURCES = ("sqlite", "postgres")
 
@@ -20,7 +21,7 @@ class OpportunityRepository:
     ) -> None:
         self._by_id = {o.id: o for o in opportunities}
         self.last_run = last_run
-        funding = [o for o in self._by_id.values() if o.status != OpportunityStatus.NOT_FUNDING]
+        funding = [o for o in self._by_id.values() if is_funding_record(o)]
         self.funding_count = len(funding)
         provenance = provenance or {}
         # Count summaries only among funding records, including closed schemes.
