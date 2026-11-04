@@ -78,13 +78,16 @@ rules, not a copy of the whole page.
 
 `summary` is two to three plain sentences describing what the scheme funds.
 
-`is_funding_opportunity` is true when the page describes one or more grants, fellowships,
-scholarships, awards, prizes or funding programmes that researchers or students can apply
-for, or a funder's listing or index of such schemes. It is false for dictionary entries,
-encyclopaedia articles, software or technical documentation, news articles that announce no
-scheme, videos, shops and commercial product pages, generic organisation home pages that
-name no scheme, job adverts, journal home pages, search-engine, login or CAPTCHA pages.
-Leave it null only when the page text is too short or garbled to tell.
+`is_funding_opportunity` is true only when the page is about one specific grant,
+fellowship, scholarship, award, prize or funding programme that researchers or students can
+apply for: one named scheme, even if it has several streams, categories or rounds. It is
+false for pages that list or link to many different schemes (a funder's funding index or
+"funding opportunities" page, scholarship directories and aggregator sites, university
+library research guides), records or lists of grants already awarded, annual reports, news
+articles and media releases, organisation home pages, dictionary entries, encyclopaedia
+articles, software or technical documentation, videos, shops and commercial product pages,
+job adverts, journal home pages, search-engine, login or CAPTCHA pages. Leave it null only
+when the page text is too short or garbled to tell.
 
 Dates are ISO 8601 (YYYY-MM-DD)."""
 
