@@ -78,7 +78,7 @@ SQLite is a file on whoever ran the crawler. The deployed API cannot read it, be
 
 `data/publish.py` is what puts records there. It copies a normalised crawler SQLite database and creates the Postgres table on first run. Only publish crawled records to the deployed store; the evals corpus is for evals and local test fixtures.
 
-To seed a local database for development without keys, run `python -m backend.evals.seed_sqlite funding_crawler.db` and use the default SQLite data source. This fixture is illustrative and must not be published to the deployed store.
+To seed a local database for development without keys, run `python -m backend.evals.seed_sqlite funding_crawler.db` and use the default SQLite data source. This fixture is illustrative and must not be published to the deployed store. To simulate a longer results list for pagination checks, repeat the corpus a few times: `python -m backend.evals.seed_sqlite --repeat 8 funding_crawler.db`.
 
 Put `FMF_DATABASE_URL` in `backend/.env` (copy the name from `.env.example`); `postgres_repository.py` loads that file on import, so there is nothing to export. Then, from the repository root:
 

@@ -93,7 +93,8 @@ npm test && npm run lint && npm run build  # what CI runs
 The API serves the crawler's SQLite database by default and raises on the first search if none exists. To work without SerpApi or OpenRouter keys, seed one from the evals corpus; to run on real crawled data:
 
 ```bash
-python -m backend.evals.seed_sqlite funding_crawler.db   # 30 illustrative records, no keys needed
+python -m backend.evals.seed_sqlite funding_crawler.db            # 30 illustrative records, no keys needed
+python -m backend.evals.seed_sqlite --repeat 8 funding_crawler.db  # 240 seeded records for pagination/UI checks
 
 export SERPAPI_API_KEY=...                 # free key from serpapi.com
 python -m backend.data.refresh --all --no-llm --skip-publish   # crawl every seed research area, then normalise

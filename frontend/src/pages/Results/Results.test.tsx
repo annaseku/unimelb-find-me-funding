@@ -47,14 +47,16 @@ it('explains cold starts and shows the total from the server, not the page count
     screen.getByRole('button', { name: 'Field of Research Biological Sciences' }),
   ).toBeInTheDocument();
   expect(screen.getByText('ARC Research Grant')).toBeInTheDocument();
+  expect(screen.getByText('Page 1 of 3')).toBeInTheDocument();
 });
-it('appends pages using the submitted filters, then resets on a new search', async () => {
+it('navigates pages using the submitted filters, then resets on a new search', async () => {
   const user = userEvent.setup();
   fetchMock
-    .mockResolvedValueOnce(response({ ...page, total: 2 }))
+    .mockResolvedValueOnce(response({ ...page, limit: 1, total: 2 }))
     .mockResolvedValueOnce(
       response({
         ...page,
+        limit: 1,
         total: 2,
         offset: 1,
         results: [
@@ -65,22 +67,21 @@ it('appends pages using the submitted filters, then resets on a new search', asy
         ],
       }),
     )
-    .mockResolvedValueOnce(response({ ...page, results: [], total: 0 }));
+    .mockResolvedValueOnce(response({ ...page, limit: 1, results: [], total: 0 }));
   show();
   await screen.findByText('2 Results Found');
+  expect(screen.queryByRole('button', { name: 'Show more' })).not.toBeInTheDocument();
   await user.clear(screen.getByPlaceholderText('Search by keyword'));
   await user.type(screen.getByPlaceholderText('Search by keyword'), 'new research');
   await user.click(screen.getByRole('button', { name: 'Field of Research Biological Sciences' }));
   await user.click(screen.getByRole('checkbox', { name: /31\s*Biological Sciences/i }));
-  await user.click(screen.getByRole('button', { name: 'Show more' }));
+  await user.click(screen.getByRole('button', { name: 'Go to page 2' }));
   await screen.findByText('Wellcome Grant');
-  expect(screen.getByText('ARC Research Grant')).toBeInTheDocument();
   expect(JSON.parse(fetchMock.mock.calls[1]?.[1].body)).toMatchObject({
     offset: 1,
     research_description: 'coral',
     for_codes: ['31'],
   });
-  expect(screen.queryByRole('button', { name: 'Show more' })).not.toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Search' }));
   await screen.findByText('0 Results Found');
   expect(JSON.parse(fetchMock.mock.calls[2]?.[1].body)).toMatchObject({
@@ -152,13 +153,13 @@ it('lists only the ranking weights the API sent as numbers', async () => {
 it('mentions the cold start only before the first search succeeds', async () => {
   const user = userEvent.setup();
   fetchMock
-    .mockResolvedValueOnce(response({ ...page, total: 2 }))
+    .mockResolvedValueOnce(response({ ...page, limit: 1, total: 2 }))
     .mockReturnValueOnce(new Promise(() => {}));
   show();
   expect(screen.getByRole('status')).toHaveTextContent('waking up');
   await screen.findByText('2 Results Found');
 
-  await user.click(screen.getByRole('button', { name: 'Show more' }));
+  await user.click(screen.getByRole('button', { name: 'Go to page 2' }));
   expect(screen.getByRole('status')).toHaveTextContent('Searching for funding.');
   expect(screen.getByRole('status')).not.toHaveTextContent('waking up');
 });

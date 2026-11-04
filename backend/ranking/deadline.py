@@ -21,7 +21,8 @@ BANDS: list[tuple[int, DeadlineBand, float]] = [
     (0, DeadlineBand.UNDER_15_DAYS, 0.2),
 ]
 CLOSED_SCORE = 0.0
-UNKNOWN_SCORE = 0.5
+UNKNOWN_SCORE = 0.2
+FUTURE_OPEN_PENALTY = 0.5
 
 
 def days_remaining(opportunity: Opportunity, today: date) -> int | None:
@@ -33,7 +34,8 @@ def days_remaining(opportunity: Opportunity, today: date) -> int | None:
 def score_deadline(opportunity: Opportunity, today: date) -> CriterionResult:
     days = days_remaining(opportunity, today)
     reasons: list[str] = []
-    if opportunity.opens_at and opportunity.opens_at > today:
+    future_open = bool(opportunity.opens_at and opportunity.opens_at > today)
+    if future_open:
         reasons.append(f"Opens on {opportunity.opens_at.isoformat()}.")
 
     if days is None:
@@ -45,5 +47,7 @@ def score_deadline(opportunity: Opportunity, today: date) -> CriterionResult:
     for lowest_days, band, score in BANDS:
         if days >= lowest_days:
             reasons.insert(0, f"Closes in {days} days ({opportunity.deadline.isoformat()}).")
+            if future_open:
+                score *= FUTURE_OPEN_PENALTY
             return CriterionResult(score=score, label=band, reasons=reasons)
     raise AssertionError("unreachable: every non-negative day count lands in a band")
