@@ -283,6 +283,12 @@ def test_client_targets_openrouter_with_the_key_and_a_request_timeout(monkeypatc
     }
 
 
+def test_extractor_sends_an_overriding_system_prompt():
+    client = StubClient("{}")
+    OpenRouterExtractor(client=client, system_prompt="custom").extract("T", "u", "x")
+    assert client.calls[0]["messages"][0]["content"] == "custom"
+
+
 def test_extractor_schema_includes_nullable_funding_classification():
     client = StubClient("{}")
     OpenRouterExtractor(client=client).extract("T", "https://example.org", "text")
