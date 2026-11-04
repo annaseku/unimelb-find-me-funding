@@ -81,13 +81,16 @@ test('page navigation loads the selected page of results', async ({ page, reques
     firstPage.total,
     'fewer than 11 open corpus opportunities: corpus deadlines have lapsed, refresh backend/evals/corpus.json',
   ).toBeGreaterThan(10);
-  await expect(page.getByRole('article')).toHaveCount(10);
+
+  const firstPageCount = Math.min(firstPage.total, 10);
+  await expect(page.getByRole('article')).toHaveCount(firstPageCount);
 
   const nextSent = page.waitForRequest((r) => r.url().endsWith('/api/search'));
   await page.getByRole('button', { name: 'Go to page 2' }).click();
   expect((await nextSent).postDataJSON()).toMatchObject({ offset: 10 });
 
-  await expect(page.getByRole('article')).toHaveCount(10);
+  const secondPageCount = Math.max(0, Math.min(firstPage.total - 10, 10));
+  await expect(page.getByRole('article')).toHaveCount(secondPageCount);
   await expect(page.getByText(`Page 2 of ${Math.ceil(firstPage.total / 10)}`)).toBeVisible();
 });
 
