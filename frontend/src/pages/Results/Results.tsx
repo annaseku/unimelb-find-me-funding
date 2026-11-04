@@ -150,7 +150,7 @@ export default function Results() {
       {error && (
         <div role="alert">
           <p>{error}</p>
-          <button type="button" onClick={() => startSearch(submitted, response ? loaded : 0)}>
+          <button type="button" onClick={() => startSearch(submitted, response ? response.offset : 0)}>
             Try again
           </button>
         </div>

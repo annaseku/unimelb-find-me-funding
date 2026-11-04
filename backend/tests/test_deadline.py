@@ -33,7 +33,7 @@ def make_opportunity(days=None, opens_in=None) -> Opportunity:
         (14, DeadlineBand.UNDER_15_DAYS, 0.2),
         (0, DeadlineBand.UNDER_15_DAYS, 0.2),
         (-1, DeadlineBand.CLOSED, 0.0),
-        (None, DeadlineBand.UNKNOWN, 0.2),
+        (None, DeadlineBand.UNKNOWN, 0.5),
     ],
 )
 def test_band_edges(days, band, score):
@@ -51,12 +51,12 @@ def test_future_opening_date_is_mentioned():
     assert any("opens on" in r.lower() for r in result.reasons)
 
 
-def test_future_opening_date_penalises_the_deadline_score():
+def test_future_opening_date_is_not_used_to_penalise_the_deadline_score():
     active = score_deadline(make_opportunity(days=120), TODAY)
     future_open = score_deadline(make_opportunity(days=120, opens_in=30), TODAY)
 
-    assert future_open.score < active.score
-    assert future_open.score == 0.5
+    assert future_open.score == active.score
+    assert future_open.score == 1.0
 
 
 def test_reason_mentions_days_remaining():
