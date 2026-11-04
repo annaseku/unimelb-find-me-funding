@@ -72,7 +72,7 @@ test('each result explains its rating against every criterion and links out', as
   );
 });
 
-test('show more appends the next page of results', async ({ page, request }) => {
+test('page navigation loads the selected page of results', async ({ page, request }) => {
   const sent = await searchFromHome(page, 'research');
   const firstPage = (await (
     await request.post(`${API}/api/search`, { data: sent })
@@ -84,13 +84,11 @@ test('show more appends the next page of results', async ({ page, request }) => 
   await expect(page.getByRole('article')).toHaveCount(10);
 
   const nextSent = page.waitForRequest((r) => r.url().endsWith('/api/search'));
-  await page.getByRole('button', { name: 'Show more' }).click();
+  await page.getByRole('button', { name: 'Go to page 2' }).click();
   expect((await nextSent).postDataJSON()).toMatchObject({ offset: 10 });
 
-  await expect(page.getByRole('article')).toHaveCount(Math.min(firstPage.total, 20));
-  const titles = await shownTitles(page);
-  expect(titles.slice(0, 10)).toEqual(firstPage.results.map((result) => result.opportunity.title));
-  expect(new Set(titles).size, 'the second page should not repeat the first').toBe(titles.length);
+  await expect(page.getByRole('article')).toHaveCount(10);
+  await expect(page.getByText(`Page 2 of ${Math.ceil(firstPage.total / 10)}`)).toBeVisible();
 });
 
 test('refining the search on the results page sends the new criteria', async ({ page }) => {

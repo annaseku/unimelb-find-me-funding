@@ -47,7 +47,7 @@ export default function Results() {
   const [error, setError] = useState('');
   const controller = useRef<AbortController | null>(null);
 
-  function load(query: Query, offset = 0) {
+  function load(query: Query, offset = 0, replace = false) {
     controller.current?.abort();
     const request = new AbortController();
     controller.current = request;
@@ -55,10 +55,13 @@ export default function Results() {
       .then((page) => {
         if (request.signal.aborted) return;
         setAwake(true);
-        setResponse((previous) => ({
-          ...page,
-          results: offset > 0 ? [...(previous?.results ?? []), ...page.results] : page.results,
-        }));
+        setResponse((previous) => {
+          if (replace || offset === 0) return page;
+          return {
+            ...page,
+            results: [...(previous?.results ?? []), ...page.results],
+          };
+        });
       })
       .catch((failure: unknown) => {
         if (!request.signal.aborted)
@@ -75,11 +78,17 @@ export default function Results() {
     return () => controller.current?.abort();
   }, [initial]);
 
-  function startSearch(query: Query, offset = 0) {
+  function startSearch(query: Query, offset = 0, replace = offset === 0) {
     setLoading(true);
     setError('');
-    if (offset === 0) setResponse(null);
-    void load(query, offset);
+    if (replace) setResponse(null);
+    void load(query, offset, replace);
+  }
+
+  function jumpToPage(pageNumber: number) {
+    if (!response) return;
+    const offset = Math.max(0, (pageNumber - 1) * response.limit);
+    startSearch(submitted, offset, true);
   }
 
   const runSearch = () => {
@@ -87,8 +96,23 @@ export default function Results() {
     setSubmitted(query);
     startSearch(query);
   };
-  // Appended results already include earlier pages, so their length is the next offset.
-  const loaded = response?.results.length ?? 0;
+  const pageSize = response?.limit ?? 10;
+  const currentPage = response
+    ? Math.min(Math.max(1, Math.floor(response.offset / pageSize) + 1), Math.max(1, Math.ceil(response.total / pageSize)))
+    : 1;
+  const totalPages = response ? Math.max(1, Math.ceil(response.total / pageSize)) : 1;
+  const paginationItems: Array<number | 'ellipsis-left' | 'ellipsis-right'> = [];
+  if (totalPages <= 7) {
+    for (let page = 1; page <= totalPages; page += 1) paginationItems.push(page);
+  } else {
+    paginationItems.push(1);
+    if (currentPage > 3) paginationItems.push('ellipsis-left');
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+    for (let page = start; page <= end; page += 1) paginationItems.push(page);
+    if (currentPage < totalPages - 2) paginationItems.push('ellipsis-right');
+    paginationItems.push(totalPages);
+  }
   const weights = (Object.keys(criteria) as CriterionKey[]).flatMap((key) => {
     const weight: unknown = response?.weights[key];
     return typeof weight === 'number' && Number.isFinite(weight) ? [{ key, weight }] : [];
@@ -126,7 +150,7 @@ export default function Results() {
       {error && (
         <div role="alert">
           <p>{error}</p>
-          <button type="button" onClick={() => startSearch(submitted, response ? loaded : 0)}>
+          <button type="button" onClick={() => startSearch(submitted, response?.offset ?? 0, true)}>
             Try again
           </button>
         </div>
@@ -155,16 +179,54 @@ export default function Results() {
           {response.results.map((result) => (
             <Result key={result.opportunity.id} result={result} />
           ))}
-          {loaded < response.total && (
-            <button
-              className={styles.searchButton}
-              type="button"
-              disabled={loading}
-              onClick={() => startSearch(submitted, loaded)}
-            >
-              Show more
-            </button>
-          )}
+          <div className={styles.paginationBar} aria-live="polite">
+            <div className={styles.paginationCluster}>
+              <span className={styles.pageLabel}>Page {currentPage} of {totalPages}</span>
+              <div className={styles.paginationControls}>
+                <button
+                  type="button"
+                  className={styles.pageNavButton}
+                  disabled={currentPage <= 1 || loading}
+                  aria-label="Previous page"
+                  onClick={() => jumpToPage(currentPage - 1)}
+                >
+                  ‹
+                </button>
+                {paginationItems.map((pageNumber, index) => {
+                  if (pageNumber === 'ellipsis-left' || pageNumber === 'ellipsis-right') {
+                    return (
+                      <span key={`${pageNumber}-${index}`} className={styles.pageEllipsis}>
+                        …
+                      </span>
+                    );
+                  }
+                  return (
+                    <button
+                      key={pageNumber}
+                      type="button"
+                      className={
+                        pageNumber === currentPage ? styles.pageNumberButtonActive : styles.pageNumberButton
+                      }
+                      disabled={loading}
+                      aria-label={`Go to page ${pageNumber}`}
+                      onClick={() => jumpToPage(pageNumber)}
+                    >
+                      {pageNumber}
+                    </button>
+                  );
+                })}
+                <button
+                  type="button"
+                  className={styles.pageNavButton}
+                  disabled={currentPage >= totalPages || loading}
+                  aria-label="Next page"
+                  onClick={() => jumpToPage(currentPage + 1)}
+                >
+                  ›
+                </button>
+              </div>
+            </div>
+          </div>
         </>
       )}
     </div>
