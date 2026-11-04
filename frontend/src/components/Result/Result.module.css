@@ -5,7 +5,9 @@
   margin-top: 12px;
   overflow-wrap: anywhere;
   color: #001445;
-  box-shadow: 0 0 0 1px rgba(0, 15, 70, 0.08), 0 2px 8px rgba(0, 15, 70, 0.08);
+  box-shadow:
+    0 0 0 1px rgba(0, 15, 70, 0.08),
+    0 2px 8px rgba(0, 15, 70, 0.08);
   transition:
     box-shadow 0.2s ease,
     transform 0.2s ease;

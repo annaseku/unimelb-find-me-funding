@@ -72,7 +72,7 @@ test('each result explains its rating against every criterion and links out', as
   );
 });
 
-test('show more appends the next page of results', async ({ page, request }) => {
+test('page 2 navigation loads the next page of results', async ({ page, request }) => {
   const sent = await searchFromHome(page, 'research');
   const firstPage = (await (
     await request.post(`${API}/api/search`, { data: sent })
@@ -84,13 +84,17 @@ test('show more appends the next page of results', async ({ page, request }) => 
   await expect(page.getByRole('article')).toHaveCount(10);
 
   const nextSent = page.waitForRequest((r) => r.url().endsWith('/api/search'));
-  await page.getByRole('button', { name: 'Show more' }).click();
-  expect((await nextSent).postDataJSON()).toMatchObject({ offset: 10 });
+  await page.getByRole('button', { name: 'Go to page 2' }).click();
+  const secondRequest = await nextSent;
+  expect(secondRequest.postDataJSON()).toMatchObject({ offset: 10 });
 
-  await expect(page.getByRole('article')).toHaveCount(Math.min(firstPage.total, 20));
+  const secondBody = secondRequest.postDataJSON() as SearchRequest;
+  const secondPage = (await (
+    await request.post(`${API}/api/search`, { data: secondBody })
+  ).json()) as SearchResponse;
+  await expect(page.getByRole('article')).toHaveCount(secondPage.results.length);
   const titles = await shownTitles(page);
-  expect(titles.slice(0, 10)).toEqual(firstPage.results.map((result) => result.opportunity.title));
-  expect(new Set(titles).size, 'the second page should not repeat the first').toBe(titles.length);
+  expect(titles).toEqual(secondPage.results.map((result) => result.opportunity.title));
 });
 
 test('refining the search on the results page sends the new criteria', async ({ page }) => {

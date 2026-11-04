@@ -98,7 +98,10 @@ export default function Results() {
   };
   const pageSize = response?.limit ?? 10;
   const currentPage = response
-    ? Math.min(Math.max(1, Math.floor(response.offset / pageSize) + 1), Math.max(1, Math.ceil(response.total / pageSize)))
+    ? Math.min(
+        Math.max(1, Math.floor(response.offset / pageSize) + 1),
+        Math.max(1, Math.ceil(response.total / pageSize)),
+      )
     : 1;
   const totalPages = response ? Math.max(1, Math.ceil(response.total / pageSize)) : 1;
   const paginationItems: Array<number | 'ellipsis-left' | 'ellipsis-right'> = [];
@@ -150,7 +153,10 @@ export default function Results() {
       {error && (
         <div role="alert">
           <p>{error}</p>
-          <button type="button" onClick={() => startSearch(submitted, response ? response.offset : 0)}>
+          <button
+            type="button"
+            onClick={() => startSearch(submitted, response ? response.offset : 0)}
+          >
             Try again
           </button>
         </div>
@@ -181,7 +187,9 @@ export default function Results() {
           ))}
           <div className={styles.paginationBar} aria-live="polite">
             <div className={styles.paginationCluster}>
-              <span className={styles.pageLabel}>Page {currentPage} of {totalPages}</span>
+              <span className={styles.pageLabel}>
+                Page {currentPage} of {totalPages}
+              </span>
               <div className={styles.paginationControls}>
                 <button
                   type="button"
@@ -205,7 +213,9 @@ export default function Results() {
                       key={pageNumber}
                       type="button"
                       className={
-                        pageNumber === currentPage ? styles.pageNumberButtonActive : styles.pageNumberButton
+                        pageNumber === currentPage
+                          ? styles.pageNumberButtonActive
+                          : styles.pageNumberButton
                       }
                       disabled={loading}
                       aria-label={`Go to page ${pageNumber}`}

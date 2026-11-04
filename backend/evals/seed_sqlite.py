@@ -17,7 +17,10 @@ from backend.normaliser.models import NormalisedRecord
 from backend.normaliser.pipeline import write_records
 
 
-def _expanded_records(records: Iterable[NormalisedRecord], multiplier: int) -> list[NormalisedRecord]:
+def _expanded_records(
+    records: Iterable[NormalisedRecord],
+    multiplier: int,
+) -> list[NormalisedRecord]:
     """Duplicate the seeded corpus so a local UI can exercise multi-page pagination."""
     if multiplier < 1:
         raise ValueError("repeat must be at least 1")
@@ -34,7 +37,9 @@ def _expanded_records(records: Iterable[NormalisedRecord], multiplier: int) -> l
             opportunity.title = f"{opportunity.title} (Demo {repeat})"
             opportunity.url = f"{opportunity.url}?demo={repeat}"
             if opportunity.source_urls:
-                opportunity.source_urls = [f"{source}?demo={repeat}" for source in opportunity.source_urls]
+                opportunity.source_urls = [
+                    f"{source}?demo={repeat}" for source in opportunity.source_urls
+                ]
             if opportunity.summary:
                 opportunity.summary = f"{opportunity.summary} Demo round {repeat}."
             clone.content_hash = f"{clone.content_hash}-{repeat}"
