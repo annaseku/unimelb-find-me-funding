@@ -21,7 +21,12 @@ BANDS: list[tuple[int, DeadlineBand, float]] = [
     (0, DeadlineBand.UNDER_15_DAYS, 0.2),
 ]
 CLOSED_SCORE = 0.0
+# No deadline but a published future opening date.
 UNKNOWN_SCORE = 0.5
+# No deadline and no future opening date: the client called these "not really
+# useful" next to open or future-dated schemes (feedback form 26/10, KAN-83).
+# A score, not a hard tier, so a rolling scheme with a strong match still ranks.
+NO_ROUND_SCORE = 0.0
 
 
 def days_remaining(opportunity: Opportunity, today: date) -> int | None:
@@ -32,12 +37,18 @@ def days_remaining(opportunity: Opportunity, today: date) -> int | None:
 
 def score_deadline(opportunity: Opportunity, today: date) -> CriterionResult:
     days = days_remaining(opportunity, today)
+    opens_later = opportunity.opens_at is not None and opportunity.opens_at > today
     reasons: list[str] = []
-    if opportunity.opens_at and opportunity.opens_at > today:
+    if opens_later:
         reasons.append(f"Opens on {opportunity.opens_at.isoformat()}.")
 
     if days is None:
         reasons.insert(0, "No deadline stated.")
+        if not opens_later:
+            reasons.append("No current or future round published, so it ranks lower.")
+            return CriterionResult(
+                score=NO_ROUND_SCORE, label=DeadlineBand.UNKNOWN, reasons=reasons
+            )
         return CriterionResult(score=UNKNOWN_SCORE, label=DeadlineBand.UNKNOWN, reasons=reasons)
     if days < 0:
         reasons.insert(0, f"Closed on {opportunity.deadline.isoformat()}.")

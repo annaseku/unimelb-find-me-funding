@@ -33,7 +33,7 @@ def make_opportunity(days=None, opens_in=None) -> Opportunity:
         (14, DeadlineBand.UNDER_15_DAYS, 0.2),
         (0, DeadlineBand.UNDER_15_DAYS, 0.2),
         (-1, DeadlineBand.CLOSED, 0.0),
-        (None, DeadlineBand.UNKNOWN, 0.5),
+        (None, DeadlineBand.UNKNOWN, 0.0),
     ],
 )
 def test_band_edges(days, band, score):
@@ -49,6 +49,24 @@ def test_days_remaining_is_none_without_a_deadline():
 def test_future_opening_date_is_mentioned():
     result = score_deadline(make_opportunity(days=120, opens_in=30), TODAY)
     assert any("opens on" in r.lower() for r in result.reasons)
+
+
+def test_no_round_published_scores_zero_and_says_why():
+    # Client feedback 26/10 (KAN-83): no deadline and no future opening date.
+    result = score_deadline(make_opportunity(None), TODAY)
+    assert result.score == 0.0
+    assert any("no current or future round" in r.lower() for r in result.reasons)
+
+
+def test_an_opening_date_already_past_with_no_deadline_scores_as_no_round():
+    assert score_deadline(make_opportunity(None, opens_in=-10), TODAY).score == 0.0
+
+
+def test_a_future_opening_date_without_a_deadline_beats_no_round():
+    future = score_deadline(make_opportunity(None, opens_in=30), TODAY)
+    assert future.label == DeadlineBand.UNKNOWN
+    assert future.score == 0.5
+    assert not any("no current or future round" in r.lower() for r in future.reasons)
 
 
 def test_reason_mentions_days_remaining():

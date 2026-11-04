@@ -26,7 +26,7 @@ Source pages are in the Confluence space Crawlers unless stated.
 
 These were not settled on Confluence. Each is implemented as below and listed in the discussion-points document for the team and client to confirm or change. Changing any of them is a constant or a weight, not a rewrite.
 
-1. Deadline direction: more lead time scores higher. Over 60 days 1.0, 60 to 30 days 0.8, 30 to 15 days 0.5, under 15 days 0.2, no deadline 0.5. Rationale: the client said a deadline six months out is far more useful than one due next week. The literal phrase "deadline urgency" on the architecture page reads the other way, so this needs confirming.
+1. Deadline direction: more lead time scores higher. Over 60 days 1.0, 60 to 30 days 0.8, 30 to 15 days 0.5, under 15 days 0.2, no deadline 0.5 (0.0 since 26/10 client feedback when no future opening date is published either; KAN-83). Rationale: the client said a deadline six months out is far more useful than one due next week. The literal phrase "deadline urgency" on the architecture page reads the other way, so this needs confirming.
 2. Likely-ineligible results are shown and de-ranked, not hidden. The API accepts `hide_ineligible` (default false) so the frontend can offer a toggle.
 3. Default weights: eligibility 0.4, research match 0.3, funding value 0.15, deadline 0.15. Placeholder values chosen to honour "eligibility is the top priority". Callers may override per request.
 4. Funding bands follow the backend README proposal: under $1M AUD 0.25, $1M to under $2M 0.5, $2M to under $5M 0.75, $5M and over 1.0, unknown 0.5. Most individual grants land in the bottom band, so the client may prefer finer bands.
@@ -143,7 +143,7 @@ Band from `amount_aud` using the bands in section 3, item 4. Reason states the a
 
 ### 6.4 Deadline (`ranking/deadline.py`)
 
-`days_remaining = (deadline - today).days`. Band edges are inclusive at the lower end: closed is below 0, under_15_days is 0 to 14, days_30_to_15 is 15 to 29, days_60_to_30 is 30 to 60, over_60_days is 61 and above. Scores from section 3, item 1. Unknown deadline scores 0.5 with band unknown. If `opens_at` is in the future the reason adds "Opens on <date>". `today` is always passed in, never read from the clock inside the module, so tests are deterministic.
+`days_remaining = (deadline - today).days`. Band edges are inclusive at the lower end: closed is below 0, under_15_days is 0 to 14, days_30_to_15 is 15 to 29, days_60_to_30 is 30 to 60, over_60_days is 61 and above. Scores from section 3, item 1. Unknown deadline scores 0.5 with band unknown when `opens_at` is in the future, and 0.0 otherwise (client feedback 26/10, KAN-83). If `opens_at` is in the future the reason adds "Opens on <date>". `today` is always passed in, never read from the clock inside the module, so tests are deterministic.
 
 ### 6.5 Combining (`ranking/ranker.py`)
 
