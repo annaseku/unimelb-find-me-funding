@@ -8,8 +8,9 @@ Fetches every hand-labelled page in gate_cases.json (robots.txt respected),
 asks the configured model whether it is about one specific funding
 opportunity, and compares the answer with the label. Exit code 1 if any page
 labelled as one scheme is rejected: dropping a real scheme is the failure
-that matters. Non-schemes let through are reported, not failed. Pages that
-cannot be fetched are skipped and listed.
+that matters. Non-schemes let through are reported, not failed. Exit code 2
+(inconclusive) when the model answered for fewer than MIN_COVERAGE of the
+pages, so a run where most calls fail can never pass.
 
 With --compare-llm-module, the same pages also run through the SYSTEM_PROMPT
 read from that file (for example main's llm.py), for a side-by-side.
@@ -22,11 +23,13 @@ import argparse
 import ast
 import json
 import sys
+import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 
 CASES_FILE = Path(__file__).parent / "gate_cases.json"
+MIN_COVERAGE = 0.8
 
 # A classifier returns the model's answer, or a string naming why the page was skipped.
 Classifier = Callable[[dict], "bool | str | None"]
@@ -34,6 +37,7 @@ Classifier = Callable[[dict], "bool | str | None"]
 
 @dataclass
 class GateReport:
+    total: int = 0
     checked: int = 0
     correct: int = 0
     schemes_rejected: list[str] = field(default_factory=list)
@@ -41,8 +45,12 @@ class GateReport:
     skipped: list[str] = field(default_factory=list)
 
     @property
+    def conclusive(self) -> bool:
+        return self.total > 0 and self.checked >= MIN_COVERAGE * self.total
+
+    @property
     def passed(self) -> bool:
-        return not self.schemes_rejected
+        return self.conclusive and not self.schemes_rejected
 
 
 def load_cases(path: Path = CASES_FILE) -> list[dict]:
@@ -60,7 +68,7 @@ def read_system_prompt(llm_module: Path) -> str:
 
 
 def evaluate(cases: list[dict], classify: Classifier) -> GateReport:
-    report = GateReport()
+    report = GateReport(total=len(cases))
     for case in cases:
         answer = classify(case)
         if isinstance(answer, str):
@@ -82,6 +90,8 @@ def live_classifier(system_prompt: str | None = None) -> Classifier:
     from backend.crawler.extract import extract_title_and_text
     from backend.crawler.robot_check import is_allowed
     from backend.normaliser.llm import OpenRouterExtractor
+    from backend.normaliser.models import CrawledRow
+    from backend.normaliser.pipeline import PipelineStats, _extract_with_retries
 
     extractor = OpenRouterExtractor(system_prompt=system_prompt)
     pages: dict[str, tuple[str, str] | str] = {}
@@ -98,16 +108,22 @@ def live_classifier(system_prompt: str | None = None) -> Classifier:
         if isinstance(page, str):
             return page
         title, text = page
+        row = CrawledRow(url=url, title=title, raw_text=text)
         try:
-            return extractor.extract(title, url, text).is_funding_opportunity
+            # The pipeline's own retries, so the check sees what a crawl would.
+            fields = _extract_with_retries(extractor, row, PipelineStats(), time.sleep)
         except Exception as exc:  # one bad reply must not end the check
-            return f"model error: {type(exc).__name__}"
+            detail = (str(exc).splitlines()[1:2] or [""])[0].strip()[:160]
+            return f"model error: {type(exc).__name__} {detail}"
+        return fields.is_funding_opportunity
 
     return classify
 
 
 def print_report(name: str, report: GateReport) -> None:
     print(f"\n{name}: {report.correct}/{report.checked} correct, {len(report.skipped)} skipped")
+    if not report.conclusive:
+        print(f"  INCONCLUSIVE: the model answered for {report.checked} of {report.total} pages")
     for title in report.schemes_rejected:
         print(f"  REJECTED A REAL SCHEME: {title}")
     for title in report.non_schemes_kept:
@@ -128,6 +144,8 @@ def main(argv: list[str] | None = None) -> int:
 
     current = evaluate(cases, live_classifier())
     print_report("Current prompt", current)
+    if not current.conclusive:
+        return 2
     return 0 if current.passed else 1
 
 
