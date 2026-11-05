@@ -20,6 +20,10 @@ on:
         description: "Rotation slot to crawl instead of the current ISO week (0, 1, 2 cover every area on the free plan, one dispatch an hour apart)"
         type: string
         default: ""
+      gate_check:
+        description: "Only check the LLM funding gate against backend/evals/gate_cases.json, beside main's prompt; crawls and publishes nothing"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -39,7 +43,16 @@ jobs:
           cache: pip
           cache-dependency-path: backend/requirements*.txt
       - run: pip install -r backend/requirements.txt
+      - name: Check the funding gate against labelled pages (publishes nothing)
+        if: ${{ inputs.gate_check }}
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: |
+          git fetch --depth=1 origin main
+          git show origin/main:backend/normaliser/llm.py > "$RUNNER_TEMP/main_llm.py"
+          python -m backend.evals.gate_check --compare-llm-module "$RUNNER_TEMP/main_llm.py"
       - name: Check required secrets
+        if: ${{ !inputs.gate_check }}
         env:
           SERPAPI_API_KEY: ${{ secrets.SERPAPI_API_KEY }}
           FMF_DATABASE_URL: ${{ secrets.FMF_DATABASE_URL }}
@@ -54,6 +67,7 @@ jobs:
             exit 1
           fi
       - name: Crawl, normalise and publish
+        if: ${{ !inputs.gate_check }}
         env:
           SERPAPI_API_KEY: ${{ secrets.SERPAPI_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
@@ -72,7 +86,7 @@ jobs:
             python -m backend.data.refresh
           fi
       - uses: actions/upload-artifact@v7
-        if: always()
+        if: ${{ always() && !inputs.gate_check }}
         with:
           name: funding-crawler-database
           path: funding_crawler.db
