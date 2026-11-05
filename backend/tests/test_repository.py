@@ -21,6 +21,16 @@ def test_repository_get_and_missing():
     assert repo.get("does-not-exist") is None
 
 
+def test_funding_count_leaves_out_awarded_grant_records_but_lookup_still_works():
+    corpus = load_corpus()
+    awarded = corpus[0].model_copy(
+        update={"id": "awarded", "url": "https://dataportal.arc.gov.au/NCGP/Web/Grant/Grant/X"}
+    )
+    repo = OpportunityRepository([*corpus, awarded])
+    assert repo.funding_count == OpportunityRepository(corpus).funding_count
+    assert repo.get("awarded") == awarded
+
+
 def test_unset_data_source_reads_sqlite(monkeypatch, corpus_db):
     monkeypatch.delenv("FMF_DATA_SOURCE", raising=False)
     monkeypatch.setenv("FMF_DB_PATH", str(corpus_db))

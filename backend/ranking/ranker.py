@@ -22,6 +22,7 @@ from backend.ranking.models import (
     RankedOpportunity,
     SearchRequest,
 )
+from backend.ranking.page_filter import is_funding_record
 from backend.ranking.research_match import TermWeights, score_research_match
 from backend.ranking.weights import Weights
 
@@ -62,8 +63,7 @@ def rank(
     opportunities = [
         o
         for o in opportunities
-        if o.status != OpportunityStatus.NOT_FUNDING
-        and (request.include_closed or _is_open(o, today))
+        if is_funding_record(o) and (request.include_closed or _is_open(o, today))
     ]
     term_weights = TermWeights.from_opportunities(opportunities)
     ranked = [score_opportunity(o, request, weights, today, term_weights) for o in opportunities]
