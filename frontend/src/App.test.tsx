@@ -40,6 +40,17 @@ describe('App', () => {
     expect(screen.getByRole('navigation')).toBeInTheDocument();
   });
 
+  it('randomises the campus background image on load', () => {
+    const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0);
+    renderApp('/');
+
+    expect(screen.getByTestId('campus-background').style.backgroundImage).toContain(
+      'campus-background.jpg',
+    );
+
+    randomSpy.mockRestore();
+  });
+
   it('renders a nav landmark on the results route', async () => {
     renderApp('/results');
 
