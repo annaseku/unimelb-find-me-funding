@@ -4,7 +4,9 @@ Owner: Anna Sekulic. Date: 2026-09-06. These six behaviours are implemented in t
 
 ## 1. Deadline direction: more lead time scores higher
 
-Implemented: over 60 days 1.0, 60 to 30 days 0.8, 30 to 15 days 0.5, under 15 days 0.2, no deadline 0.5.
+Implemented: over 60 days 1.0, 60 to 30 days 0.8, 30 to 15 days 0.5, under 15 days 0.2. No deadline but a future opening date 0.5; no deadline and no future opening date 0.0.
+
+Client feedback, 26/10/2026 (feedback form, KAN-83): schemes with no information about future rounds are "not really useful"; he would prioritise open schemes, or schemes with published future dates, ahead of them. That is why a scheme with no current or future round now scores 0.0. It is a score, not a hard tier, because the data cannot yet tell a rolling scheme that is always open from one with no round information, and a hard tier would bury rolling schemes such as ARC Linkage.
 
 Evidence: in the 20/08 meeting the client said a grant deadline six months out is far more useful than one due next week with no lead time. The architecture page's phrase "deadline urgency" reads the opposite way.
 

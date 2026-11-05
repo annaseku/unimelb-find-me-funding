@@ -117,6 +117,18 @@ def test_ineligible_never_outranks_an_eligible_result_even_with_a_better_overall
     assert results[0].overall < results[1].overall
 
 
+def test_open_and_future_dated_schemes_outrank_an_otherwise_identical_undated_one():
+    # Client feedback 26/10 (KAN-83): prioritise open schemes, or schemes with
+    # published future dates, ahead of ones with no round information.
+    opportunities = [
+        make_opportunity(id="a-undated", deadline=None),
+        make_opportunity(id="b-open"),
+        make_opportunity(id="c-opens-later", deadline=None, opens_at=TODAY + timedelta(days=30)),
+    ]
+    results = rank(opportunities, SearchRequest(for_codes=["4611"]), DEFAULT_WEIGHTS, TODAY)
+    assert [r.opportunity.id for r in results] == ["b-open", "c-opens-later", "a-undated"]
+
+
 def test_ties_break_on_eligibility_then_id():
     # Same overall by construction: identical except eligibility state and id.
     weights = Weights(eligibility=0, research_match=1, funding_value=0, deadline=0)
