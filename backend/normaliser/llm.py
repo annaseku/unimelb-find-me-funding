@@ -16,7 +16,7 @@ from datetime import date
 from typing import Any, Protocol
 
 from openai import OpenAI
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from backend.normaliser.models import NormalisedRecord
 from backend.ranking.models import CareerStage, EmployerType, FundingType, OpportunityStatus
@@ -93,24 +93,15 @@ when the page text is too short or garbled to tell.
 Dates are ISO 8601 (YYYY-MM-DD)."""
 
 
-def _capped(max_chars: int) -> Any:
-    """A prose field whose JSON schema carries maxLength. Providers that decode
-    against the schema end the string there; without it the model ran on past
-    MAX_OUTPUT_TOKENS in most replies (gate-check run 41937176994, KAN-84).
-    Schema only, not validation: a slightly long reply from a provider that
-    ignores maxLength is still better than none."""
-    return Field(default=None, json_schema_extra={"maxLength": max_chars})
-
-
 class ExtractedFields(BaseModel):
     """The funding classification and fields the model may contribute.
     Defaults are all "not stated"."""
 
     is_funding_opportunity: bool | None = None
-    funder: str | None = _capped(200)
-    summary: str | None = _capped(600)
+    funder: str | None = None
+    summary: str | None = None
     amount_aud: int | None = None
-    amount_note: str | None = _capped(300)
+    amount_note: str | None = None
     deadline: date | None = None
     opens_at: date | None = None
     countries: list[str] = []
@@ -121,7 +112,7 @@ class ExtractedFields(BaseModel):
     for_codes: list[str] = []
     toa_codes: list[str] = []
     keywords: list[str] = []
-    eligibility_text: str | None = _capped(800)
+    eligibility_text: str | None = None
 
 
 class Extractor(Protocol):

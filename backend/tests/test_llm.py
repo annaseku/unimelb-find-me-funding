@@ -283,17 +283,6 @@ def test_client_targets_openrouter_with_the_key_and_a_request_timeout(monkeypatc
     }
 
 
-def test_prose_fields_cap_length_in_the_schema_but_not_in_validation():
-    # Uncapped, the model ran on past MAX_OUTPUT_TOKENS in most replies (KAN-84).
-    client = StubClient("{}")
-    OpenRouterExtractor(client=client).extract("T", "https://example.org", "text")
-    schema = client.calls[0]["response_format"]["json_schema"]["schema"]["properties"]
-    for name in ("funder", "summary", "amount_note", "eligibility_text"):
-        assert schema[name]["maxLength"] > 0
-    long_reply = ExtractedFields.model_validate_json('{"summary": "' + "x" * 5000 + '"}')
-    assert len(long_reply.summary) == 5000
-
-
 def test_extractor_sends_an_overriding_system_prompt():
     client = StubClient("{}")
     OpenRouterExtractor(client=client, system_prompt="custom").extract("T", "u", "x")
